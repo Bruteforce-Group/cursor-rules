@@ -9,6 +9,7 @@ alwaysApply: false
 - Validate inputs at ingestion; drop or quarantine malformed records with traceable reasons.
 - Make transformations deterministic and idempotent; avoid time-dependent surprises.
 - Protect PII by default: minimize fields, mask logs, and restrict access paths.
+- Implement privacy operations: propagate consent state, support DSAR/erasure, and log decisions.
 - Track data lineage and ownership; document SLAs and freshness for critical tables.
 - Test pipelines (unit for transforms, integration for end-to-end) and add data-quality checks.
 - Optimize queries for cost and performance; prefer partition/pruning and avoid SELECT * in prod paths.

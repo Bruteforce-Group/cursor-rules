@@ -1,0 +1,41 @@
+name: Mintlify Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "docs.json"
+      - "**/*.mdx"
+      - "**/*.md"
+  workflow_dispatch:
+
+concurrency:
+  group: mintlify-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      MINTLIFY_PROJECT_ID: 69504b7eca5e444cf04bd8a9
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build docs
+        run: npx mintlify@latest build
+
+      - name: Deploy to Mintlify
+        env:
+          MINTLIFY_ADMIN_API: ${{ secrets.MINTLIFY_ADMIN_API }}
+        run: |
+          npx mintlify@latest deploy \
+            --adminToken "$MINTLIFY_ADMIN_API" \
+            --projectId "$MINTLIFY_PROJECT_ID" \
+            --branch main

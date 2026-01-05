@@ -8,4 +8,5 @@ alwaysApply: false
 - Enforce separation of duties for sensitive actions (e.g., production access, key rotation).
 - Keep dependencies and images patched; document exceptions with expiry and owners.
 - Validate CI/CD includes compliance checks (license scanning, SBOM, signature/verification).
+- Run mandatory secret scanning in CI/pre-merge with documented rotation cadences for findings.
 - Provide clear runbooks for compliance incidents and evidence collection.

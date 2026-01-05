@@ -23,6 +23,7 @@ alwaysApply: false
 ---
 
 - Establish performance budgets for latency, throughput, and resource use; measure against them in CI or canary.
+- Include client-side RUM budgets for key journeys (e.g., LCP/CLS/TTFB/FID) and enforce via CI/canary.
 - Profile hotspots with appropriate tools; optimize based on evidence, not guesswork.
 - Prefer streaming/iterators over loading whole payloads into memory; avoid unnecessary copies.
 - Batch external calls when possible; cache safely with clear TTLs and invalidation rules.

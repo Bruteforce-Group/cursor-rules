@@ -24,6 +24,7 @@ alwaysApply: false
 - Use clear train/val/test splits and track drift; re-evaluate when environments change or new classes appear.
 - Augment realistically (scales, crops, brightness/contrast/noise) but avoid augmentations that reduce label fidelity for small/critical objects.
 - Apply privacy-first masking for sensitive categories (faces, plates) post-detection; never store raw payloads longer than required.
+- Encrypt video/frame storage and transport; set retention ceilings and restrict access paths to least-privilege roles.
 - Evaluate end-to-end: latency/throughput on target hardware, detection quality (mAP/recall), and robustness to load; keep budgets and results documented.
 - Set concrete budgets per tier and enforce in CI/canary:
   - Edge/Standard: ≤120 ms/frame @ ≥25 FPS target, mAP@0.5 ≥0.50, recall ≥0.80 on key classes.

@@ -8,7 +8,9 @@ alwaysApply: false
 - Run format/validation before merge (e.g., `terraform fmt`/`validate`, linting workflows).
 - Never hardcode secrets; rely on secret managers/CI secrets and minimal scopes.
 - Use least-privilege IAM and scoped access tokens; document rationale for elevated roles.
+- Require supply-chain controls: pin/verify modules and images (checksums/signatures), use approved base images, and block unsigned artifacts in CI.
 - Name resources predictably and tag with owner, environment, and purpose.
 - Keep changes backward-compatible and roll out with plans/previews; prefer staged rollouts.
 - Add health checks and readiness probes; fail fast on unhealthy deployments.
+- Prove disaster readiness: test backup/restore, exercise region/zone failover, and document RTO/RPO targets with owners.
 - Record runbooks for new services; include rollback/cleanup steps.

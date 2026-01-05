@@ -8,5 +8,7 @@ alwaysApply: false
 - Validate inputs/outputs at service boundaries; cap payload sizes and enforce schemas.
 - Prefer idempotent, resumable pipelines; checkpoint long runs and clean up temp artifacts.
 - Document evaluation metrics and acceptance thresholds; include fairness/bias checks where relevant.
+- Publish model cards for shipped models (intended use, metrics, limits) and record safety/abuse evals.
+- Scrub prompts/responses of PII/secrets; apply allow/deny filters and logging with redaction.
 - Secure model endpoints: authZ, rate limits, request/response logging without sensitive payloads.
 - Optimize serving for latency and cost; batch where possible and set resource limits.

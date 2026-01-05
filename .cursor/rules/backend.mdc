@@ -21,6 +21,7 @@ alwaysApply: false
 
 - Keep API contracts documented; update schemas and examples with breaking or visible changes.
 - Validate all external inputs at boundaries; return typed errors with safe messages.
+- Enforce authZ-aware rate limits/quotas and abuse protection (bot/DoS) on public endpoints.
 - Make operations idempotent where feasible; include retries with backoff for outbound calls.
 - Set explicit timeouts on network and database calls; avoid unbounded waits.
 - Add metrics/tracing for key paths; log failures with correlation identifiers, not secrets.

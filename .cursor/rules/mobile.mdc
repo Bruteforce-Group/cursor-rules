@@ -9,6 +9,9 @@ alwaysApply: false
 - Support offline-first flows where applicable; design clear sync and conflict strategies.
 - Manage permissions with user intent; degrade gracefully when denied.
 - Securely handle tokens/keys (Keychain/Keystore); avoid storing secrets in bundles or logs.
+- Guard telemetry for privacy: filter PII, honor consent/opt-outs, and avoid sensitive payloads in crash reports.
+- Detect risky environments (root/jailbreak, debugger) and degrade or block sensitive features.
+- Document and test the minimum supported OS/device matrix and revisit quarterly.
 - Budget for startup time; lazy-load noncritical features and assets.
 - Handle background/foreground transitions safely; save state and release resources.
 - Write UI tests for critical flows and integration tests for platform services.

@@ -7,5 +7,6 @@ alwaysApply: false
 - Add metrics for throughput, latency (pXX), errors, and saturation; prefer RED/USE patterns for services.
 - Use tracing for key flows; propagate context across services and queues.
 - Alerts should be actionable, routed to owners, and tested; avoid noisy or unactionable signals.
+- Maintain alert/runbook hygiene: link runbooks, review alert noise weekly, and enforce error-budget policies for rollouts.
 - Include health/readiness checks and surface deploy/version metadata in telemetry.
 - Keep dashboards lightweight and tied to SLOs; annotate with deploys/incidents.

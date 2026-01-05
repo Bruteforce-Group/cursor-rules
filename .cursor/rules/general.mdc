@@ -7,3 +7,4 @@ alwaysApply: false
 - Write clear commit messages in imperative mood and meaningful PR descriptions.
 - Do not commit secrets or credentials; use environment variables and secret storage.
 - Add pragmatic logging at boundaries, avoiding sensitive data and excessive noise.
+- Gate merges with automated secret scanning and dependency/audit checks; document rotation cadences for any exposed credentials.

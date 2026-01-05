@@ -1,0 +1,8 @@
+name = "default_secrets_store"   # or your worker name
+account_id = "0b0ee2b5eaf1fb8a2612e40ab6488052"
+compatibility_date = "2024-01-01"
+
+[[secrets]]
+binding = "MINTLIFY_ADMIN_API"
+store = "2351285dcd974cb2821f9b99ea0814ca"
+name = "MINTLIFY_ADMIN_API"

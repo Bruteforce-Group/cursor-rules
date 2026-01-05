@@ -10,5 +10,8 @@ alwaysApply: false
 - Code-split or lazy-load expensive bundles; keep critical-render path lean.
 - Contain side effects in hooks/effects; avoid mutating shared state outside state managers.
 - Handle loading and error states explicitly; avoid silent failures.
+- Enforce security headers (CSP, HSTS, SRI for third-party assets) and block mixed content.
+- Honor privacy/consent state in telemetry/storage; provide DSAR/erasure entry points where applicable.
+- Track RUM budgets for key journeys (e.g., LCP/CLS/FID/TTI) and guard via CI/canary.
 - Test core components and flows (render, interaction, a11y checks).
 - Keep styles scoped; avoid global leakage and name collisions.

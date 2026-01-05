@@ -79,11 +79,32 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 | Enhanced      | Jetson Xavier NX/Orin NX, mid GPUs (T4/3060) | Target ≤80 ms/frame, ≥30 FPS, mAP@0.5 ≥0.60, recall ≥0.85 |
 | Centralized   | Data-center GPUs (A10/A100/4090)        | Target ≤50 ms/frame or ≥40 FPS, mAP@0.5 ≥0.65, mAP@0.5:0.95 ≥0.40 |
 
+### Recent updates
+
+- Added authZ-aware rate limiting/abuse protection to backend rules.
+- Added CI secret scanning with rotation cadences in compliance/general rules.
+- Added consent/DSAR/erasure handling and privacy-aware telemetry in data/frontend/mobile rules.
+- Added CSP/HSTS/SRI and RUM budgets for key journeys in frontend/performance rules.
+- Added supply-chain controls, DR readiness (backup/restore, failover), and RTO/RPO guidance in infra rules.
+- Added model cards, safety/abuse evaluations, and PII scrubbing for ML/AI rules.
+- Added encryption/retention guardrails for vision/object-detection media.
+- Added alert/runbook hygiene and error-budget policies in observability rules.
+- Added contract/schema drift checks for external integrations in QA/testing rules.
+
 ## Usage
 
 1. Copy `.cursor/rules` into a target repo (or add this repo as a submodule).
 2. Add or edit `.mdc` files to cover language- or area-specific guidance (e.g., `backend.mdc`, `frontend.mdc`, `infra.mdc`).
 3. Commit rule changes so updates are versioned alongside code.
+
+## Documentation (docs.bozza.au)
+
+- Source lives in `docs/` as Markdown/MDX; keep frontmatter titles and concise summaries.
+- Host at `https://docs.bozza.au` by connecting this repo/branch in the docs.bozza.au dashboard; each merge to the connected branch becomes the published version.
+- If automatic rebuilds are disabled, trigger a rebuild from the docs.bozza.au UI after merging documentation changes.
+- Add new pages under topic subfolders (e.g., `docs/backend/`), link them from the relevant index, and keep examples/tests in sync with rule changes.
+- CI deploy: `.github/workflows/mintlify-deploy.yml` builds with `npx mintlify@latest build` and deploys on `main` using `MINTLIFY_ADMIN_API` (secret) and project ID `69504b7eca5e444cf04bd8a9`. Rotate the admin token regularly and store it only as a GitHub Actions secret.
+- Keep `docs.json` navigation in sync with actual files: every page listed (e.g., `index`, `quickstart`, `api/introduction`) must have a matching MDX/MD file under `docs/` (e.g., `docs/index.mdx`, `docs/api/introduction.mdx`). Add or remove nav entries together with the files to avoid build failures.
 
 ## Contributing
 
