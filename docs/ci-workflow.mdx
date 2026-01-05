@@ -1,0 +1,29 @@
+---
+title: "CI workflow"
+description: "Mintlify link check workflow and how to avoid failures."
+---
+
+# CI workflow
+
+## What runs
+
+- Workflow: `.github/workflows/mintlify-deploy.yml`
+- Runner: `ubuntu-latest`
+- Step: `MINTLIFY_CI=1 npx mintlify@latest broken-links` (working directory `docs/`)
+- Skips if `docs/docs.json` is missing.
+
+## Common failures
+
+- Broken links reported in `docs/` pages. Fix by updating `docs/docs.json` or adding the referenced files.
+- Missing `docs/docs.json`: add it back or let the workflow skip intentionally.
+- Interactive prompts: `MINTLIFY_CI=1` suppresses prompts; ensure it stays set.
+
+## Deployment
+
+- Deploys are handled by the Mintlify GitHub App (recommended). Configure branch `main` and path `docs/` in the Mintlify dashboard.
+- This workflow is lint-only to keep CI fast; no deploy command is run here.
+
+## Tips
+
+- Run `MINTLIFY_CI=1 npx mintlify broken-links` locally from `docs/` before pushing.
+- Keep nav (`docs/docs.json`) and files in sync to prevent broken link noise.

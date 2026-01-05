@@ -1,0 +1,29 @@
+---
+title: "Using the rules"
+description: "How to add these Cursor rules to another repo."
+---
+
+# Using the rules
+
+## Copy the rules
+
+1. Copy `.cursor/rules` and `.cursor/rules.md` into your target repo.
+2. Keep the globs in each `.mdc` aligned with your repo layout (e.g., backend paths, frontend paths).
+3. Commit the rules so CI and teammates pick them up.
+
+## Mintlify docs path
+
+- Place docs under `docs/` with `docs/docs.json` as the nav root.
+- The Mintlify GitHub App should be configured to deploy from branch `main` and path `docs/`.
+
+## CI behavior
+
+- Workflow: `.github/workflows/mintlify-deploy.yml`
+- Action: `mintlify broken-links` runs from `docs/` and fails on broken internal links.
+- Skips automatically if `docs/docs.json` is missing.
+
+## Best practices
+
+- Update rules when your project structure changes (keep globs current).
+- Add frontmatter (`title`, `description`) to every MDX page.
+- Avoid broken links: update `docs/docs.json` and the corresponding files together.

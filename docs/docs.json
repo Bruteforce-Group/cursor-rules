@@ -10,7 +10,9 @@
           {
             "group": "Getting started",
             "pages": [
-              "index"
+              "index",
+              "usage",
+              "ci-workflow"
             ]
           }
         ]

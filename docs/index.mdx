@@ -3,6 +3,25 @@ title: "Welcome"
 description: "Landing page for the documentation."
 ---
 
-# Welcome
+# Cursor Rules: Overview
 
-This is a minimal landing page. Add sections and links to your project’s guides, API reference, and onboarding steps.
+This repo hosts the shared Cursor rules and Mintlify workflow used across projects. Use these docs to copy the rules, wire up Mintlify, and understand the CI checks.
+
+## What’s here
+
+- `.cursor/rules/`: rule files per domain (backend, frontend, infra, data, etc.).
+- `.cursor/rules.md`: Mintlify writing guide for Cursor.
+- `docs/`: Mintlify docs for onboarding and CI.
+- `.github/workflows/mintlify-deploy.yml`: runs Mintlify broken-links check on `main`.
+
+## Key behaviors
+
+- Rules apply via Cursor’s rule system based on file globs in each `.mdc`.
+- Mintlify GitHub App should handle deploys on push to `main` (branch + path configured in Mintlify).
+- CI only runs `mintlify broken-links` from `docs/` to catch nav/content issues; it skips if `docs/docs.json` is missing.
+
+Next: read how to use the rules in your project.
+
+<Callout>
+Keep `docs/docs.json` and files in sync to avoid broken-links failures.
+</Callout>
