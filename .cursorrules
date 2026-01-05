@@ -1,0 +1,7 @@
+{
+  "rules": [
+    {
+      "path": ".cursor/rules"
+    }
+  ]
+}
