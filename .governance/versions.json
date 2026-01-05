@@ -1,0 +1,17 @@
+{
+  "repoVersion": "1.0.0",
+  "general": "1.0.0",
+  "backend": "1.0.0",
+  "frontend": "1.0.0",
+  "infra": "1.0.0",
+  "mobile": "1.0.0",
+  "data": "1.0.0",
+  "security": "1.0.0",
+  "ml-ai": "1.0.0",
+  "secrets": "1.0.0",
+  "qa-testing": "1.0.0",
+  "observability": "1.0.0",
+  "performance": "1.0.0",
+  "compliance": "1.0.0",
+  "object-detection": "1.0.0"
+}

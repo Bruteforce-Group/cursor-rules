@@ -1,0 +1,24 @@
+name: Version Governance
+
+on:
+  pull_request:
+    paths:
+      - ".cursor/rules/**"
+      - "VERSION"
+      - ".governance/versions.json"
+      - "scripts/check_rule_versions.sh"
+      - "scripts/bump_rule_versions.sh"
+      - ".github/workflows/version-governance.yml"
+  workflow_dispatch: {}
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run version consistency check
+        run: |
+          chmod +x scripts/check_rule_versions.sh
+          scripts/check_rule_versions.sh
