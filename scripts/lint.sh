@@ -77,6 +77,18 @@ for path in sorted(root.rglob("*.mdc")):
                 raise ValueError("globs entries must be non-empty strings")
         except Exception as e:
             errors.append(f"{path}: invalid globs schema ({e})")
+    if "alwaysApply" not in front:
+        errors.append(f"{path}: missing alwaysApply in frontmatter")
+    else:
+        try:
+            for line in front.splitlines():
+                if line.strip().startswith("alwaysApply"):
+                    val = line.split(":", 1)[1].strip().lower()
+                    if val not in {"true", "false"}:
+                        raise ValueError(f"alwaysApply must be true/false, got {val}")
+                    break
+        except Exception as e:
+            errors.append(f"{path}: invalid alwaysApply ({e})")
 
 if errors:
     print("Rule format errors:")
