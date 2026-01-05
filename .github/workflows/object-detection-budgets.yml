@@ -12,6 +12,13 @@ on:
       - ".cursor/rules/object-detection.mdc"
       - ".github/workflows/object-detection-budgets.yml"
       - "scripts/**"
+      - "vision/**"
+      - "object-detection/**"
+      - "models/**"
+      - "ml/**"
+      - "ai/**"
+      - "apps/**/vision/**"
+      - "packages/**/vision/**"
 
 jobs:
   check-budgets:
