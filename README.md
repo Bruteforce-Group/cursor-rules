@@ -56,6 +56,8 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 ### Security CI
 
 - `security.yml`: gitleaks (secret scanning), OSV-Scanner (dependency vulns), Trivy FS scan (HIGH/CRITICAL; ignore-unfixed). Trivy report is uploaded as an artifact.
+- Additional Trivy deps-only lockfile scan (HIGH/CRITICAL; ignore-unfixed); report uploaded.
+- Dependabot (`.github/dependabot.yml`) keeps GitHub Actions deps updated weekly.
 
 ### Object detection budgets (reference)
 

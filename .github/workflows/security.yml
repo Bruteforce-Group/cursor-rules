@@ -33,6 +33,8 @@ jobs:
         uses: aquasecurity/trivy-action@0.24.0
         with:
           scan-type: "fs"
+          vuln-type: "os,library"
+          scanners: "vuln,config"
           severity: "HIGH,CRITICAL"
           ignore-unfixed: true
           exit-code: "1"
@@ -43,3 +45,25 @@ jobs:
         with:
           name: trivy-report
           path: trivy-report.txt
+
+  trivy-lockfiles:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Trivy lockfile scan (deps only)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: "fs"
+          vuln-type: "library"
+          scanners: "vuln"
+          severity: "HIGH,CRITICAL"
+          ignore-unfixed: true
+          exit-code: "1"
+          format: "table"
+          output: "trivy-lock-report.txt"
+          skip-dirs: ".git"
+      - name: Upload Trivy lockfile report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-lock-report
+          path: trivy-lock-report.txt
