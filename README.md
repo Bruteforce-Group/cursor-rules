@@ -45,6 +45,14 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 | compliance | 1.0.0 |
 | object-detection | 1.0.0 |
 
+### Versioning & governance
+
+- Repo version: `VERSION` (currently 1.0.0) and module versions in each `.mdc`.
+- Baseline: `.governance/versions.json` records expected versions; CI (`version-governance.yml`) fails if mismatched.
+- Local hook (optional): run `git config core.hooksPath .githooks` to enable the provided `pre-commit` hook; it auto-runs `scripts/bump_rule_versions.sh` when rules change and restages versioned files.
+- Manual bump: `scripts/bump_rule_versions.sh [new_version]` (defaults to patch bump from `VERSION`).
+- Check consistency: `scripts/check_rule_versions.sh`.
+
 ### Object detection budgets (reference)
 
 | Tier          | Example hardware                       | Notes                                                   |

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Auto-bump rule versions on commits that touch rule files.
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+changed=$(git diff --cached --name-only)
+if ! echo "$changed" | grep -E '^(\.cursor/rules/|VERSION|README\.md|\.governance/versions\.json)' >/dev/null 2>&1; then
+  # Nothing relevant staged; skip.
+  exit 0
+fi
+
+echo "Detected rule or version changes; bumping versions..."
+scripts/bump_rule_versions.sh
+
+# Restage updated files
+git add VERSION README.md .governance/versions.json .cursor/rules/*.mdc
+
+echo "Rule versions bumped to $(cat VERSION)"
