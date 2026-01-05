@@ -16,7 +16,7 @@ updates:
       include: "scope"
 
   - package-ecosystem: "npm"
-    directory: "/frontend-placeholder"
+    directory: "/"
     schedule:
       interval: "weekly"
     labels:
@@ -30,7 +30,7 @@ updates:
       include: "scope"
 
   - package-ecosystem: "pip"
-    directory: "/python-placeholder"
+    directory: "/"
     schedule:
       interval: "weekly"
     labels:
@@ -44,7 +44,7 @@ updates:
       include: "scope"
 
   - package-ecosystem: "gomod"
-    directory: "/go-placeholder"
+    directory: "/"
     schedule:
       interval: "weekly"
     labels:
