@@ -59,6 +59,17 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 - Additional Trivy deps-only lockfile scan (HIGH/CRITICAL; ignore-unfixed); report uploaded.
 - Dependabot (`.github/dependabot.yml`) keeps GitHub Actions deps updated weekly.
 
+### Branch protection (recommended)
+
+- Require passing checks on main/protected branches: `lint`, `version-governance`, `security`.
+- Block force-pushes and require PRs with at least one approval.
+- Optionally require status checks for object detection budgets if relevant to your workflows.
+
+### Dependabot extensions
+
+- Current: GitHub Actions weekly.
+- When language ecosystems are added, extend `.github/dependabot.yml` with `npm`, `pip`, `gomod`, etc., scoped to relevant directories, with separate schedules and labels.
+
 ### Object detection budgets (reference)
 
 | Tier          | Example hardware                       | Notes                                                   |
