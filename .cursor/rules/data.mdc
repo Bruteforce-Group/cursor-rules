@@ -2,7 +2,7 @@
 description: Data and analytics rules for pipelines, schemas, and privacy
 version: 1.0.0
 globs: ["data/**", "analytics/**", "etl/**", "apps/**/data/**", "packages/**/data/**", "**/*.sql", "**/*.py", "**/*.ipynb", "**/*.dbt", "**/*.yaml", "**/*.yml"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 - Treat schemas as contracts; version changes and keep docs/examples current.

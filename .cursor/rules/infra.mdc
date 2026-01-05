@@ -2,7 +2,7 @@
 description: Infrastructure and IaC rules (Terraform, pipelines, deploy artifacts)
 version: 1.0.0
 globs: ["infra/**", "ops/**", "deploy/**", "apps/**/infra/**", "packages/**/infra/**", "**/*.tf", "**/*.tfvars", "**/*.yaml", "**/*.yml", "**/Dockerfile", "**/docker-compose*.yml", ".github/workflows/*.yml"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 - Run format/validation before merge (e.g., `terraform fmt`/`validate`, linting workflows).

@@ -1,6 +1,6 @@
 ---
 description: ML/AI pipeline rules for data prep, training, evaluation, and serving
-alwaysApply: false
+alwaysApply: true
 ---
 - Track datasets and model artifacts with lineage and versioning; record training configs and seeds.
 - Separate train/val/test; prevent leakage and ensure reproducibility with deterministic steps.

@@ -2,7 +2,7 @@
 description: Mobile rules for iOS/Android apps and shared mobile code
 version: 1.0.0
 globs: ["mobile/**", "ios/**", "android/**", "apps/**/mobile/**", "packages/**/mobile/**", "**/*.swift", "**/*.m", "**/*.mm", "**/*.kt", "**/*.java", "**/*.dart", "**/*.tsx", "**/*.jsx"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 - Prioritize UI responsiveness; keep heavy work off the main thread and use backpressure where needed.

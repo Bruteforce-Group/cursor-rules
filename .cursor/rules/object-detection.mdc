@@ -15,7 +15,7 @@ globs: [
   "**/*.yaml",
   "**/*.yml"
 ]
-alwaysApply: false
+alwaysApply: true
 ---
 
 - Choose architectures to match device budgets: optimize for real-time latency (quantization/pruning) while keeping accuracy targets explicit.

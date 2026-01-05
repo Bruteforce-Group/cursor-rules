@@ -2,7 +2,7 @@
 description: Frontend rules for web/UI code
 version: 1.0.0
 globs: ["frontend/**", "web/**", "app/**", "apps/**/frontend/**", "packages/**/frontend/**", "**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.js", "**/*.ts", "**/*.css", "**/*.scss"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 - Ship accessible UI: label form controls, manage focus, and keep color contrast sufficient.

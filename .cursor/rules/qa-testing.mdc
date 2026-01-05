@@ -2,7 +2,7 @@
 description: QA and testing rules for reliability and fast feedback
 version: 1.0.0
 globs: ["tests/**", "qa/**", "apps/**/tests/**", "packages/**/tests/**", "**/*.spec.*", "**/*.test.*", "**/__tests__/**", "**/*.feature"]
-alwaysApply: false
+alwaysApply: true
 ---
 
 - Follow a test pyramid: many fast unit tests, fewer integration/contract tests, targeted e2e for critical paths.

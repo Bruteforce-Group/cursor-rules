@@ -1,6 +1,6 @@
 ---
 description: Observability rules for metrics, logs, traces, and alerting
-alwaysApply: false
+alwaysApply: true
 ---
 - Emit structured, leveled logs; avoid secrets/PII and include correlation/request IDs.
 - Define SLOs for critical user journeys; derive SLIs from user-visible outcomes.

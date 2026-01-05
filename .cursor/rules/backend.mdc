@@ -16,7 +16,7 @@ globs: [
   "**/*.java",
   "**/*.kt"
 ]
-alwaysApply: false
+alwaysApply: true
 ---
 
 - Keep API contracts documented; update schemas and examples with breaking or visible changes.

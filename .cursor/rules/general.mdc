@@ -1,6 +1,6 @@
 ---
 description: General engineering rules that apply across the codebase
-alwaysApply: false
+alwaysApply: true
 ---
 - Keep README and relevant docs in sync with behavior changes.
 - Prefer small, focused changes; include or update tests when behavior shifts.

@@ -19,7 +19,7 @@ globs: [
   "**/*.java",
   "**/*.kt"
 ]
-alwaysApply: false
+alwaysApply: true
 ---
 
 - Establish performance budgets for latency, throughput, and resource use; measure against them in CI or canary.
