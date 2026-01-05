@@ -94,6 +94,8 @@ for path in sorted(root.rglob("*.mdc")):
                 raise ValueError("globs entries must be non-empty strings")
             if not any("/" in x or "**" in x for x in globs_val):
                 raise ValueError("globs must include at least one scoped pattern (e.g., path/ or **/)")
+            if any(x.strip() in {"*", "**"} for x in globs_val):
+                raise ValueError("globs must not contain bare * or **")
         except Exception as e:
             errors.append(f"{path}: invalid globs schema ({e})")
     if "alwaysApply" not in front:
