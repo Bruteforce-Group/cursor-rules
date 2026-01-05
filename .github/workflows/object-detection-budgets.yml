@@ -7,6 +7,10 @@ on:
         description: Path to the budget check script
         required: false
         default: scripts/check_object_detection_budgets.sh
+      bench_command:
+        description: Command to run the object detection benchmark (produces metrics JSON)
+        required: false
+        default: ""
   pull_request:
     paths:
       - ".cursor/rules/object-detection.mdc"
@@ -24,6 +28,7 @@ jobs:
   check-budgets:
     runs-on: ubuntu-latest
     env:
+      METRICS_PATH: artifacts/object_detection_metrics.json
       MAX_LATENCY_EDGE_MS: "120"
       MIN_FPS_EDGE: "25"
       MIN_MAP_EDGE: "0.50"
@@ -39,6 +44,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Run object detection benchmark
+        env:
+          BENCH_CMD: ${{ github.event.inputs.bench_command || env.BENCH_CMD }}
+          METRICS_PATH: ${{ env.METRICS_PATH }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$METRICS_PATH")"
+          if [ ! -x scripts/run_object_detection_benchmark.sh ]; then
+            echo "Benchmark script scripts/run_object_detection_benchmark.sh is missing or not executable."
+            exit 1
+          fi
+          scripts/run_object_detection_benchmark.sh \
+            --output "$METRICS_PATH" \
+            ${BENCH_CMD:+--cmd "$BENCH_CMD"}
 
       - name: Run budget check script if present
         run: |
