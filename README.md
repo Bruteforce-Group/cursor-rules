@@ -99,12 +99,9 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 
 ## Documentation (docs.bozza.au)
 
-- Source lives in `docs/` as Markdown/MDX; keep frontmatter titles and concise summaries.
-- Host at `https://docs.bozza.au` by connecting this repo/branch in the docs.bozza.au dashboard; each merge to the connected branch becomes the published version.
-- If automatic rebuilds are disabled, trigger a rebuild from the docs.bozza.au UI after merging documentation changes.
-- Add new pages under topic subfolders (e.g., `docs/backend/`), link them from the relevant index, and keep examples/tests in sync with rule changes.
-- CI deploy: `.github/workflows/mintlify-deploy.yml` builds with `npx mintlify@latest build` and deploys on `main` using `MINTLIFY_ADMIN_API` (secret) and project ID `69504b7eca5e444cf04bd8a9`. Rotate the admin token regularly and store it only as a GitHub Actions secret.
-- Keep `docs.json` navigation in sync with actual files: every page listed (e.g., `index`, `quickstart`, `api/introduction`) must have a matching MDX/MD file under `docs/` (e.g., `docs/index.mdx`, `docs/api/introduction.mdx`). Add or remove nav entries together with the files to avoid build failures.
+- Primary docs are hosted from `bruteforce-group/docs` (branch `main`, path `docs/`) and published to `https://docs.bozza.au` via the Mintlify GitHub App. This repo is for rules; author docs in the central docs repo.
+- Keep `docs/docs.json` in that repo in sync with actual files: every page listed must have a matching MDX/MD file under `docs/`. Add or remove nav entries together with the files to avoid broken-links failures.
+- If you run link checks here, `.github/workflows/mintlify-deploy.yml` only runs `mintlify broken-links` from `docs/` and skips when `docs/docs.json` is absent. No deploy step runs in this repo.
 
 ## Contributing
 
