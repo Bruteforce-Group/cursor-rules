@@ -96,8 +96,8 @@ for path in sorted(root.rglob("*.mdc")):
                 raise ValueError("globs must include at least one scoped pattern (e.g., path/ or **/)")
             if any(x.strip() in {"*", "**"} for x in globs_val):
                 raise ValueError("globs must not contain bare * or **")
-            if not any(x.startswith(("apps/", "packages/")) for x in globs_val):
-                raise ValueError("globs must include at least one org-level path (apps/ or packages/)")
+            if not any(x.startswith(prefix) for x in globs_val for prefix in ("apps/", "packages/", "services/", "modules/")):
+                raise ValueError("globs must include at least one org-level path (apps/, packages/, services/, or modules/)")
         except Exception as e:
             errors.append(f"{path}: invalid globs schema ({e})")
     if "alwaysApply" not in front:
