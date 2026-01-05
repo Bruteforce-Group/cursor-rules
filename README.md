@@ -15,6 +15,8 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 - `backend.mdc`: Server/back-end practices (APIs, data, reliability).
 - `frontend.mdc`: Client/front-end practices (UX, accessibility, performance).
 - `infra.mdc`: Infrastructure/IaC practices (Terraform, pipelines, safety).
+- `mobile.mdc`: Mobile platform practices (iOS/Android, performance, offline).
+- `data.mdc`: Data/analytics practices (pipelines, schemas, privacy).
 
 ## Usage
 

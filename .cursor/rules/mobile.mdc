@@ -1,0 +1,14 @@
+---
+description: Mobile rules for iOS/Android apps and shared mobile code
+globs: ["mobile/**", "ios/**", "android/**", "**/*.swift", "**/*.m", "**/*.mm", "**/*.kt", "**/*.java", "**/*.dart", "**/*.tsx", "**/*.jsx"]
+alwaysApply: false
+---
+
+- Prioritize UI responsiveness; keep heavy work off the main thread and use backpressure where needed.
+- Support offline-first flows where applicable; design clear sync and conflict strategies.
+- Manage permissions with user intent; degrade gracefully when denied.
+- Securely handle tokens/keys (Keychain/Keystore); avoid storing secrets in bundles or logs.
+- Budget for startup time; lazy-load noncritical features and assets.
+- Handle background/foreground transitions safely; save state and release resources.
+- Write UI tests for critical flows and integration tests for platform services.
+- Monitor crashes and performance (ANR/app hangs) and add breadcrumbs around critical actions.
