@@ -24,5 +24,9 @@ alwaysApply: false
 - Augment realistically (scales, crops, brightness/contrast/noise) but avoid augmentations that reduce label fidelity for small/critical objects.
 - Apply privacy-first masking for sensitive categories (faces, plates) post-detection; never store raw payloads longer than required.
 - Evaluate end-to-end: latency/throughput on target hardware, detection quality (mAP/recall), and robustness to load; keep budgets and results documented.
+- Set concrete budgets per tier and enforce in CI/canary:
+  - Edge/Standard: ≤120 ms/frame @ ≥25 FPS target, mAP@0.5 ≥0.50, recall ≥0.80 on key classes.
+  - Enhanced: ≤80 ms/frame @ ≥30 FPS, mAP@0.5 ≥0.60, recall ≥0.85, stable under burst load (2–3× nominal).
+  - Centralized: ≤50 ms/frame (or ≥40 FPS equivalent) with batching allowed, mAP@0.5 ≥0.65 and mAP@0.5:0.95 ≥0.40; regression guardrails block merges on drop >2% absolute.
 - Smooth detections with stable tracking/filters to reduce jitter; pad boxes slightly to avoid under-masking small targets.
 - Validate pipelines with unit tests (pre/post-processing), integration tests (detect → mask → store/search), and performance tests under load.
