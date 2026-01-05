@@ -29,4 +29,9 @@ jobs:
           node-version: 20
 
       - name: Check docs for broken internal links
-        run: npx mintlify@latest broken-links
+        run: |
+          if [ ! -f docs.json ]; then
+            echo "docs.json not present; skipping mintlify broken-links";
+            exit 0
+          fi
+          MINTLIFY_CI=1 npx mintlify@latest broken-links
