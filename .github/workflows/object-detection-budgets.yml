@@ -1,0 +1,62 @@
+name: Object Detection Budgets
+
+on:
+  workflow_dispatch:
+    inputs:
+      script_path:
+        description: Path to the budget check script
+        required: false
+        default: scripts/check_object_detection_budgets.sh
+  pull_request:
+    paths:
+      - ".cursor/rules/object-detection.mdc"
+      - ".github/workflows/object-detection-budgets.yml"
+      - "scripts/**"
+
+jobs:
+  check-budgets:
+    runs-on: ubuntu-latest
+    env:
+      MAX_LATENCY_EDGE_MS: "120"
+      MIN_FPS_EDGE: "25"
+      MIN_MAP_EDGE: "0.50"
+      MIN_RECALL_EDGE: "0.80"
+      MAX_LATENCY_ENH_MS: "80"
+      MIN_FPS_ENH: "30"
+      MIN_MAP_ENH: "0.60"
+      MIN_RECALL_ENH: "0.85"
+      MAX_LATENCY_CENTRAL_MS: "50"
+      MIN_FPS_CENTRAL: "40"
+      MIN_MAP_CENTRAL: "0.65"
+      MIN_MAP_CENTRAL_COCO: "0.40"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run budget check script if present
+        run: |
+          set -euo pipefail
+          SCRIPT="${{ github.event.inputs.script_path || 'scripts/check_object_detection_budgets.sh' }}"
+          if [ ! -f "$SCRIPT" ]; then
+            echo "No budget check script at $SCRIPT; skipping. To enforce budgets, add the script and rerun."
+            exit 0
+          fi
+          chmod +x "$SCRIPT"
+          "$SCRIPT" \
+            --max-latency-edge-ms "${MAX_LATENCY_EDGE_MS}" \
+            --min-fps-edge "${MIN_FPS_EDGE}" \
+            --min-map-edge "${MIN_MAP_EDGE}" \
+            --min-recall-edge "${MIN_RECALL_EDGE}" \
+            --max-latency-enh-ms "${MAX_LATENCY_ENH_MS}" \
+            --min-fps-enh "${MIN_FPS_ENH}" \
+            --min-map-enh "${MIN_MAP_ENH}" \
+            --min-recall-enh "${MIN_RECALL_ENH}" \
+            --max-latency-central-ms "${MAX_LATENCY_CENTRAL_MS}" \
+            --min-fps-central "${MIN_FPS_CENTRAL}" \
+            --min-map-central "${MIN_MAP_CENTRAL}" \
+            --min-map-central-coco "${MIN_MAP_CENTRAL_COCO}"
+
+      - name: Reminder to add enforcement script
+        if: always()
+        run: |
+          echo "Provide a script (default: scripts/check_object_detection_budgets.sh) that measures latency/FPS/mAP/recall on your hardware and exits non-zero on regressions."

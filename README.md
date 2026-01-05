@@ -26,6 +26,14 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 - `compliance.mdc`: Compliance practices (auditability, retention, approvals).
 - `object-detection.mdc`: Vision/object-detection practices (coverage, privacy, latency).
 
+### Object detection budgets (reference)
+
+| Tier          | Example hardware                       | Notes                                                   |
+|---------------|----------------------------------------|---------------------------------------------------------|
+| Edge/Standard | Jetson Nano/Orin Nano, Pi + NPU, low-GPU | Target ≤120 ms/frame, ≥25 FPS, mAP@0.5 ≥0.50, recall ≥0.80 |
+| Enhanced      | Jetson Xavier NX/Orin NX, mid GPUs (T4/3060) | Target ≤80 ms/frame, ≥30 FPS, mAP@0.5 ≥0.60, recall ≥0.85 |
+| Centralized   | Data-center GPUs (A10/A100/4090)        | Target ≤50 ms/frame or ≥40 FPS, mAP@0.5 ≥0.65, mAP@0.5:0.95 ≥0.40 |
+
 ## Usage
 
 1. Copy `.cursor/rules` into a target repo (or add this repo as a submodule).
