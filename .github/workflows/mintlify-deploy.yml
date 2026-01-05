@@ -28,9 +28,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Build docs
-        run: npx mintlify@latest build
-
       - name: Deploy to Mintlify
         env:
           MINTLIFY_ADMIN_API: ${{ secrets.MINTLIFY_ADMIN_API }}
