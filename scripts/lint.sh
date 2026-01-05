@@ -12,6 +12,7 @@ echo "Validating Cursor rule frontmatter in .cursor/rules/*.mdc..."
 python - <<'PY'
 import sys
 import pathlib
+import ast
 
 root = pathlib.Path(".cursor/rules")
 if not root.exists():
@@ -37,6 +38,45 @@ for path in sorted(root.rglob("*.mdc")):
         errors.append(f"{path}: missing description in frontmatter")
     if "globs:" not in front:
         errors.append(f"{path}: missing globs in frontmatter")
+    else:
+        # Simple schema check: globs should parse as a list (YAML superset) and contain only strings
+        try:
+            # naive parse: extract substring after 'globs:' and before any next top-level key
+            globs_lines = []
+            capture = False
+            for line in front.splitlines():
+                if line.strip().startswith("globs:"):
+                    capture = True
+                    # allow inline list or block list
+                    if "[" in line:
+                        globs_lines.append(line.split("globs:", 1)[1])
+                    continue
+                if capture:
+                    if line and not line.startswith(" "):
+                        break
+                    globs_lines.append(line)
+            globs_text = "\n".join(globs_lines).strip()
+            if not globs_text:
+                raise ValueError("globs is empty")
+            # Normalize to Python literal list
+            if globs_text.startswith("["):
+                literal = globs_text
+            else:
+                # convert YAML-style block list to Python list literal
+                items = []
+                for line in globs_text.splitlines():
+                    line = line.strip()
+                    if line.startswith("-"):
+                        item = line.lstrip("-").strip()
+                        items.append(f"{item}")
+                literal = "[" + ",".join(items) + "]"
+            globs_val = ast.literal_eval(literal)
+            if not isinstance(globs_val, list) or not globs_val:
+                raise ValueError("globs must be a non-empty list")
+            if not all(isinstance(x, str) and x.strip() for x in globs_val):
+                raise ValueError("globs entries must be non-empty strings")
+        except Exception as e:
+            errors.append(f"{path}: invalid globs schema ({e})")
 
 if errors:
     print("Rule format errors:")
