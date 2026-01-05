@@ -1,0 +1,13 @@
+---
+description: Observability rules for metrics, logs, traces, and alerting
+globs: ["observability/**", "ops/**", "**/*.ts", "**/*.js", "**/*.py", "**/*.go", "**/*.rb", "**/*.java", "**/*.kt", "**/*.tf", "**/*.yml", "**/*.yaml"]
+alwaysApply: false
+---
+
+- Emit structured, leveled logs; avoid secrets/PII and include correlation/request IDs.
+- Define SLOs for critical user journeys; derive SLIs from user-visible outcomes.
+- Add metrics for throughput, latency (pXX), errors, and saturation; prefer RED/USE patterns for services.
+- Use tracing for key flows; propagate context across services and queues.
+- Alerts should be actionable, routed to owners, and tested; avoid noisy or unactionable signals.
+- Include health/readiness checks and surface deploy/version metadata in telemetry.
+- Keep dashboards lightweight and tied to SLOs; annotate with deploys/incidents.

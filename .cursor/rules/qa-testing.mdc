@@ -1,0 +1,13 @@
+---
+description: QA and testing rules for reliability and fast feedback
+globs: ["tests/**", "qa/**", "**/*.spec.*", "**/*.test.*", "**/__tests__/**", "**/*.feature"]
+alwaysApply: false
+---
+
+- Follow a test pyramid: many fast unit tests, fewer integration/contract tests, targeted e2e for critical paths.
+- Keep tests deterministic and isolated; avoid shared state and real external dependencies without explicit fixtures.
+- Use fixtures/builders over copy-paste; prefer table-driven cases to cover edge conditions.
+- Mock only true boundaries; prefer contract tests for services over deep mocks.
+- Make failures actionable: clear assertions, minimal noise, stable snapshots with intent-revealing names.
+- Run tests in CI with parallelism and caching; fail fast on flaky tests and quarantine only with owners/issue links.
+- Track coverage trends but value meaningful assertions over raw percentages; ensure critical paths are exercised.

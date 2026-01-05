@@ -20,6 +20,8 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 - `security.mdc`: Secure development practices (threat modeling, hardening).
 - `ml-ai.mdc`: ML/AI pipeline practices (data, training, serving).
 - `secrets.mdc`: Secret management practices (vaults, rotation, usage).
+- `qa-testing.mdc`: QA and testing practices (pyramid, determinism, coverage).
+- `observability.mdc`: Observability practices (metrics, logs, traces, alerts).
 
 ## Usage
 
