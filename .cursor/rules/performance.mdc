@@ -1,5 +1,6 @@
 ---
 description: Performance and efficiency rules for services and applications
+version: 1.0.0
 globs: [
   "perf/**",
   "performance/**",
@@ -10,6 +11,8 @@ globs: [
   "**/*perf*",
   "**/*loadtest*",
   "**/*k6*",
+  "apps/**/perf/**",
+  "packages/**/perf/**",
   "**/*.py",
   "**/*.go",
   "**/*.rb",

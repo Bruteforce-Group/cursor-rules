@@ -1,6 +1,7 @@
 ---
 description: Frontend rules for web/UI code
-globs: ["frontend/**", "web/**", "app/**", "**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.js", "**/*.ts", "**/*.css", "**/*.scss"]
+version: 1.0.0
+globs: ["frontend/**", "web/**", "app/**", "apps/**/frontend/**", "packages/**/frontend/**", "**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.js", "**/*.ts", "**/*.css", "**/*.scss"]
 alwaysApply: false
 ---
 

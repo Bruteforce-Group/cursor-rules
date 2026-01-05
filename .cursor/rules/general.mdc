@@ -1,9 +1,7 @@
 ---
 description: General engineering rules that apply across the codebase
-globs: ["**/*"]
-alwaysApply: true
+alwaysApply: false
 ---
-
 - Keep README and relevant docs in sync with behavior changes.
 - Prefer small, focused changes; include or update tests when behavior shifts.
 - Write clear commit messages in imperative mood and meaningful PR descriptions.

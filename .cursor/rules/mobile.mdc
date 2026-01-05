@@ -1,6 +1,7 @@
 ---
 description: Mobile rules for iOS/Android apps and shared mobile code
-globs: ["mobile/**", "ios/**", "android/**", "**/*.swift", "**/*.m", "**/*.mm", "**/*.kt", "**/*.java", "**/*.dart", "**/*.tsx", "**/*.jsx"]
+version: 1.0.0
+globs: ["mobile/**", "ios/**", "android/**", "apps/**/mobile/**", "packages/**/mobile/**", "**/*.swift", "**/*.m", "**/*.mm", "**/*.kt", "**/*.java", "**/*.dart", "**/*.tsx", "**/*.jsx"]
 alwaysApply: false
 ---
 

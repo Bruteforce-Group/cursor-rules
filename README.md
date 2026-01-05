@@ -26,6 +26,25 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 - `compliance.mdc`: Compliance practices (auditability, retention, approvals).
 - `object-detection.mdc`: Vision/object-detection practices (coverage, privacy, latency).
 
+### Rule versions
+
+| Module | Version |
+| --- | --- |
+| general | 1.0.0 |
+| backend | 1.0.0 |
+| frontend | 1.0.0 |
+| infra | 1.0.0 |
+| mobile | 1.0.0 |
+| data | 1.0.0 |
+| security | 1.0.0 |
+| ml-ai | 1.0.0 |
+| secrets | 1.0.0 |
+| qa-testing | 1.0.0 |
+| observability | 1.0.0 |
+| performance | 1.0.0 |
+| compliance | 1.0.0 |
+| object-detection | 1.0.0 |
+
 ### Object detection budgets (reference)
 
 | Tier          | Example hardware                       | Notes                                                   |

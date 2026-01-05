@@ -1,6 +1,7 @@
 ---
 description: Data and analytics rules for pipelines, schemas, and privacy
-globs: ["data/**", "analytics/**", "etl/**", "**/*.sql", "**/*.py", "**/*.ipynb", "**/*.dbt", "**/*.yaml", "**/*.yml"]
+version: 1.0.0
+globs: ["data/**", "analytics/**", "etl/**", "apps/**/data/**", "packages/**/data/**", "**/*.sql", "**/*.py", "**/*.ipynb", "**/*.dbt", "**/*.yaml", "**/*.yml"]
 alwaysApply: false
 ---
 
