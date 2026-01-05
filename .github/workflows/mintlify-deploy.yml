@@ -28,11 +28,5 @@ jobs:
         with:
           node-version: 20
 
-      - name: Deploy to Mintlify
-        env:
-          MINTLIFY_ADMIN_API: ${{ secrets.MINTLIFY_ADMIN_API }}
-        run: |
-          npx mintlify@latest deploy \
-            --adminToken "$MINTLIFY_ADMIN_API" \
-            --projectId "$MINTLIFY_PROJECT_ID" \
-            --branch main
+      - name: Check docs for broken internal links
+        run: npx mintlify@latest broken-links
