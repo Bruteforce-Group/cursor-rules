@@ -1,0 +1,14 @@
+---
+description: ML/AI pipeline rules for data prep, training, evaluation, and serving
+globs: ["ml/**", "ai/**", "models/**", "**/*.ipynb", "**/*.py", "**/*.yaml", "**/*.yml", "**/*.json"]
+alwaysApply: false
+---
+
+- Track datasets and model artifacts with lineage and versioning; record training configs and seeds.
+- Separate train/val/test; prevent leakage and ensure reproducibility with deterministic steps.
+- Monitor data drift and model performance post-deploy; alert on significant drops.
+- Validate inputs/outputs at service boundaries; cap payload sizes and enforce schemas.
+- Prefer idempotent, resumable pipelines; checkpoint long runs and clean up temp artifacts.
+- Document evaluation metrics and acceptance thresholds; include fairness/bias checks where relevant.
+- Secure model endpoints: authZ, rate limits, request/response logging without sensitive payloads.
+- Optimize serving for latency and cost; batch where possible and set resource limits.

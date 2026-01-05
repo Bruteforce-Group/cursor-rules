@@ -1,0 +1,14 @@
+---
+description: Security rules for secure-by-default development and operations
+globs: ["security/**", "**/*.tf", "**/*.yml", "**/*.yaml", "**/*.py", "**/*.ts", "**/*.js", "**/*.go", "**/*.rb"]
+alwaysApply: false
+---
+
+- Design for least privilege: scope tokens/roles narrowly and avoid broad wildcards.
+- Threat model user-facing changes; ensure authZ and authN are explicit and centrally enforced.
+- Validate and sanitize all untrusted input; encode output at sinks to prevent injection.
+- Enforce HTTPS/TLS everywhere; disable weak ciphers/protocols where configurable.
+- Log security events with correlation IDs but never secrets/PII; set retention appropriately.
+- Fail closed on security controls; prefer explicit denial over permissive defaults.
+- Keep dependencies updated; gate merges with vulnerability checks and pin where needed.
+- Provide safe defaults for crypto (modern algorithms, strong randomness, rotation paths).

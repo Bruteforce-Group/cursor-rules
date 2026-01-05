@@ -17,6 +17,9 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 - `infra.mdc`: Infrastructure/IaC practices (Terraform, pipelines, safety).
 - `mobile.mdc`: Mobile platform practices (iOS/Android, performance, offline).
 - `data.mdc`: Data/analytics practices (pipelines, schemas, privacy).
+- `security.mdc`: Secure development practices (threat modeling, hardening).
+- `ml-ai.mdc`: ML/AI pipeline practices (data, training, serving).
+- `secrets.mdc`: Secret management practices (vaults, rotation, usage).
 
 ## Usage
 
