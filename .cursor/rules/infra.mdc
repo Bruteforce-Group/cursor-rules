@@ -1,0 +1,13 @@
+---
+description: Infrastructure and IaC rules (Terraform, pipelines, deploy artifacts)
+globs: ["infra/**", "ops/**", "deploy/**", "**/*.tf", "**/*.tfvars", "**/*.yaml", "**/*.yml", "**/Dockerfile", "**/docker-compose*.yml", ".github/workflows/*.yml"]
+alwaysApply: false
+---
+
+- Run format/validation before merge (e.g., `terraform fmt`/`validate`, linting workflows).
+- Never hardcode secrets; rely on secret managers/CI secrets and minimal scopes.
+- Use least-privilege IAM and scoped access tokens; document rationale for elevated roles.
+- Name resources predictably and tag with owner, environment, and purpose.
+- Keep changes backward-compatible and roll out with plans/previews; prefer staged rollouts.
+- Add health checks and readiness probes; fail fast on unhealthy deployments.
+- Record runbooks for new services; include rollback/cleanup steps.

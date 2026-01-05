@@ -1,0 +1,13 @@
+---
+description: Frontend rules for web/UI code
+globs: ["frontend/**", "web/**", "app/**", "**/*.tsx", "**/*.jsx", "**/*.vue", "**/*.js", "**/*.ts", "**/*.css", "**/*.scss"]
+alwaysApply: false
+---
+
+- Ship accessible UI: label form controls, manage focus, and keep color contrast sufficient.
+- Avoid heavy work on the main thread; prefer async boundaries and debounce/throttle on rapid events.
+- Code-split or lazy-load expensive bundles; keep critical-render path lean.
+- Contain side effects in hooks/effects; avoid mutating shared state outside state managers.
+- Handle loading and error states explicitly; avoid silent failures.
+- Test core components and flows (render, interaction, a11y checks).
+- Keep styles scoped; avoid global leakage and name collisions.

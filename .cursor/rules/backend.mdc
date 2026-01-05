@@ -1,0 +1,15 @@
+---
+description: Backend and API rules for server-side code and data layers
+globs: ["backend/**", "server/**", "api/**", "**/*.py", "**/*.go", "**/*.rb", "**/*.java", "**/*.kt", "**/*.ts"]
+alwaysApply: false
+---
+
+- Keep API contracts documented; update schemas and examples with breaking or visible changes.
+- Validate all external inputs at boundaries; return typed errors with safe messages.
+- Make operations idempotent where feasible; include retries with backoff for outbound calls.
+- Set explicit timeouts on network and database calls; avoid unbounded waits.
+- Add metrics/tracing for key paths; log failures with correlation identifiers, not secrets.
+- Apply migrations forward-only; ship backward-compatible schema changes when possible.
+- Guard long-running jobs with cancellation, progress logging, and alerting on failures.
+- Wrap data access in transactions when multiple writes must stay consistent.
+- Cover critical paths with tests (happy path, error path, and boundary conditions).

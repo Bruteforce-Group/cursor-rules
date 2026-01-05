@@ -9,6 +9,13 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
   - `globs`: file patterns the rules apply to.
   - `alwaysApply`: whether the rule applies even when globs don’t match the active file.
 
+### Included rule sets
+
+- `general.mdc`: Always-on guidance for all files.
+- `backend.mdc`: Server/back-end practices (APIs, data, reliability).
+- `frontend.mdc`: Client/front-end practices (UX, accessibility, performance).
+- `infra.mdc`: Infrastructure/IaC practices (Terraform, pipelines, safety).
+
 ## Usage
 
 1. Copy `.cursor/rules` into a target repo (or add this repo as a submodule).
