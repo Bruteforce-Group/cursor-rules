@@ -23,3 +23,8 @@ alwaysApply: true
 - Fail closed on security controls; prefer explicit denial over permissive defaults.
 - Keep dependencies updated; gate merges with vulnerability checks and pin where needed.
 - Provide safe defaults for crypto (modern algorithms, strong randomness, rotation paths).
+- Require SBOM generation and vulnerability scan for releases; verify signatures where supported (e.g., sigstore/cosign).
+- Use secret scanning and block committed secrets; prefer short-lived credentials with rotation procedures.
+- Enforce branch protection with required checks (tests, lint, security scans) for privileged branches.
+- Apply supply-chain hardening: lockfiles required, checksum/verify third-party artifacts, review CI scripts for token scope and least privilege.
+- Document security runbooks (incident response, key rotation, vulnerability management) and keep links current.

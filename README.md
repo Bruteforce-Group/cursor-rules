@@ -53,6 +53,10 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 - Manual bump: `scripts/bump_rule_versions.sh [new_version]` (defaults to patch bump from `VERSION`).
 - Check consistency: `scripts/check_rule_versions.sh`.
 
+### Security CI
+
+- `security.yml`: gitleaks (secret scanning), OSV-Scanner (dependency vulns), Trivy FS scan (HIGH/CRITICAL; ignore-unfixed). Trivy report is uploaded as an artifact.
+
 ### Object detection budgets (reference)
 
 | Tier          | Example hardware                       | Notes                                                   |

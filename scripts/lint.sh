@@ -185,4 +185,11 @@ if errors:
 print("Markdown link check passed.")
 PY
 
+echo "Checking for committed .env files..."
+if find . -path "./.git" -prune -o -path "./node_modules" -prune -o -path "./.venv" -prune -o -name ".env*" -print | grep -v '^./.git' | grep -q .; then
+  echo "Found committed .env* files. Remove them or move to secrets management." >&2
+  exit 1
+fi
+echo ".env check passed."
+
 echo "Lint checks completed."
