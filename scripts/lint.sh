@@ -45,6 +45,8 @@ for path in sorted(root.rglob("*.mdc")):
                     break
             if desc_val is None or not desc_val:
                 raise ValueError("empty description")
+            if len(desc_val) < 8:
+                raise ValueError("description too short (min 8 chars)")
             if len(desc_val) > 160:
                 raise ValueError("description too long (max 160 chars)")
         except Exception as e:
@@ -90,6 +92,8 @@ for path in sorted(root.rglob("*.mdc")):
                 raise ValueError("globs must include at least one entry")
             if not all(isinstance(x, str) and x.strip() for x in globs_val):
                 raise ValueError("globs entries must be non-empty strings")
+            if not any("/" in x or "**" in x for x in globs_val):
+                raise ValueError("globs must include at least one scoped pattern (e.g., path/ or **/)")
         except Exception as e:
             errors.append(f"{path}: invalid globs schema ({e})")
     if "alwaysApply" not in front:
