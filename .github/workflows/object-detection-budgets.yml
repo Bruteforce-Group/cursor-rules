@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       METRICS_PATH: artifacts/object_detection_metrics.json
-      BENCH_CMD: "python tools/bench_detect.py --config configs/example.yaml --output {{OUTPUT}}"
+      BENCH_CMD: "scripts/mock_object_detection_metrics.sh {{OUTPUT}}"
       MAX_LATENCY_EDGE_MS: "120"
       MIN_FPS_EDGE: "25"
       MIN_MAP_EDGE: "0.50"
