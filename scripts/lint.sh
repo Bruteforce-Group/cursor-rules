@@ -46,4 +46,47 @@ if errors:
 print("Rule validation passed.")
 PY
 
+echo "Validating YAML files..."
+python - <<'PY'
+import sys, pathlib, yaml
+roots = [pathlib.Path(".")]
+errors = []
+for root in roots:
+    for path in sorted(root.rglob("*.yml")) + sorted(root.rglob("*.yaml")):
+        # Skip common binary/venv/vendor dirs
+        parts = set(path.parts)
+        if {"node_modules", ".git", ".venv"}.intersection(parts):
+            continue
+        try:
+            yaml.safe_load(path.read_text(encoding="utf-8"))
+        except Exception as e:
+            errors.append(f"{path}: {e}")
+if errors:
+    print("YAML validation errors:")
+    for e in errors:
+        print(" -", e)
+    sys.exit(1)
+print("YAML validation passed.")
+PY
+
+echo "Validating JSON files..."
+python - <<'PY'
+import sys, pathlib, json
+errors = []
+for path in sorted(pathlib.Path(".").rglob("*.json")):
+    parts = set(path.parts)
+    if {"node_modules", ".git", ".venv"}.intersection(parts):
+        continue
+    try:
+        json.loads(path.read_text(encoding="utf-8"))
+    except Exception as e:
+        errors.append(f"{path}: {e}")
+if errors:
+    print("JSON validation errors:")
+    for e in errors:
+        print(" -", e)
+    sys.exit(1)
+print("JSON validation passed.")
+PY
+
 echo "Lint checks completed."
