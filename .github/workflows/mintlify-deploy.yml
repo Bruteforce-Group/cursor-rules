@@ -31,8 +31,8 @@ jobs:
       - name: Check docs for broken internal links
         working-directory: docs
         run: |
-          if [ ! -f ../docs.json ]; then
-            echo "docs.json not present at repo root; skipping mintlify broken-links";
+          if [ ! -f docs.json ]; then
+            echo "docs/docs.json not present; skipping mintlify broken-links";
             exit 0
           fi
           MINTLIFY_CI=1 npx mintlify@latest broken-links
