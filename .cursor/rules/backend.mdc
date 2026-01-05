@@ -1,6 +1,20 @@
 ---
 description: Backend and API rules for server-side code and data layers
-globs: ["backend/**", "server/**", "api/**", "**/*.py", "**/*.go", "**/*.rb", "**/*.java", "**/*.kt", "**/*.ts"]
+globs: [
+  "backend/**",
+  "server/**",
+  "api/**",
+  "functions/**",
+  "services/**",
+  "src/server/**",
+  "src/api/**",
+  "src/functions/**",
+  "**/*.py",
+  "**/*.go",
+  "**/*.rb",
+  "**/*.java",
+  "**/*.kt"
+]
 alwaysApply: false
 ---
 

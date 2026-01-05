@@ -1,6 +1,14 @@
 ---
 description: Compliance and governance rules (auditability, retention, approvals)
-globs: ["compliance/**", "**/*.tf", "**/*.yaml", "**/*.yml", ".github/workflows/*.yml", "**/*.py", "**/*.ts", "**/*.js"]
+globs: [
+  "compliance/**",
+  ".github/workflows/*compliance*.yml",
+  ".github/workflows/*governance*.yml",
+  "infra/**",
+  "**/*.tf",
+  "**/*policy*.yaml",
+  "**/*policy*.yml"
+]
 alwaysApply: false
 ---
 

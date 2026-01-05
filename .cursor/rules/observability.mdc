@@ -1,6 +1,16 @@
 ---
 description: Observability rules for metrics, logs, traces, and alerting
-globs: ["observability/**", "ops/**", "**/*.ts", "**/*.js", "**/*.py", "**/*.go", "**/*.rb", "**/*.java", "**/*.kt", "**/*.tf", "**/*.yml", "**/*.yaml"]
+globs: [
+  "observability/**",
+  "ops/**",
+  "telemetry/**",
+  ".github/workflows/*observability*.yml",
+  ".github/workflows/*telemetry*.yml",
+  "**/logging/**",
+  "**/metrics/**",
+  "**/tracing/**",
+  "infra/**"
+]
 alwaysApply: false
 ---
 

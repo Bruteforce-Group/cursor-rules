@@ -1,6 +1,21 @@
 ---
 description: Performance and efficiency rules for services and applications
-globs: ["perf/**", "performance/**", "**/*.ts", "**/*.js", "**/*.py", "**/*.go", "**/*.rb", "**/*.java", "**/*.kt"]
+globs: [
+  "perf/**",
+  "performance/**",
+  "benchmarks/**",
+  "load/**",
+  "stress/**",
+  "**/*benchmark*",
+  "**/*perf*",
+  "**/*loadtest*",
+  "**/*k6*",
+  "**/*.py",
+  "**/*.go",
+  "**/*.rb",
+  "**/*.java",
+  "**/*.kt"
+]
 alwaysApply: false
 ---
 
