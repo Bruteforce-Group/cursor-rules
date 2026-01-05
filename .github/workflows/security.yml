@@ -67,3 +67,37 @@ jobs:
         with:
           name: trivy-lock-report
           path: trivy-lock-report.txt
+
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate SBOM with Syft
+        uses: anchore/syft-action@v0.1.13
+        with:
+          output: "sbom.cyclonedx.json"
+      - name: Scan SBOM with Trivy
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: "sbom"
+          input: "sbom.cyclonedx.json"
+          severity: "HIGH,CRITICAL"
+          ignore-unfixed: true
+          exit-code: "1"
+          format: "table"
+          output: "trivy-sbom-report.txt"
+      - name: Upload SBOM and report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-and-report
+          path: |
+            sbom.cyclonedx.json
+            trivy-sbom-report.txt
+
+  canary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Canary placeholder
+        run: |
+          echo "Canary check not configured. Set CANARY_CMD or remove this job when wired."
+          exit 0
