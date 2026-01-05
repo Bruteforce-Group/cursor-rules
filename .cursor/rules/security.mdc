@@ -1,7 +1,17 @@
 ---
 description: Security rules for secure-by-default development and operations
-globs: ["security/**", "**/*.tf", "**/*.yml", "**/*.yaml", "**/*.py", "**/*.ts", "**/*.js", "**/*.go", "**/*.rb"]
-alwaysApply: false
+globs: [
+  "security/**",
+  "apps/*/security/**",
+  "packages/*/security/**",
+  "services/**",
+  "apps/**/server/**",
+  "packages/**/server/**",
+  "**/*.tf",
+  "**/*.yml",
+  "**/*.yaml"
+]
+alwaysApply: true
 ---
 
 - Design for least privilege: scope tokens/roles narrowly and avoid broad wildcards.
