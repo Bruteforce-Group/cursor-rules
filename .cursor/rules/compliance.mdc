@@ -1,6 +1,7 @@
 ---
 description: Compliance and governance rules (auditability, retention, approvals)
 alwaysApply: true
+version: 1.0.0
 ---
 - Ensure changes to regulated data paths have documented approvals and change records.
 - Maintain audit logs for access and mutations of sensitive resources; protect and retain per policy.
