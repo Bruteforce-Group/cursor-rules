@@ -27,3 +27,10 @@ description: "How to add these Cursor rules to another repo."
 - Update rules when your project structure changes (keep globs current).
 - Add frontmatter (`title`, `description`) to every MDX page.
 - Avoid broken links: update `docs/docs.json` and the corresponding files together.
+
+## Adding another project (siteA, siteB, etc.)
+
+1) Create a folder per project under `docs/` (e.g., `docs/sitea/`, `docs/siteb/`) with an `index.mdx` (and other pages as needed).
+2) Update `docs/docs.json` to add nav entries that point to those pages (paths without `.mdx`, e.g., `"sitea/index"` or `"siteb/getting-started"`).
+3) Keep nav and files in sync; the link check will fail if a listed page doesn’t exist.
+4) Deploys are handled by the Mintlify app; pushes to `main` will publish the new sections at `https://docs.bozza.au/sitea/...` or `.../siteb/...`.
