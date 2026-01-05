@@ -36,6 +36,19 @@ for path in sorted(root.rglob("*.mdc")):
     front = "\n".join(lines[1:end])
     if "description:" not in front:
         errors.append(f"{path}: missing description in frontmatter")
+    else:
+        try:
+            desc_val = None
+            for line in front.splitlines():
+                if line.strip().startswith("description:"):
+                    desc_val = line.split("description:", 1)[1].strip()
+                    break
+            if desc_val is None or not desc_val:
+                raise ValueError("empty description")
+            if len(desc_val) > 160:
+                raise ValueError("description too long (max 160 chars)")
+        except Exception as e:
+            errors.append(f"{path}: invalid description ({e})")
     if "globs:" not in front:
         errors.append(f"{path}: missing globs in frontmatter")
     else:
@@ -73,6 +86,8 @@ for path in sorted(root.rglob("*.mdc")):
             globs_val = ast.literal_eval(literal)
             if not isinstance(globs_val, list) or not globs_val:
                 raise ValueError("globs must be a non-empty list")
+            if len(globs_val) < 1:
+                raise ValueError("globs must include at least one entry")
             if not all(isinstance(x, str) and x.strip() for x in globs_val):
                 raise ValueError("globs entries must be non-empty strings")
         except Exception as e:
