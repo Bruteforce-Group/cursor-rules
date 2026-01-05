@@ -1,0 +1,28 @@
+---
+description: Object detection and vision rules for coverage, privacy, and latency-sensitive deployments
+globs: [
+  "object-detection/**",
+  "vision/**",
+  "detection/**",
+  "ml/**",
+  "ai/**",
+  "models/**",
+  "apps/**/vision/**",
+  "packages/**/vision/**",
+  "**/*.ipynb",
+  "**/*.py",
+  "**/*.yaml",
+  "**/*.yml"
+]
+alwaysApply: false
+---
+
+- Choose architectures to match device budgets: optimize for real-time latency (quantization/pruning) while keeping accuracy targets explicit.
+- Ensure datasets cover deployment environments: lighting, weather, camera optics (including fisheye), viewpoints, occlusion, motion blur, and small-object cases.
+- Handle wide/FOV or fisheye cameras intentionally: either rectify frames with calibration or train fisheye-aware models; validate edge-of-frame performance.
+- Use clear train/val/test splits and track drift; re-evaluate when environments change or new classes appear.
+- Augment realistically (scales, crops, brightness/contrast/noise) but avoid augmentations that reduce label fidelity for small/critical objects.
+- Apply privacy-first masking for sensitive categories (faces, plates) post-detection; never store raw payloads longer than required.
+- Evaluate end-to-end: latency/throughput on target hardware, detection quality (mAP/recall), and robustness to load; keep budgets and results documented.
+- Smooth detections with stable tracking/filters to reduce jitter; pad boxes slightly to avoid under-masking small targets.
+- Validate pipelines with unit tests (pre/post-processing), integration tests (detect → mask → store/search), and performance tests under load.

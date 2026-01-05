@@ -24,6 +24,7 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 - `observability.mdc`: Observability practices (metrics, logs, traces, alerts).
 - `performance.mdc`: Performance and efficiency practices (profiling, budgets).
 - `compliance.mdc`: Compliance practices (auditability, retention, approvals).
+- `object-detection.mdc`: Vision/object-detection practices (coverage, privacy, latency).
 
 ## Usage
 
