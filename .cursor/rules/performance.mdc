@@ -1,0 +1,13 @@
+---
+description: Performance and efficiency rules for services and applications
+globs: ["perf/**", "performance/**", "**/*.ts", "**/*.js", "**/*.py", "**/*.go", "**/*.rb", "**/*.java", "**/*.kt"]
+alwaysApply: false
+---
+
+- Establish performance budgets for latency, throughput, and resource use; measure against them in CI or canary.
+- Profile hotspots with appropriate tools; optimize based on evidence, not guesswork.
+- Prefer streaming/iterators over loading whole payloads into memory; avoid unnecessary copies.
+- Batch external calls when possible; cache safely with clear TTLs and invalidation rules.
+- Use timeouts and backpressure to protect services under load; validate concurrency safety.
+- Keep indexes and query plans healthy; avoid unbounded scans and N+1 patterns.
+- Track regressions with benchmarks or perf tests; gate releases on significant degradation.

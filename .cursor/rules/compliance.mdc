@@ -1,0 +1,13 @@
+---
+description: Compliance and governance rules (auditability, retention, approvals)
+globs: ["compliance/**", "**/*.tf", "**/*.yaml", "**/*.yml", ".github/workflows/*.yml", "**/*.py", "**/*.ts", "**/*.js"]
+alwaysApply: false
+---
+
+- Ensure changes to regulated data paths have documented approvals and change records.
+- Maintain audit logs for access and mutations of sensitive resources; protect and retain per policy.
+- Apply data retention/expiration policies; avoid keeping regulated data longer than required.
+- Enforce separation of duties for sensitive actions (e.g., production access, key rotation).
+- Keep dependencies and images patched; document exceptions with expiry and owners.
+- Validate CI/CD includes compliance checks (license scanning, SBOM, signature/verification).
+- Provide clear runbooks for compliance incidents and evidence collection.
