@@ -89,4 +89,25 @@ if errors:
 print("JSON validation passed.")
 PY
 
+echo "Checking Markdown links for empty targets..."
+python - <<'PY'
+import re, sys, pathlib
+errors = []
+link_pattern = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
+for path in sorted(pathlib.Path(".").rglob("*.md")):
+    if any(p in {"node_modules", ".git", ".venv"} for p in path.parts):
+        continue
+    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        for match in link_pattern.finditer(line):
+            target = match.group(2).strip()
+            if target == "" or target.lower().startswith("javascript:"):
+                errors.append(f"{path}:{lineno} has empty/invalid link target")
+if errors:
+    print("Markdown link issues:")
+    for e in errors:
+        print(" -", e)
+    sys.exit(1)
+print("Markdown link check passed.")
+PY
+
 echo "Lint checks completed."

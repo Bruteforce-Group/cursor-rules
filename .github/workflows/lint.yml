@@ -26,7 +26,16 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pyyaml
 
+      - name: Install actionlint
+        run: |
+          curl -sSf https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash
+          echo "$PWD" >> $GITHUB_PATH
+
       - name: Run lint.sh
         run: |
           chmod +x scripts/lint.sh
           scripts/lint.sh
+
+      - name: Lint GitHub workflows with actionlint
+        run: |
+          ./actionlint
