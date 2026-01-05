@@ -1,0 +1,27 @@
+name: Generate Dependabot Config
+
+on:
+  workflow_dispatch: {}
+  pull_request:
+    paths:
+      - "scripts/gen_dependabot_from_manifests.py"
+      - ".github/workflows/dependabot-generate.yml"
+      - "**/package.json"
+      - "**/requirements*.txt"
+      - "**/go.mod"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml
+      - name: Generate dependabot.yml
+        run: |
+          chmod +x scripts/gen_dependabot_from_manifests.py
+          scripts/gen_dependabot_from_manifests.py
+      - name: Show diff
+        run: git diff --stat -- .github/dependabot.yml
