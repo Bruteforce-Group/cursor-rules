@@ -51,25 +51,47 @@ for path in sorted(root.rglob("*.mdc")):
                 raise ValueError("description too long (max 160 chars)")
         except Exception as e:
             errors.append(f"{path}: invalid description ({e})")
+    # Determine if rule is always-applied (universal rules may omit globs)
+    is_always_apply = any(
+        line.strip().startswith("alwaysApply") and "true" in line.split(":", 1)[1].lower()
+        for line in front.splitlines()
+        if "alwaysApply" in line
+    )
+
     if "globs:" not in front:
-        errors.append(f"{path}: missing globs in frontmatter")
+        if not is_always_apply:
+            errors.append(f"{path}: missing globs in frontmatter (required unless alwaysApply: true)")
     else:
         # Simple schema check: globs should parse as a list (YAML superset) and contain only strings
         try:
-            # naive parse: extract substring after 'globs:' and before any next top-level key
+            # Parse globs value: supports inline lists, multi-line JSON arrays, and YAML block lists
             globs_lines = []
             capture = False
+            bracket_open = False
             for line in front.splitlines():
                 if line.strip().startswith("globs:"):
-                    capture = True
-                    # allow inline list or block list
-                    if "[" in line:
-                        globs_lines.append(line.split("globs:", 1)[1])
+                    rest = line.split("globs:", 1)[1].strip()
+                    if "[" in rest and "]" in rest:
+                        # Inline single-line list: globs: ["a/**", "b/**"]
+                        globs_lines.append(rest)
+                        break
+                    elif "[" in rest:
+                        # Multi-line list starting on globs: line
+                        globs_lines.append(rest)
+                        bracket_open = True
+                        capture = True
+                    else:
+                        # YAML-style block list follows
+                        capture = True
                     continue
                 if capture:
-                    if line and not line.startswith(" "):
-                        break
                     globs_lines.append(line)
+                    if bracket_open and "]" in line:
+                        break
+                    elif not bracket_open:
+                        # YAML block: stop at non-indented, non-list line
+                        if line and not line.startswith(" ") and not line.strip().startswith("-"):
+                            break
             globs_text = "\n".join(globs_lines).strip()
             if not globs_text:
                 raise ValueError("globs is empty")

@@ -1,7 +1,18 @@
 ---
 description: ML/AI pipeline rules for data prep, training, evaluation, and serving
-alwaysApply: true
-version: 1.0.0
+version: 1.1.0
+globs: [
+  "ml/**",
+  "ai/**",
+  "models/**",
+  "training/**",
+  "apps/**/ml/**",
+  "apps/**/ai/**",
+  "packages/**/ml/**",
+  "packages/**/ai/**",
+  "**/*.ipynb"
+]
+alwaysApply: false
 ---
 - Track datasets and model artifacts with lineage and versioning; record training configs and seeds.
 - Separate train/val/test; prevent leakage and ensure reproducibility with deterministic steps.

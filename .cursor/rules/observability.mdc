@@ -1,7 +1,17 @@
 ---
 description: Observability rules for metrics, logs, traces, and alerting
+version: 1.1.0
+globs: [
+  "monitoring/**",
+  "observability/**",
+  "telemetry/**",
+  "apps/**/monitoring/**",
+  "packages/**/monitoring/**",
+  "**/*metrics*",
+  "**/*tracing*",
+  "**/*logging*"
+]
 alwaysApply: true
-version: 1.0.0
 ---
 - Emit structured, leveled logs; avoid secrets/PII and include correlation/request IDs.
 - Define SLOs for critical user journeys; derive SLIs from user-visible outcomes.

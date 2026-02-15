@@ -1,0 +1,23 @@
+---
+description: Technical writing and documentation standards for Mintlify and general docs
+version: 1.1.0
+globs: [
+  "docs/**",
+  "apps/**/docs/**",
+  "packages/**/docs/**",
+  "**/*.mdx",
+  "**/*.md"
+]
+alwaysApply: false
+---
+
+- Use clear, direct language; write in second person ("you") for instructions, active voice, and present tense.
+- Lead with the most important information (inverted pyramid); break complex procedures into numbered steps with prerequisites and expected outcomes.
+- Maintain consistent terminology throughout; define jargon on first use and use parallel structure in lists and headings.
+- Use Mintlify components appropriately: Steps for procedures, Tabs for platform-specific content, CodeGroup for multi-language examples, Accordions for progressive disclosure, RequestExample/ResponseExample for API docs.
+- Include complete, runnable code examples with realistic data, proper error handling, expected output, and language/filename annotations; never include real secrets.
+- Document all API parameters (including optional) with clear descriptions; show both success and error response examples with rate limiting details.
+- Ship accessible docs: descriptive alt text for all images (wrapped in Frame), proper heading hierarchy starting at H2, specific link text instead of "click here."
+- Begin every page with YAML frontmatter (title, description); keep keyword-rich headings for navigation and SEO.
+- Test all code examples before publishing; include troubleshooting sections for likely failure points and verification steps to confirm success.
+- For the full Mintlify component reference and examples, see docs/mintlify-style-guide.md or fetch https://docs.bozza.au/llms.txt.

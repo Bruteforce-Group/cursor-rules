@@ -1,0 +1,35 @@
+---
+description: AI insights module standards for deterministic analytics, model routing, and LLM integration
+version: 1.1.0
+globs: [
+  "ai/**",
+  "insights/**",
+  "ml/**",
+  "models/**",
+  "analytics/**",
+  "apps/**/ai/**",
+  "apps/**/insights/**",
+  "packages/**/ai/**",
+  "packages/**/insights/**",
+  "**/*insight*",
+  "**/*model_router*",
+  "**/*llm*"
+]
+alwaysApply: false
+---
+
+- Inspect the repository before proposing AI changes; cite file paths and verify integration points against existing APIs, UI flows, and import pipelines.
+- Gate all AI capabilities behind feature flags (AI_ENABLED, AI_PROVIDER, AI_FALLBACK_MODE, AI_REDACTION_POLICY); never expose unfinished or experimental AI features without a flag.
+- Implement a two-layer architecture: a deterministic analytics engine (Layer 1, always-on, no LLM dependency) and a model router for LLM-powered enrichment (Layer 2, optional).
+- Layer 1 must function fully offline: aggregation-based insight detection, statistical anomaly detection, change-point detection for time series, clustering/segmentation, association analysis, and scored/ranked output with severity, confidence, and impact radius.
+- Persist insights with evidence, score, confidence, impact radius, tenant ID, and job metadata; use forward-only migrations for schema changes and ensure tenant isolation across analytics, caching, embeddings, and logs.
+- Implement a provider-agnostic model router: external LLM primary (configurable provider), local Apple Silicon fallback (llama.cpp Metal/MPS build or equivalent optimized runtime), and template-based narratives as last resort.
+- Apply failure handling to all model calls: timeouts, retries with jitter, circuit breaker pattern, automatic provider fallback; never block deterministic analytics on model failures.
+- Minimize data sent to external providers: apply configurable redaction (allow/deny lists), strip PII before transmission, enforce per-tenant cost caps and request throttling, and store audit metadata (never raw sensitive content).
+- Mitigate prompt injection: sanitize all user-provided inputs before inclusion in prompts, validate model outputs against expected schemas, and enforce strict tenant scoping on all LLM context.
+- Expose standard REST endpoints (POST /insights/run, GET /insights, GET /insights/{id}, optional POST /insights/ask) with pagination, tenant scoping, auth enforcement, rate limiting, and caching where appropriate.
+- Include UI integration by default: insight cards (title, severity, confidence, timeframe, impacted entities), drill-down views (evidence, charts via existing chart library, "why we think this" explanations, suggested next questions), and run controls with mode indicator (External / Local / Template).
+- Schedule insight runs context-aware: trigger after import pipeline completion when a daily import exists, support nightly cron and manual dispatch via GitHub Actions, prevent overlapping jobs, persist job state, and support incremental runs where possible.
+- Emit model-specific structured metrics: insight_runs_total, insight_run_duration_seconds, model_calls_total, model_latency_ms, model_fallback_total, tokens_in_estimated, tokens_out_estimated, redactions_total, cache_hits_total — partitioned by provider, tenant, and mode.
+- Optimize local inference for Apple Silicon: use Metal/MPS acceleration, keep model footprint minimal, support local embeddings when needed, and validate inference latency against acceptable thresholds.
+- Target >=90% test coverage for core AI logic: unit tests for detection algorithms, ranking/scoring, redaction, provider routing, and fallback; API contract tests for insight endpoints; UI smoke tests; and a synthetic dataset generator for deterministic validation.

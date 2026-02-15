@@ -1,6 +1,6 @@
 ---
 description: Object detection and vision rules for coverage, privacy, and latency-sensitive deployments
-version: 1.0.0
+version: 1.1.0
 globs: [
   "object-detection/**",
   "vision/**",
@@ -15,7 +15,7 @@ globs: [
   "**/*.yaml",
   "**/*.yml"
 ]
-alwaysApply: true
+alwaysApply: false
 ---
 
 - Choose architectures to match device budgets: optimize for real-time latency (quantization/pruning) while keeping accuracy targets explicit.

@@ -60,7 +60,6 @@ readme.write_text(text, encoding="utf-8")
 PY
 fi
 
-MANIFEST="$ROOT/.governance/versions.json"
 python - <<PY
 import json, pathlib
 root = pathlib.Path("$ROOT")

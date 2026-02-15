@@ -2,12 +2,22 @@
 
 Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.cursor/rules` directory into any project to enforce the shared guidance below, then add project-specific rule files as needed.
 
+> **Distribution note:** Modern Cursor versions auto-detect `.cursor/rules/*.mdc` files without any additional configuration. The `.cursorrules` pointer file at the repo root is kept for backward compatibility but is not required for Cursor >= 0.43.
+
 ## Layout
 
 - `.cursor/rules/*.mdc`: Individual rule files written in Cursor's Markdown-with-frontmatter format.
   - `description`: short summary of what the rule set covers.
-  - `globs`: file patterns the rules apply to.
-  - `alwaysApply`: whether the rule applies even when globs don’t match the active file.
+  - `globs`: file patterns the rules apply to (required unless `alwaysApply: true`).
+  - `alwaysApply`: whether the rule applies even when globs don't match the active file.
+  - `version`: semver version tracked by governance CI.
+
+### Rule scoping
+
+Rules are divided into two categories:
+
+- **Always-applied (cross-cutting):** `general`, `security`, `observability`, `compliance` — these apply regardless of what file is active, because they represent universal engineering standards.
+- **Glob-scoped (domain-specific):** All other rules — these only activate when the active file matches their `globs` patterns, reducing context noise and improving signal quality.
 
 ### Included rule sets
 
@@ -17,37 +27,41 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 - `infra.mdc`: Infrastructure/IaC practices (Terraform, pipelines, safety).
 - `mobile.mdc`: Mobile platform practices (iOS/Android, performance, offline).
 - `data.mdc`: Data/analytics practices (pipelines, schemas, privacy).
-- `security.mdc`: Secure development practices (threat modeling, hardening).
+- `security.mdc`: Secure development practices (threat modeling, hardening). Always-applied.
 - `ml-ai.mdc`: ML/AI pipeline practices (data, training, serving).
 - `secrets.mdc`: Secret management practices (vaults, rotation, usage).
 - `qa-testing.mdc`: QA and testing practices (pyramid, determinism, coverage).
-- `observability.mdc`: Observability practices (metrics, logs, traces, alerts).
+- `observability.mdc`: Observability practices (metrics, logs, traces, alerts). Always-applied.
 - `performance.mdc`: Performance and efficiency practices (profiling, budgets).
-- `compliance.mdc`: Compliance practices (auditability, retention, approvals).
+- `compliance.mdc`: Compliance practices (auditability, retention, approvals). Always-applied.
 - `object-detection.mdc`: Vision/object-detection practices (coverage, privacy, latency).
+- `ai-insights.mdc`: AI insights module standards (deterministic analytics, model routing, LLM integration).
+- `docs-writing.mdc`: Technical writing and documentation standards (Mintlify, general docs).
 
 ### Rule versions
 
-| Module | Version |
-| --- | --- |
-| general | 1.0.0 |
-| backend | 1.0.0 |
-| frontend | 1.0.0 |
-| infra | 1.0.0 |
-| mobile | 1.0.0 |
-| data | 1.0.0 |
-| security | 1.0.0 |
-| ml-ai | 1.0.0 |
-| secrets | 1.0.0 |
-| qa-testing | 1.0.0 |
-| observability | 1.0.0 |
-| performance | 1.0.0 |
-| compliance | 1.0.0 |
-| object-detection | 1.0.0 |
+| Module | Version | Scoping |
+| --- | --- | --- |
+| general | 1.1.0 | always-applied |
+| backend | 1.1.0 | glob-scoped |
+| frontend | 1.1.0 | glob-scoped |
+| infra | 1.1.0 | glob-scoped |
+| mobile | 1.1.0 | glob-scoped |
+| data | 1.1.0 | glob-scoped |
+| security | 1.1.0 | always-applied |
+| ml-ai | 1.1.0 | glob-scoped |
+| secrets | 1.1.0 | glob-scoped |
+| qa-testing | 1.1.0 | glob-scoped |
+| observability | 1.1.0 | always-applied |
+| performance | 1.1.0 | glob-scoped |
+| compliance | 1.1.0 | always-applied |
+| object-detection | 1.1.0 | glob-scoped |
+| ai-insights | 1.1.0 | glob-scoped |
+| docs-writing | 1.1.0 | glob-scoped |
 
 ### Versioning & governance
 
-- Repo version: `VERSION` (currently 1.0.0) and module versions in each `.mdc`.
+- Repo version: `VERSION` (currently 1.1.0) and module versions in each `.mdc`.
 - Baseline: `.governance/versions.json` records expected versions; CI (`version-governance.yml`) fails if mismatched.
 - Local hook (optional): run `git config core.hooksPath .githooks` to enable the provided `pre-commit` hook; it auto-runs `scripts/bump_rule_versions.sh` when rules change and restages versioned files.
 - Manual bump: `scripts/bump_rule_versions.sh [new_version]` (defaults to patch bump from `VERSION`).
@@ -81,6 +95,18 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 
 ### Recent updates
 
+#### v1.1.0
+
+- **Rule scoping overhaul:** Set `alwaysApply: false` on domain-specific rules so they only activate when globs match. Cross-cutting rules (general, security, observability, compliance) remain always-applied.
+- **Added `ai-insights.mdc`:** Comprehensive AI insights module standards covering deterministic analytics, provider-agnostic model routing with Apple Silicon fallback, feature flags, scheduling, and model-specific observability metrics.
+- **Added `docs-writing.mdc`:** Technical writing and documentation standards extracted from the Mintlify style guide, scoped to docs and markdown files.
+- **Added globs** to `ml-ai.mdc`, `observability.mdc`, and `compliance.mdc` for proper scoping.
+- **Fixed lint script:** Universal rules (`alwaysApply: true`) can now omit `globs` without failing validation.
+- **Relocated Mintlify style guide:** Full component reference moved from `.cursor/rules.md` to `docs/mintlify-style-guide.md`.
+- **Version governance updated:** `.governance/versions.json` now tracks all 16 rule modules.
+
+#### v1.0.0
+
 - Added authZ-aware rate limiting/abuse protection to backend rules.
 - Added CI secret scanning with rotation cadences in compliance/general rules.
 - Added consent/DSAR/erasure handling and privacy-aware telemetry in data/frontend/mobile rules.
@@ -93,19 +119,22 @@ Private repository for storing reusable Cursor rules. Copy or cherry-pick the `.
 
 ## Usage
 
-1. Copy `.cursor/rules` into a target repo (or add this repo as a submodule).
-2. Add or edit `.mdc` files to cover language- or area-specific guidance (e.g., `backend.mdc`, `frontend.mdc`, `infra.mdc`).
-3. Commit rule changes so updates are versioned alongside code.
+1. Copy `.cursor/rules/` into a target repo (or add this repo as a submodule). Modern Cursor versions auto-detect `.mdc` files in `.cursor/rules/` — no additional configuration needed.
+2. Optionally copy `.cursorrules` for backward compatibility with older Cursor versions.
+3. Add or edit `.mdc` files to cover language- or area-specific guidance (e.g., `backend.mdc`, `frontend.mdc`, `infra.mdc`).
+4. Set `alwaysApply: false` on domain-specific rules and scope them with `globs` for best signal-to-noise ratio.
+5. Commit rule changes so updates are versioned alongside code.
 
 ## Documentation (docs.bozza.au)
 
 - Primary docs are hosted from `bruteforce-group/docs` (branch `main`, path `docs/`) and published to `https://docs.bozza.au` via the Mintlify GitHub App. This repo is for rules; author docs in the central docs repo.
 - Keep `docs/docs.json` in that repo in sync with actual files: every page listed must have a matching MDX/MD file under `docs/`. Add or remove nav entries together with the files to avoid broken-links failures.
+- The full Mintlify component reference and style guide is available at `docs/mintlify-style-guide.md`.
 - If you run link checks here, `.github/workflows/mintlify-deploy.yml` only runs `mintlify broken-links` from `docs/` and skips when `docs/docs.json` is absent. No deploy step runs in this repo.
 
 ## Contributing
 
 - Keep rules concise and action-oriented.
-- Prefer scoped rule files with targeted `globs`.
+- Prefer scoped rule files with targeted `globs` and `alwaysApply: false` for domain-specific guidance.
+- Only use `alwaysApply: true` for genuinely cross-cutting concerns (security, observability, compliance).
 - Document rationale when adding opinionated rules to reduce friction.
-

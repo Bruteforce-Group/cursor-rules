@@ -1,6 +1,6 @@
 ---
 description: Performance and efficiency rules for services and applications
-version: 1.0.0
+version: 1.1.0
 globs: [
   "perf/**",
   "performance/**",
@@ -19,7 +19,7 @@ globs: [
   "**/*.java",
   "**/*.kt"
 ]
-alwaysApply: true
+alwaysApply: false
 ---
 
 - Establish performance budgets for latency, throughput, and resource use; measure against them in CI or canary.
