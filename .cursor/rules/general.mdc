@@ -1,8 +1,14 @@
 ---
 description: General engineering rules that apply across the codebase
-version: 1.1.0
+version: 1.2.1
 alwaysApply: true
 ---
+- **Be explicit about what has and has not been done**: When responding to user requests, clearly separate completed actions from pending ones. Avoid ambiguity. For each action you describe, state its status explicitly:
+  - **Code changes**: Say whether you only edited files (e.g. "Coded but not run") or also executed/verified (e.g. "Coded and ran successfully").
+  - **Git**: Say whether changes are committed or not (e.g. "Not yet committed" or "Committed as abc123").
+  - **Deployment**: Say whether changes are deployed or not (e.g. "Not deployed; push to main to trigger deploy" or "Deployed via workflow run X").
+  Use a brief status section at the end of your response when relevant (e.g. "**Status:** Coded ✓ | Run ✓ | Committed ✗ | Deployed ✗").
+- **Always keep software and dependencies up to date**: Before adding a dependency, prefer the latest stable version. When touching package.json, requirements*.txt, or lockfiles, run audits and upgrades (e.g. npm audit, npm update, pip-audit, pip list --outdated). Prefer Dependabot/Renovate PRs; merge or fix promptly.
 - Keep README and relevant docs in sync with behavior changes.
 - Prefer small, focused changes; include or update tests when behavior shifts.
 - Write clear commit messages in imperative mood and meaningful PR descriptions.
