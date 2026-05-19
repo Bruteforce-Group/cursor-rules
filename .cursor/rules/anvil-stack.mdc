@@ -1,0 +1,88 @@
+---
+description: ANVIL platform architecture, component registry, and routing hierarchy — always apply
+alwaysApply: true
+---
+
+# ANVIL Stack Architecture
+
+**Hub:** `https://hub.boz.dev` (MCP endpoint: `https://hub.bozza.au/mcp`)
+**Monorepo:** `/Users/danielborrowman/Developer/Projects/boz.dev.ANVIL/`
+**Auth:** Static Bearer token via `HUB_API_KEY` secret. Never hardcode — always load from env.
+**CF Account ID (components):** `dac01715f027bf360c500dce1d805d94`
+
+## Tool Routing Hierarchy (STRICT — never skip steps)
+
+1. `anvil_catalog` — check if ANVIL has a component for this task
+2. `anvil_dispatch` — route through the hub if a component exists
+3. Direct MCP plugin — only if ANVIL has no equivalent
+4. Raw API (curl/bash) — only if no MCP exists
+5. Browser automation — ABSOLUTE LAST RESORT
+
+Never downgrade silently. Surface errors and fall back only after confirming unreachable.
+
+## Monorepo Structure
+
+```
+boz.dev.ANVIL/
+  hub/src/index.js          ← hub worker (anvil-hub-mcp)
+  components/
+    anvil-cloudflare-mcp/   ← CF API, Access, DNS, Gateway (255 tools)
+    anvil-clickup-mcp/      ← ClickUp tasks, docs, time
+    anvil-github-mcp/       ← GitHub repos, PRs, issues
+    anvil-alerts-mcp/       ← ntfy.sh push notifications
+    anvil-tessie-mcp/       ← Tesla via Tessie API
+    anvil-unifi-mcp/        ← UniFi network
+    anvil-ms365-mcp/        ← Microsoft 365
+    anvil-gam-mcp/          ← Google Workspace (GAM)
+    anvil-elevenlabs-mcp/   ← TTS, voice, transcription
+    anvil-legal-scanner/    ← QLD legal sector
+    anvil-chrome-devtools-mcp/ ← Browser rendering, Lighthouse
+  scripts/
+    rotate-hub-api-key.sh
+```
+
+## Active Components
+
+| ID | Endpoint | Purpose |
+|---|---|---|
+| cloudflare-mcp | cloudflare.anvil.bozza.au | CF API, Zero Trust, DNS |
+| clickup-mcp | clickup.anvil.bozza.au | Task/project management |
+| github-mcp | github.anvil.bozza.au | Repos, PRs, Actions |
+| alerts-mcp | alerts.anvil.bozza.au | Push notifications |
+| tessie-mcp | tessie.anvil.bozza.au | Tesla |
+| unifi-mcp | unifi.anvil.bozza.au | Network |
+| ms365-mcp | ms365.anvil.bozza.au | Microsoft 365 |
+| gam-mcp | gam.anvil.bozza.au | Google Workspace |
+| elevenlabs-mcp | elevenlabs.anvil.bozza.au | TTS/audio |
+| chrome-devtools-mcp | chrome-devtools.anvil.boz.dev | Browser, Lighthouse |
+
+## Hub-Level Tools
+
+| Tool | Purpose |
+|---|---|
+| `anvil_status` / `anvil_health_check` | Platform health |
+| `anvil_registry` | List, register, update, deactivate components |
+| `anvil_catalog` | Full tool catalog across all components |
+| `anvil_dispatch` | Route commands to any component |
+| `anvil_events` / `anvil_search` | Unified event log |
+| `anvil_triage` | AI-powered event classification |
+| `anvil_memory` | Three-tier memory (short/medium/long-term) |
+| `anvil_config` | Platform configuration keys |
+| `anvil_git_push` | Push to ANVIL repo via GitHub API |
+| `anvil_knowledge` | Code-memory ingestion |
+
+## Deploy Commands
+
+```bash
+# Hub
+cd hub && npx wrangler deploy
+
+# Component
+cd components/anvil-{name}-mcp && npx wrangler deploy
+```
+
+## GitHub Org
+
+Default repo owner: **`Bruteforce-Group`** (not `bozza-man`).
+Use personal namespace ONLY when explicitly told to in the current session.
+Applies to: `gh` CLI, GitHub MCP, `anvil_git_push`, webhooks, deploy keys, README links, everything.

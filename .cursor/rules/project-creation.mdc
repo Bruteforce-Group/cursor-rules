@@ -1,0 +1,82 @@
+---
+description: Project creation standards — scaffold, structure, tooling, ClickUp integration
+alwaysApply: true
+---
+
+# Project Creation Rule
+
+## Standard Location
+`/Users/danielborrowman/Developer/Projects/<project-name>/`
+
+## GitHub Org
+Always: `Bruteforce-Group/<project-name>` — never `bozza-man` unless explicitly told to.
+
+## Default Architecture
+Front-end + back-end communicating via APIs (unless specified otherwise).
+CLI projects: [Textual](https://textual.textualize.io) as default UI framework.
+
+## Mandatory Steps (Every Project)
+
+1. **Directory** at standard location
+2. **Git** — init, `.gitignore`, signed conventional commits, `.githooks/pre-commit`
+3. **Quality tooling** — linters, formatters, type checkers, unit tests. CI runs on every push.
+4. **Dependency management** — Dependabot or Renovate for version + security update PRs
+5. **CI/CD** — GitHub Actions: lint → type-check → test → build → deploy
+6. **ClickUp** — search for existing project first. Create or link task board with backlog + kanban.
+   Deliverables always attached to ClickUp tasks or stored in ClickUp Docs — never chat-only.
+7. **README + docs** — comprehensive README, architecture overview, contribution guide, `/docs/`
+8. **ANVIL registration** — if the project exposes services: register as a component in `anvil_registry`
+
+## ANVIL-Specific Projects (components, workers, MCP servers)
+
+Follow `anvil-component-scaffold.mdc` additionally:
+- Name: `anvil-{service}-mcp`
+- Repo: `Bruteforce-Group/anvil-{service}-mcp`
+- Register in `anvil_registry` as `draft` before first deploy
+
+## Python Projects
+
+- Package manager: `uv` (not pip/pipenv/poetry)
+- Build backend: `hatchling`
+- Linting: `ruff` (replaces black + flake8 + isort)
+- Type checking: `mypy` with `disallow_untyped_defs = true`
+- Testing: `pytest` + `pytest-asyncio` + `pytest-cov`
+- Install: `uv sync --all-extras`
+- Run: `uv run pytest`, `uv run python script.py`
+- Never use `datetime.datetime.utcnow()` — use `datetime.datetime.now(datetime.UTC)`
+
+## TypeScript / Cloudflare Workers Projects
+
+- Use `@cloudflare/workers-types` (latest)
+- Use `@modelcontextprotocol/sdk` for MCP servers (not bespoke JSON-RPC)
+- Keep `compatibility_date` current in `wrangler.toml`
+- Follow Rules 1-4 in `anvil-engineering-rules.mdc`
+
+## Logging (All Projects)
+
+- JSON structured logs with correlation IDs
+- Two formats: human-readable `.log` + machine-readable `.jsonl`
+- Levels: DEBUG (API calls), INFO (state changes), ERROR (failures)
+- Log dir: `~/Developer/tmp/<project>-logs/`
+- Never log secrets or PII
+
+## Data Storage
+
+- App data: `~/Developer/Projects/<project>/data/` (configurable)
+- Config: `~/.config/<project>/` (XDG spec)
+- Secrets: env vars, Cloudflare Secrets, or system keychain — never in files
+- Include schema version in all files/tables; provide migration scripts
+
+## Download & Transfer Verification
+
+- Always verify SHA256/SHA512 after downloading from external sources
+- Network transfers: compute source hash → transfer → compute dest hash → compare; abort on mismatch
+- Use `rsync --checksum` for file transfers
+- Log all verification attempts
+
+## `create-project` CLI
+
+```bash
+create-project <project-name> <type> [description]
+# types: web | react | nextjs | python | fullstack | cli | worker | mcp
+```

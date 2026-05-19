@@ -1,0 +1,52 @@
+---
+description: "Logging, data storage, persistence, and transfer verification standards"
+version: 1.0.0
+alwaysApply: true
+---
+
+# Logging, Data, and Transfer Standards
+
+## Logging and Auditing
+
+All applications must include detailed logging using Python's `logging` module or equivalent:
+
+- Application initialization and configuration
+- All API calls and data operations at DEBUG level
+- Errors and warnings at appropriate levels
+- User actions and state changes
+- Two log formats: human-readable `.log` files and machine-readable `.jsonl` (JSON Lines)
+- Logs stored in a dedicated directory (e.g., `~/Developer/tmp/<project>-logs/`)
+- Each log entry includes timestamp, logger name, level, and detailed message
+
+## Data Storage and Persistence
+
+- **Application data**: `~/Developer/Projects/<project>/data/` with configurable paths
+- **Database choice**: SQLite for single-user, PostgreSQL for multi-user/production, JSON/JSONL for simple data
+- **Data formats**: prefer structured formats (JSON, JSONL, Parquet) over CSV; include schema docs
+- **Versioning**: data schema version in all files/tables for migration support
+- **Backup strategy**: document approach; implement automatic timestamped backups for critical data
+- **Retention policy**: define and document for logs, monitoring data, user data
+- **Cache/temp data**: system temp dirs or `~/Developer/tmp/<project>-cache/` with automatic cleanup
+- **Configuration**: `~/.config/<project>/` following XDG Base Directory spec
+- **Secrets**: never in data files; use env vars, system keychain, or secret management tools
+- **Data validation**: validate on read/write; checksums or integrity checks for critical data
+- **Migration tools**: scripts/commands for schema version migrations
+- **Export capability**: portable formats (JSON, CSV) for backup or migration
+
+## Download and Transfer Verification
+
+All file downloads and transfers must be cryptographically verified:
+
+- **Hash verification**: verify SHA256/SHA512 after downloading from external sources
+- **Network transfers** (rsync, scp, sftp): compute hash before transfer, transfer, compute hash after, compare; abort on mismatch
+- **Signature verification**: verify GPG/PGP signatures when available
+- **Error handling**: never proceed with unverified downloads/transfers; fail fast
+- **Re-verification**: always re-verify hash before using an existing local file
+
+### Tool recommendations
+
+- `rsync`: use `--checksum` flag (`rsync -avzc --progress`)
+- `scp`: compute hashes manually before and after
+- `git`: signed commits, verify with `git log --show-signature`
+- `curl`/`wget`: always download `.sha256` file and verify
+- Cloud uploads: use provider integrity checks (S3 ETags, GCS MD5)

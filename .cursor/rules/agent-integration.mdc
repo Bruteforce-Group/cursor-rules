@@ -1,0 +1,48 @@
+---
+description: "Contains Studio AI agent library reference for project creation and development tasks"
+version: 1.0.0
+alwaysApply: false
+---
+
+# Contains Studio Agent Integration
+
+Agent library located at `/Users/danielborrowman/Developer/Reference/contains-studio-agents/`.
+
+## Available Agents
+
+**Engineering**: rapid-prototyper, test-writer-fixer, backend-architect, frontend-developer, devops-automator, ai-engineer, mobile-app-builder
+
+**Product**: trend-researcher, sprint-prioritizer, feedback-synthesizer
+
+**Design**: ui-designer, ux-researcher, whimsy-injector, brand-guardian, visual-storyteller
+
+**Testing**: api-tester, performance-benchmarker, test-results-analyzer, tool-evaluator, workflow-optimizer
+
+**Marketing**: content-creator, growth-hacker, tiktok-strategist, instagram-curator, twitter-engager, reddit-community-builder, app-store-optimizer
+
+**Project Management**: studio-producer, project-shipper, experiment-tracker
+
+**Studio Operations**: analytics-reporter, infrastructure-maintainer, support-responder, finance-tracker, legal-compliance-checker
+
+## Proactive Triggers
+
+- **After code changes**: `test-writer-fixer` runs tests and fixes failures
+- **After UI/UX changes**: `whimsy-injector` adds delightful interactions
+- **When feature flags added**: `experiment-tracker` sets up validation
+- **Complex multi-agent tasks**: `studio-coach` (in `bonus/`) coordinates
+
+## Project Creation Usage
+
+- `rapid-prototyper` scaffolds and implements core features
+- `test-writer-fixer` writes comprehensive test suites
+- `ui-designer` creates component libraries
+- `backend-architect` or `frontend-developer` for architecture decisions
+- `performance-benchmarker` ensures fast load times
+
+## Principles
+
+- 6-day sprint philosophy (rapid iteration, ship fast)
+- Agents collaborate via the Task tool
+- Prioritize shipping working features over perfect implementations
+
+Refer to agent markdown files for detailed capabilities and system prompts.

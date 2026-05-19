@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+
+changed=$(git diff-tree --no-commit-id --name-only -r HEAD)
+if ! echo "$changed" | grep -q '^\.cursor/rules/'; then
+  exit 0
+fi
+
+echo "Rule files changed — syncing to ~/.cursor/rules/ ..."
+"$repo_root/scripts/sync-to-user-rules.sh" --force

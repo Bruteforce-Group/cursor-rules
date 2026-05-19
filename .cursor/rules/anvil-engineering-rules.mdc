@@ -1,0 +1,84 @@
+---
+description: ANVIL engineering autonomy rules — SDK-first, best practice, latest versions, justify custom code
+alwaysApply: true
+---
+
+# Engineering Rules (COVE-ENG-AUTONOMY-001)
+
+Source: ClickUp `2kz0ewdg-1196`. These four rules are non-negotiable for all ANVIL code.
+
+## Rule 1 — SDK-First
+
+Use the vendor's official SDK, library, or API wrappers. Never hand-roll what the SDK provides:
+auth flows, pagination, retries, schema types, webhook verification, rate-limit handling.
+
+**Preferred SDKs in the ANVIL stack:**
+
+- **Cloudflare Workers:** `@cloudflare/workers-types`, `wrangler` (latest), native `fetch`,
+  `KVNamespace`, `R2Bucket`, `DurableObject`, `Queue` bindings — NOT hand-rolled HTTP
+- **MCP servers:** `@modelcontextprotocol/sdk` (both server + client) — NOT bespoke JSON-RPC
+- **Cloudflare API:** `cloudflare` npm package or published OpenAPI SDKs — NOT fetch wrappers
+- **ClickUp:** v2/v3 REST via `clickup-mcp` dispatch path
+- **Google Workspace:** official Google APIs client libraries (Python + Node)
+- **UniFi:** official UniFi OS + Protect APIs
+
+## Rule 2 — Best Practice
+
+Follow well-established conventions for the stack today, not what was right in 2022:
+
+- Idiomatic TypeScript, strict mode
+- Cloudflare Workers: Durable Objects for state, Queues for fan-out, R2 streaming for
+  large objects, service bindings for Worker-to-Worker
+- MCP tool contracts: typed params + structured error returns
+- REST/GraphQL conventions
+- Structured logging (JSON, not console.log strings)
+- Typed errors, explicit error boundaries
+- When in doubt: check vendor's current published docs, not Stack Overflow
+
+## Rule 3 — Latest Versions
+
+Stay on latest stable unless there is a **documented blocker**. Applies to:
+
+- npm deps: `wrangler`, `@modelcontextprotocol/sdk`, `@cloudflare/workers-types`, typescript
+- `compatibility_date` in `wrangler.toml`
+- Python packages (use `uv`)
+- MCP SDK versions
+- OS / Docker base images
+- Cloudflare Worker compatibility flags
+
+When bumping: **read the changelog for breaking changes and fix them forward** — never pin to avoid them.
+If a breaking change is genuinely unavoidable, document it as a Rule 4 justification.
+
+## Rule 4 — Justify Custom Code
+
+If code lives outside SDK/best-practice scope (hand-rolled pagination, bespoke retry wrappers,
+custom schema validators, shim layers that duplicate SDK functionality), produce a written reason
+it cannot be reverted.
+
+**Acceptable justifications:**
+- Genuine SDK gap (SDK doesn't expose the endpoint/feature)
+- Measured performance requirement (with benchmark data)
+- Security isolation requirement (with threat-model link)
+- Vendor-confirmed bug (with issue link)
+
+**NOT acceptable:**
+- "We already wrote it"
+- "The SDK was added later"
+- "It works"
+- "It would take time to refactor"
+
+No valid justification → revert to SDK/best-practice path.
+Track justification as a code comment AND in the next Delta Summary.
+
+## Autonomy
+
+Autonomous fixes are permitted (no approval needed per tweak) when ALL of:
+- Small, obvious, rule-compliant (lint, dep bump to latest minor, revert to SDK call,
+  changelog-clean version bump, README/type cleanup)
+
+Ask first for:
+- Large refactors, security-boundary changes, schema/data migrations
+- Production-traffic routing changes, anything that costs money
+- Anything touching evidentiary resources (R2 evidence-*, Autopsy DB, audit logs)
+
+Report autonomous fixes in the Delta Summary.

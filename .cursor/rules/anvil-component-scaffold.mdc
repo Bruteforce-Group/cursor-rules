@@ -1,0 +1,138 @@
+---
+description: ANVIL component development standards — scaffold, wrangler config, deploy checklist
+globs: "components/**/*,hub/**/*,**/wrangler.toml"
+alwaysApply: false
+---
+
+# ANVIL Component Scaffold Standards
+
+## Naming
+
+- All components use the `anvil-` prefix: `anvil-{service}-mcp`
+- Tool prefix = shortened service name + underscore e.g. `cf_`, `cdt_`, `clickup_`
+- Semver starting at v0.1.0; bump to v1.0.0 when production-stable
+- Major bump only when public tool signatures change
+
+## wrangler.toml Requirements
+
+Declare ALL bindings at TOP LEVEL **and** under `[env.production]` (CF requires explicit env-level
+declaration, especially for `[browser]` binding):
+
+```toml
+name = "anvil-{service}-mcp"
+main = "src/index.ts"
+compatibility_date = "{today}"  # keep current — Rule 3
+compatibility_flags = ["nodejs_compat"]
+account_id = "dac01715f027bf360c500dce1d805d94"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "anvil-audit"  # reuse if generic dispatch logging suffices
+database_id = "..."
+
+[[kv_namespaces]]
+binding = "KV"
+id = "..."
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "anvil-{service}"
+
+[env.production]
+# Repeat ALL bindings here explicitly
+[[env.production.d1_databases]]
+binding = "DB"
+...
+```
+
+## Secrets Convention
+
+Format: `{component_id}_{purpose}_token` or `{component_id}_{purpose}_key`
+
+Examples:
+- `chrome_devtools_mcp_hub_token`
+- `clickup_api_token`
+
+Set secrets via wrangler:
+```bash
+echo "<value>" | CLOUDFLARE_ACCOUNT_ID=dac01715f027bf360c500dce1d805d94 \
+  HOME=/Users/danielborrowman wrangler secret put ANVIL_HUB_TOKEN --name anvil-{service}-mcp
+```
+
+Store value in `anvil_config` immediately after generation. Never leave secrets in `/tmp` or filesystem.
+
+## Global Commands (ALL components MUST implement)
+
+Every component must handle these three commands on its `/dispatch` endpoint:
+
+```json
+{ "command": "ping" }
+// Response: { "ok": true, "component": "<id>", "version": "<semver>" }
+
+{ "command": "status" }
+// Response: { "status": "ok|degraded|error", "detail": "..." }
+
+{ "command": "config.reload" }
+// Response: { "ok": true }
+```
+
+## Dispatch Endpoint Handler Pattern
+
+```typescript
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const { command, payload, dispatch_id } = await request.json();
+
+    // Auth check
+    const key = request.headers.get('X-Anvil-Key');
+    if (key !== env.HUB_API_KEY) {
+      return Response.json({ error: 'unauthorized' }, { status: 401 });
+    }
+
+    // Route commands
+    switch (command) {
+      case 'ping':
+        return Response.json({ ok: true, component: 'anvil-{service}-mcp', version: '0.1.0' });
+      case 'status':
+        return Response.json({ status: 'ok', detail: 'nominal' });
+      // ... service-specific commands
+      default:
+        return Response.json(
+          { error: 'unknown_command', message: `Unknown command: ${command}`, retryable: false },
+          { status: 400 }
+        );
+    }
+  }
+};
+```
+
+## Error Response Format
+
+Always return structured errors (not plain strings):
+
+```json
+{
+  "error": "error_code_snake_case",
+  "message": "Human-readable description",
+  "retryable": true
+}
+```
+
+## Deploy Checklist (in order)
+
+1. Provision bindings: D1 (reuse `anvil-audit` if generic logging suffices), KV, DNS, optional R2
+2. Write `wrangler.toml` with ALL bindings at top level AND under `[env.production]`
+3. Set `account_id = "dac01715f027bf360c500dce1d805d94"`
+4. Set `ANVIL_HUB_TOKEN` secret + store in `anvil_config:{component}_hub_token`
+5. Set component-specific API tokens
+6. Register in `anvil_registry` as `draft`
+7. Deploy: `npx wrangler deploy`
+8. Smoke test: send `ping` and `status` commands
+9. Promote to `active` in `anvil_registry`
+10. Update COVE-PERSONA-001 §5.x integration table in ClickUp
+
+## Hub Catalog Sync
+
+New components require Hub-side wiring (service binding in Hub's `wrangler.toml`) before
+`anvil_catalog` picks up tool schemas. Direct HTTPS calls work without this.
+Document any component that fails catalog sync as needing Hub config update.

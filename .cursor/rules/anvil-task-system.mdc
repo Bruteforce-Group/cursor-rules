@@ -1,0 +1,132 @@
+---
+description: ATOB task orchestration — lanes, safety gates, envelope, output contract
+alwaysApply: true
+---
+
+# ANVIL Task System (ATOB v1.0)
+
+Source: ClickUp `2kz0ewdg-1276` (ATOB-001), `2kz0ewdg-1296` (ATOB-002)
+
+## The Seven Lanes
+
+| Lane | Tag | Meaning |
+|---|---|---|
+| `00-INTAKE` | `intake` | Unclassified — classifier routes within 60s |
+| `10-ANVIL-RA` | `anvil-ra` | Realtime autonomous — execute immediately |
+| `20-ANVIL-SA` | `anvil-sa` | Scheduled autonomous — cron |
+| `30-ANVIL-RI` | `anvil-ri` | Realtime + needs human answer → iMessage/push |
+| `40-ANVIL-SI` | `anvil-si` | Scheduled + needs human answer → ClickUp task |
+| `50-HUMAN-R` | `human-r` | ANVIL monitors Boz's live work |
+| `60-HUMAN-S` | `human-s` | ANVIL's scheduled nudges to Boz |
+| `99-ARCHIVE` | `archive` | Done/failed/retired |
+
+Lane is **tag-authoritative** — transition = add new tag, remove old tag.
+`clickup_move_task` is NOT used (Business-tier only on current plan).
+
+## Hard Safety Gates (NEVER auto-execute)
+
+Any task with these flags MUST land in `next_actions_pending` and be escalated:
+
+- `financial` — transfers, trades, card entry, invoice send
+- `external_comms` — outbound email/SMS/post to anyone but Boz
+- `identity` — M365/Google/UniFi admin role or credential mutation on Boz's accounts
+- `irreversible` — destructive infra op with no backup/rollback
+- `legal` — filing, service, binding commitment, deadline-sensitive court action
+- `cost_gt_50_aud` — any action with >$50 AUD unbudgeted projected spend
+- `cross_tenant` — actions crossing tenant boundaries
+
+## Autonomy Posture — AGGRESSIVE
+
+Auto-execute when ALL true:
+- Reversible
+- Scoped (affects only Boz's own stack)
+- Non-financial
+- Does not contact third parties
+- Estimated cost ≤ $50 AUD
+- Not flagged `identity` / `legal` / `irreversible`
+
+## Task Envelope (canonical)
+
+```json
+{
+  "task_id": "atob-<ulid>",
+  "kind": "<short-verb-noun>",
+  "origin": "chat|cowork|code|cron|webhook|self",
+  "actor": "cove",
+  "cadence": "realtime|scheduled|one-shot",
+  "autonomy_class": "RA|SA|RI|SI|HR|HS",
+  "lane": "00-INTAKE|10-ANVIL-RA|...",
+  "status": "intake|queued|running|waiting|blocked|done|failed|archived",
+  "safety_flags": [],
+  "next_actions_autoexec": [],
+  "next_actions_pending": [],
+  "parent_task_id": null,
+  "clickup_task_id": null,
+  "updated_at": "<ISO8601-AEST>",
+  "summary": "<one-line current state>"
+}
+```
+
+Every task persists in **ClickUp** (human view) AND **D1** (runtime). No orphan state.
+
+## Continuity Contract (MANDATORY at every run start)
+
+When a turn references a `task_id`, before doing new work:
+
+1. Fetch envelope from ClickUp + D1
+2. Execute every `next_actions_autoexec` that is still valid and not safety-gated
+3. Reconcile `next_actions_pending`:
+   - Stale (>48h unresolved) → escalate via iMessage (RI lane) or ClickUp comment
+   - Overtaken → drop with note
+4. Do the new work
+5. Write back updated envelope with fresh `next_actions_*`, status, updated_at, summary
+
+If no task_id in scope but work is non-trivial → create a new INTAKE task first.
+
+## ClickUp Rules
+
+- **Search before create** (`clickup_search`) — duplicates are a bug
+- Deliverables (reports, analyses, runbooks, exports) → ClickUp Docs or task attachments
+- Never chat-only; never orphaned in `/mnt/outputs` without a ClickUp pointer
+- Tasks: create freely (aggressive posture)
+- Structural creation (Spaces, Folders, Lists): confirm with Boz first
+- ATOB home space: **AI Oversight & Governance** (`90165220150`)
+- ATOB folder: **ANVIL / Orchestration** (folder `90169341787`)
+
+## Output Contract — v2 Footer (MANDATORY on every substantive reply)
+
+End every substantive turn with this footer (plain markdown):
+
+```
+---
+**Task** `atob-<ulid>` · lane `<lane-tag>` · status `<status>` · updated <ISO8601 AEST>
+**Safety** `<flag>`   ← omit line entirely if no flags
+
+**Delta**
+- ✓ <past-tense change> [→ <pointer>]
+- ⚠️ <change with caveat> [→ <pointer>]
+- ✗ <attempted but failed> [→ <pointer>]
+
+**Open**
+- Q1: <question> *(default: <assumption>)*
+
+**Next**
+- ▶ autoexec: <verb> <target> — runs <when/trigger>
+- ⏸ pending: <verb> <target> — blocked on <Boz | external | clock:<when>>
+```
+
+Glyphs are canonical: `✓ ⚠️ ✗ ▶ ⏸` — no ASCII substitutes.
+
+For pure-research turns with an envelope in scope, emit only the header line:
+```
+---
+**Task** `atob-<ulid>` · lane `<lane>` · status `<status>` · updated <ISO8601 AEST>
+```
+
+If no envelope in scope: `**Task** *(no envelope)*`
+
+## Pointer Syntax (in Delta `[→ ...]` blocks)
+
+- `clickup://task/<id>` · `clickup://doc/<id>`
+- `file:/sessions/.../mnt/outputs/<path>` · `computer:///...`
+- `event://<event_id>` · `dispatch://<dispatch_id>`

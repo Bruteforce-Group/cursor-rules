@@ -1,0 +1,39 @@
+---
+description: "Visual regression testing and UI verification standards for GUI/TUI applications"
+version: 1.0.0
+globs: ["tests/**", "**/tests/**", "**/*.spec.*", "**/*_test.*"]
+alwaysApply: false
+---
+
+# UI Testing and Verification
+
+For GUI/TUI applications, follow these standards.
+
+## Screenshot Capability
+
+- Include screenshot capability in all GUI/TUI apps
+- For Textual apps, use built-in screenshot (`Ctrl+S` or programmatic capture)
+- Document all UI states and layouts with visual examples
+
+## Visual Regression Testing
+
+- Implement automated tests that capture screenshots and compare against reference images
+- Reference screenshots stored in `tests/screenshots/` for testing, `docs/screenshots/` for documentation
+- Tests fail if UI output differs from reference screenshots (unless intentional)
+- Update reference screenshots when UI changes are reviewed and approved
+- For Textual apps, screenshots are SVG files (viewable and version-controllable)
+
+## Test Types
+
+- Use snapshot testing tools (`pytest-snapshot` or custom comparison)
+- Positive tests: UI renders correctly for expected inputs
+- Negative tests: errors display properly for invalid inputs
+
+## Workflow
+
+1. Build or modify UI component
+2. Capture reference screenshot
+3. Store in `tests/screenshots/`
+4. Write test that renders component and compares output
+5. On future changes, test detects differences automatically
+6. Review and update references when changes are intentional

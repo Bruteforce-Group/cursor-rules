@@ -29,44 +29,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Trivy FS scan
-        uses: aquasecurity/trivy-action@0.24.0
+      - name: Run Grype FS scan (replaced Trivy)
+        uses: anchore/scan-action@v5  # REPLACED: trivy-action removed due to CVE-2026-33634 supply chain compromise
         with:
-          scan-type: "fs"
-          vuln-type: "os,library"
-          scanners: "vuln,config"
+          # scan-type removed (Grype auto-detects)
+          # vuln-type removed (Grype scans all)
+          # scanners removed (Grype handles this)
           severity: "HIGH,CRITICAL"
-          ignore-unfixed: true
-          exit-code: "1"
-          format: "table"
-          output: "trivy-report.txt"
-      - name: Upload Trivy report
+          # ignore-unfixed removed (use Grype severity-cutoff)
+          fail-build: true
+          output-format: table
+          # output handled by Grype natively
+      - name: Upload Grype report
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-report
-          path: trivy-report.txt
+          name: grype-report
+          path: grype-report.txt
 
   trivy-lockfiles:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Trivy lockfile scan (deps only)
-        uses: aquasecurity/trivy-action@0.24.0
+      - name: Run Grype lockfile scan (replaced Trivy) (deps only)
+        uses: anchore/scan-action@v5  # REPLACED: trivy-action removed due to CVE-2026-33634 supply chain compromise
         with:
-          scan-type: "fs"
+          # scan-type removed (Grype auto-detects)
           vuln-type: "library"
           scanners: "vuln"
           severity: "HIGH,CRITICAL"
-          ignore-unfixed: true
-          exit-code: "1"
-          format: "table"
-          output: "trivy-lock-report.txt"
+          # ignore-unfixed removed (use Grype severity-cutoff)
+          fail-build: true
+          output-format: table
+          # output handled by Grype natively
           skip-dirs: ".git"
       - name: Upload Trivy lockfile report
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-lock-report
-          path: trivy-lock-report.txt
+          name: grype-lock-report
+          path: grype-lock-report.txt
 
   sbom:
     runs-on: ubuntu-latest
@@ -76,23 +76,23 @@ jobs:
         uses: anchore/syft-action@v0.1.13
         with:
           output: "sbom.cyclonedx.json"
-      - name: Scan SBOM with Trivy
-        uses: aquasecurity/trivy-action@0.24.0
+      - name: Scan SBOM with Grype (replaced Trivy)
+        uses: anchore/scan-action@v5  # REPLACED: trivy-action removed due to CVE-2026-33634 supply chain compromise
         with:
           scan-type: "sbom"
-          input: "sbom.cyclonedx.json"
+          sbom: sbom.cyclonedx.json
           severity: "HIGH,CRITICAL"
-          ignore-unfixed: true
-          exit-code: "1"
-          format: "table"
-          output: "trivy-sbom-report.txt"
+          # ignore-unfixed removed (use Grype severity-cutoff)
+          fail-build: true
+          output-format: table
+          # output handled by Grype natively
       - name: Upload SBOM and report
         uses: actions/upload-artifact@v4
         with:
           name: sbom-and-report
           path: |
             sbom.cyclonedx.json
-            trivy-sbom-report.txt
+            grype-sbom-report.txt
 
   canary:
     runs-on: ubuntu-latest

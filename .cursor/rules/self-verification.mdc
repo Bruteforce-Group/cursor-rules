@@ -1,0 +1,67 @@
+---
+description: Self-verification protocol — applied after completing any user request
+alwaysApply: true
+---
+
+# Self-Verification Protocol
+
+**CRITICAL:** After completing any user request, MUST self-verify before reporting done.
+
+## Step 1 — Parse and Checklist
+- Identify ALL components of the request
+- Create explicit checklist for multi-part requests
+- Track completion as you go
+
+## Step 2 — Verify by Type
+
+**Code changes:**
+- `uv run ruff check src tests`
+- `uv run mypy src`
+- `uv run pytest`
+- Run the actual functionality
+
+**Documentation:**
+- Verify files exist with expected content
+- Check cross-references and links
+
+**Configuration:**
+- Verify correct locations, valid syntax (YAML/TOML/JSON)
+- Test config is actually loaded by the system
+
+**Project structure:**
+- Verify required directories exist
+- Check file locations and permissions
+
+## Step 3 — Final Gate
+
+Before saying "done", confirm:
+- Every part of the request completed
+- Changes tested and working
+- No unaddressed errors or warnings
+- All checklist items done
+- Aligns with project governance/standards
+
+## Trigger Words
+- "ok continue" — re-check what was requested, verify current state, proceed
+- "are we done?" — run full checklist, report status
+- "what's left?" — list remaining items vs original request
+- "did you do X?" — immediately verify X and test it
+
+## If Incomplete
+1. Acknowledge the gap immediately
+2. Explain what's missing
+3. Fix it now (don't wait for user to ask again)
+4. Re-verify after fixing
+5. Report with evidence
+
+## Never
+- Say "done" without testing
+- Assume a command worked without checking output
+- Tell the user to verify themselves unless explicitly asked
+- Leave errors or warnings unaddressed
+
+## Always
+- Test every change
+- Check command exit codes and output
+- Proactively fix issues found during verification
+- Provide evidence of completion (test output, file contents)

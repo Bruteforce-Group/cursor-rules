@@ -1,0 +1,87 @@
+---
+description: Dev mode standards for ANVIL engineering — CI, secrets, versioning, testing, logging
+alwaysApply: true
+---
+
+# Dev Mode Standards (ANVIL Engineering)
+
+Applies whenever writing code, infra, CI/CD, MCP servers, Workers, Docker, or APIs.
+
+## Environment
+
+- Platform assumption: Apple Silicon / macOS + Cloudflare Workers (edge-first)
+- Specify runtime versions and lockfiles in all PRs
+- Use `uv` for all Python dependency management (not pip/pipenv/poetry)
+- Multi-stage Docker; Compose / dev-container where appropriate
+
+## Code Quality (Non-Negotiable)
+
+- Static typing + linting on all code
+- TypeScript strict mode; Python `mypy` with `disallow_untyped_defs = true`
+- Test coverage ≥ 90%
+- CI flow: **lint → type-check → test → build → publish**
+- Pre-commit hooks: lint / type / vulnerability scan
+- Containers run unprivileged
+
+## Secrets
+
+- **Never embed credentials in code, docs, chat, or comments**
+- Use: env vars / Cloudflare Secrets (`wrangler secret put`) / Vault
+- After generating a secret: store in `anvil_config` immediately
+- Never write secrets to memory, `/tmp`, or filesystem
+- ANVIL secret naming: `{component_id}_{purpose}_token|key`
+
+## Versioning
+
+- Semver + conventional commits + auto-changelog
+- Signed commits and signed tags
+- ANVIL component scopes in conventional commits (per ANVIL-SPEC-001)
+- All components: v0.x.y until production-stable, then v1.0.0
+- Changelog must be clean before version bump — no "fix tests" commits
+
+## Structured Logging
+
+- JSON structured logs everywhere (not `console.log` strings)
+- Include correlation IDs on every request
+- Log levels: DEBUG for API calls, INFO for state changes, ERROR for failures
+- Never log secrets or PII
+
+## Documentation Requirements
+
+- API reference required for every component
+- Getting Started guide required
+- Architecture diagram required for new components or significant changes
+- Keep docs in `docs/` or as ClickUp Doc — never chat-only
+
+## Testing
+
+- Unit tests: pytest (Python), Vitest/Jest (TypeScript)
+- Include benchmark + load test stubs for any network-facing code
+- For Cloudflare Workers: use `wrangler dev` + `@cloudflare/vitest-pool-workers`
+- Visual regression tests for any UI/TUI (screenshots in `tests/screenshots/`)
+
+## Python Projects Specifically
+
+- Package manager: `uv` only
+- Build backend: `hatchling`
+- Linting/formatting: `ruff` (replaces black + flake8 + isort)
+- Run commands: `uv run pytest`, `uv run python script.py`, etc.
+- Never use `datetime.datetime.utcnow()` — use `datetime.datetime.now(datetime.UTC)`
+- Deps in `pyproject.toml`: `[project.dependencies]` (runtime) + `[project.optional-dependencies.dev]`
+
+## Cloudflare Workers Patterns
+
+- Durable Objects for persistent state (not KV for hot-path writes)
+- Queues for fan-out and async work
+- R2 streaming for large objects (not inline response)
+- Service bindings for Worker-to-Worker calls (not HTTP fetch between workers)
+- `compatibility_date` must be current — bump it when deploying updates
+- Declare all bindings at TOP LEVEL and under `[env.production]`
+
+## New ANVIL Components
+
+- Use `anvil-` prefix on all new component workers
+- Register in `anvil_registry` as `draft` → deploy → smoke test → promote `active`
+- Include `ping`, `status`, `config.reload` global commands (see `anvil-component-scaffold.mdc`)
+- Implement `X-Anvil-Protocol: 1.0` response header
+- Target repo: `Bruteforce-Group/ANVIL` (not personal namespace)

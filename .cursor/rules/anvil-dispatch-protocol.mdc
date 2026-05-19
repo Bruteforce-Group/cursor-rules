@@ -1,0 +1,105 @@
+---
+description: ANVIL hub↔component dispatch wire protocol, command vocabulary, and event types
+globs: "**/dispatch*,**/index.ts,**/index.js,components/**/*"
+alwaysApply: false
+---
+
+# ANVIL Dispatch Protocol v1.0
+
+Source: ClickUp `2kz0ewdg-996` (Dispatch Protocol Specification)
+
+## Transport
+
+All dispatches: **HTTP POST**, JSON bodies.
+
+### Outbound (hub → component)
+
+**Endpoint:** Component's registered endpoint (e.g. `https://clickup.anvil.bozza.au/dispatch`)
+
+**Request body:**
+```json
+{
+  "command": "string — from vocabulary",
+  "payload": { "...command-specific data" },
+  "dispatch_id": 12345
+}
+```
+
+**Required headers:**
+| Header | Value |
+|---|---|
+| `Content-Type` | `application/json` |
+| `X-Anvil-Dispatch` | Command name (for routing) |
+| `X-Anvil-Source` | `anvil-hub-mcp` |
+| `X-Anvil-Key` | Shared secret (`HUB_API_KEY`) |
+| `CF-Access-Client-Id` | Hub service token (bypasses CF Access on `*.anvil.bozza.au`) |
+| `CF-Access-Client-Secret` | Hub service token secret |
+
+**Response:** Must return JSON. 2xx = success, 4xx/5xx = failure.
+Hub stores first 2000 chars of response body to D1 audit log.
+
+Large payloads (>inline limit): hub spills to R2, returns compact reference envelope:
+```json
+{
+  "__anvil_spill__": true,
+  "result_head": "first N chars...",
+  "result_ref": "GET /dispatch/result/<dispatch_id>"
+}
+```
+
+### Inbound (component → hub)
+
+**Endpoint:** `POST https://hub.bozza.au/dispatch/inbound`
+
+**Request body:**
+```json
+{
+  "source": "component-id",
+  "event_type": "from event vocabulary",
+  "detail": "human-readable",
+  "payload": { "...structured data" },
+  "metadata": { "...optional" },
+  "dispatch_id": 12345
+}
+```
+
+## Versioning
+
+Include `X-Anvil-Protocol: 1.0` in component responses.
+Breaking changes increment the major version. Components SHOULD declare protocol version.
+
+## Event Type Vocabulary
+
+### System Events
+`health_check` · `component_registered` · `component_updated` · `component_deactivated`
+`config_set` · `dispatch_completed` · `dispatch_failed` · `dispatch_error`
+
+### Component Events
+`clickup.task_created` · `clickup.task_updated` · `clickup.webhook_received`
+`gateway.rule_triggered` · `gateway.threat_detected`
+`legal.scan_complete` · `legal.new_result`
+`evidence.ingest_complete` · `evidence.search_hit`
+
+### Triage Events
+`triage.classified` · `triage.escalated` · `triage.routed`
+
+## Authentication Architecture
+
+Two auth mechanisms on `/mcp`:
+1. **HUB_API_KEY as Bearer** — `Authorization: Bearer <key>` — used by Claude/Cowork
+2. **OAuth 2.0 PKCE** — full RFC 6749/7591 flow — used by ChatGPT and external clients
+
+Rotating the key:
+```bash
+cd /Users/danielborrowman/Developer/Projects/boz.dev.ANVIL
+bash scripts/rotate-hub-api-key.sh
+```
+After rotating: update `~/.claude.json` Bearer token header + restart Claude.
+
+## Hub vs Component Domains
+
+| Domain | Auth | Use |
+|---|---|---|
+| `hub.bozza.au/mcp` | Bearer token | Claude/Cowork — USE THIS |
+| `anvil.bozza.au/mcp` | CF Access | Full Admins only — DO NOT use for Claude |
+| `*.anvil.bozza.au/dispatch` | X-Anvil-Key + CF Service Token | Hub→component only |
