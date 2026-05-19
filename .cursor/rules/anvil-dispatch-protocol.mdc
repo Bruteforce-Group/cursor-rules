@@ -1,19 +1,16 @@
 ---
 description: ANVIL hub↔component dispatch wire protocol, command vocabulary, and event types
-globs: "**/dispatch*,**/index.ts,**/index.js,components/**/*"
+globs: "components/**/*,hub/**/*,src/**/*.ts,src/**/*.js,**/dispatch.ts,**/dispatch.js"
 alwaysApply: false
 ---
 
 # ANVIL Dispatch Protocol v1.0
-
 Source: ClickUp `2kz0ewdg-996` (Dispatch Protocol Specification)
 
 ## Transport
-
 All dispatches: **HTTP POST**, JSON bodies.
 
 ### Outbound (hub → component)
-
 **Endpoint:** Component's registered endpoint (e.g. `https://clickup.anvil.bozza.au/dispatch`)
 
 **Request body:**
@@ -48,8 +45,7 @@ Large payloads (>inline limit): hub spills to R2, returns compact reference enve
 ```
 
 ### Inbound (component → hub)
-
-**Endpoint:** `POST https://hub.bozza.au/dispatch/inbound`
+**Endpoint:** `POST https://hub.boz.dev/dispatch/inbound`
 
 **Request body:**
 ```json
@@ -64,7 +60,6 @@ Large payloads (>inline limit): hub spills to R2, returns compact reference enve
 ```
 
 ## Versioning
-
 Include `X-Anvil-Protocol: 1.0` in component responses.
 Breaking changes increment the major version. Components SHOULD declare protocol version.
 
@@ -84,7 +79,6 @@ Breaking changes increment the major version. Components SHOULD declare protocol
 `triage.classified` · `triage.escalated` · `triage.routed`
 
 ## Authentication Architecture
-
 Two auth mechanisms on `/mcp`:
 1. **HUB_API_KEY as Bearer** — `Authorization: Bearer <key>` — used by Claude/Cowork
 2. **OAuth 2.0 PKCE** — full RFC 6749/7591 flow — used by ChatGPT and external clients
@@ -97,9 +91,8 @@ bash scripts/rotate-hub-api-key.sh
 After rotating: update `~/.claude.json` Bearer token header + restart Claude.
 
 ## Hub vs Component Domains
-
 | Domain | Auth | Use |
 |---|---|---|
-| `hub.bozza.au/mcp` | Bearer token | Claude/Cowork — USE THIS |
+| `hub.boz.dev/mcp` | Bearer token | Claude/Cowork — **USE THIS** |
 | `anvil.bozza.au/mcp` | CF Access | Full Admins only — DO NOT use for Claude |
 | `*.anvil.bozza.au/dispatch` | X-Anvil-Key + CF Service Token | Hub→component only |

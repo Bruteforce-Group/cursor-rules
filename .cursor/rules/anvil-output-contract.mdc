@@ -1,0 +1,43 @@
+---
+description: ATOB v2 output contract — structured footer format for COVE/Cowork task responses
+globs: "**/atob*,**/*.task.json,**/task-envelope*,**/*atob*"
+alwaysApply: false
+---
+
+# ATOB Output Contract — v2
+
+Applies to COVE/Cowork sessions when working on ATOB tasks or producing substantive task outputs.
+**Does not apply to routine coding assistance in Cursor IDE.**
+
+## Footer Format (MANDATORY on every substantive COVE reply)
+End every substantive turn with this footer (plain markdown):
+
+```
+---
+**Task** `atob-<ulid>` · lane `<lane-tag>` · status `<status>` · updated <ISO8601 AEST>
+**Safety** `<flag>`   ← omit line entirely if no flags
+**Delta**
+- ✓ <past-tense change> [→ <pointer>]
+- ⚠️ <change with caveat> [→ <pointer>]
+- ✗ <attempted but failed> [→ <pointer>]
+**Open**
+- Q1: <question> *(default: <assumption>)*
+**Next**
+- ▶ autoexec: <verb> <target> — runs <when/trigger>
+- ⏸ pending: <verb> <target> — blocked on <Boz | external | clock:<when>>
+```
+
+Glyphs are canonical: `✓ ⚠️ ✗ ▶ ⏸` — no ASCII substitutes.
+
+For pure-research turns with an envelope in scope, emit only the header line:
+```
+---
+**Task** `atob-<ulid>` · lane `<lane>` · status `<status>` · updated <ISO8601 AEST>
+```
+
+If no envelope in scope: `**Task** *(no envelope)*`
+
+## Pointer Syntax (in Delta `[→ ...]` blocks)
+- `clickup://task/<id>` · `clickup://doc/<id>`
+- `file:/sessions/.../mnt/outputs/<path>` · `computer:///...`
+- `event://<event_id>` · `dispatch://<dispatch_id>`

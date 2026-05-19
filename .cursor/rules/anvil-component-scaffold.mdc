@@ -1,20 +1,18 @@
 ---
 description: ANVIL component development standards — scaffold, wrangler config, deploy checklist
-globs: "components/**/*,hub/**/*,**/wrangler.toml"
+globs: "components/**/*,hub/**/*,src/**/*.ts,src/**/*.js,**/wrangler.toml"
 alwaysApply: false
 ---
 
 # ANVIL Component Scaffold Standards
 
 ## Naming
-
 - All components use the `anvil-` prefix: `anvil-{service}-mcp`
 - Tool prefix = shortened service name + underscore e.g. `cf_`, `cdt_`, `clickup_`
 - Semver starting at v0.1.0; bump to v1.0.0 when production-stable
 - Major bump only when public tool signatures change
 
 ## wrangler.toml Requirements
-
 Declare ALL bindings at TOP LEVEL **and** under `[env.production]` (CF requires explicit env-level
 declaration, especially for `[browser]` binding):
 
@@ -46,9 +44,7 @@ binding = "DB"
 ```
 
 ## Secrets Convention
-
 Format: `{component_id}_{purpose}_token` or `{component_id}_{purpose}_key`
-
 Examples:
 - `chrome_devtools_mcp_hub_token`
 - `clickup_api_token`
@@ -62,7 +58,6 @@ echo "<value>" | CLOUDFLARE_ACCOUNT_ID=dac01715f027bf360c500dce1d805d94 \
 Store value in `anvil_config` immediately after generation. Never leave secrets in `/tmp` or filesystem.
 
 ## Global Commands (ALL components MUST implement)
-
 Every component must handle these three commands on its `/dispatch` endpoint:
 
 ```json
@@ -77,7 +72,6 @@ Every component must handle these three commands on its `/dispatch` endpoint:
 ```
 
 ## Dispatch Endpoint Handler Pattern
-
 ```typescript
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -107,9 +101,7 @@ export default {
 ```
 
 ## Error Response Format
-
 Always return structured errors (not plain strings):
-
 ```json
 {
   "error": "error_code_snake_case",
@@ -119,7 +111,6 @@ Always return structured errors (not plain strings):
 ```
 
 ## Deploy Checklist (in order)
-
 1. Provision bindings: D1 (reuse `anvil-audit` if generic logging suffices), KV, DNS, optional R2
 2. Write `wrangler.toml` with ALL bindings at top level AND under `[env.production]`
 3. Set `account_id = "dac01715f027bf360c500dce1d805d94"`
@@ -132,7 +123,6 @@ Always return structured errors (not plain strings):
 10. Update COVE-PERSONA-001 §5.x integration table in ClickUp
 
 ## Hub Catalog Sync
-
 New components require Hub-side wiring (service binding in Hub's `wrangler.toml`) before
 `anvil_catalog` picks up tool schemas. Direct HTTPS calls work without this.
 Document any component that fails catalog sync as needing Hub config update.

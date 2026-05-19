@@ -1,14 +1,12 @@
 ---
-description: ATOB task orchestration — lanes, safety gates, envelope, output contract
+description: ATOB task orchestration — lanes, safety gates, task envelope, and ClickUp rules
 alwaysApply: true
 ---
 
 # ANVIL Task System (ATOB v1.0)
-
 Source: ClickUp `2kz0ewdg-1276` (ATOB-001), `2kz0ewdg-1296` (ATOB-002)
 
 ## The Seven Lanes
-
 | Lane | Tag | Meaning |
 |---|---|---|
 | `00-INTAKE` | `intake` | Unclassified — classifier routes within 60s |
@@ -24,9 +22,7 @@ Lane is **tag-authoritative** — transition = add new tag, remove old tag.
 `clickup_move_task` is NOT used (Business-tier only on current plan).
 
 ## Hard Safety Gates (NEVER auto-execute)
-
 Any task with these flags MUST land in `next_actions_pending` and be escalated:
-
 - `financial` — transfers, trades, card entry, invoice send
 - `external_comms` — outbound email/SMS/post to anyone but Boz
 - `identity` — M365/Google/UniFi admin role or credential mutation on Boz's accounts
@@ -36,7 +32,6 @@ Any task with these flags MUST land in `next_actions_pending` and be escalated:
 - `cross_tenant` — actions crossing tenant boundaries
 
 ## Autonomy Posture — AGGRESSIVE
-
 Auto-execute when ALL true:
 - Reversible
 - Scoped (affects only Boz's own stack)
@@ -46,7 +41,6 @@ Auto-execute when ALL true:
 - Not flagged `identity` / `legal` / `irreversible`
 
 ## Task Envelope (canonical)
-
 ```json
 {
   "task_id": "atob-<ulid>",
@@ -70,9 +64,7 @@ Auto-execute when ALL true:
 Every task persists in **ClickUp** (human view) AND **D1** (runtime). No orphan state.
 
 ## Continuity Contract (MANDATORY at every run start)
-
 When a turn references a `task_id`, before doing new work:
-
 1. Fetch envelope from ClickUp + D1
 2. Execute every `next_actions_autoexec` that is still valid and not safety-gated
 3. Reconcile `next_actions_pending`:
@@ -84,7 +76,6 @@ When a turn references a `task_id`, before doing new work:
 If no task_id in scope but work is non-trivial → create a new INTAKE task first.
 
 ## ClickUp Rules
-
 - **Search before create** (`clickup_search`) — duplicates are a bug
 - Deliverables (reports, analyses, runbooks, exports) → ClickUp Docs or task attachments
 - Never chat-only; never orphaned in `/mnt/outputs` without a ClickUp pointer
@@ -92,41 +83,3 @@ If no task_id in scope but work is non-trivial → create a new INTAKE task firs
 - Structural creation (Spaces, Folders, Lists): confirm with Boz first
 - ATOB home space: **AI Oversight & Governance** (`90165220150`)
 - ATOB folder: **ANVIL / Orchestration** (folder `90169341787`)
-
-## Output Contract — v2 Footer (MANDATORY on every substantive reply)
-
-End every substantive turn with this footer (plain markdown):
-
-```
----
-**Task** `atob-<ulid>` · lane `<lane-tag>` · status `<status>` · updated <ISO8601 AEST>
-**Safety** `<flag>`   ← omit line entirely if no flags
-
-**Delta**
-- ✓ <past-tense change> [→ <pointer>]
-- ⚠️ <change with caveat> [→ <pointer>]
-- ✗ <attempted but failed> [→ <pointer>]
-
-**Open**
-- Q1: <question> *(default: <assumption>)*
-
-**Next**
-- ▶ autoexec: <verb> <target> — runs <when/trigger>
-- ⏸ pending: <verb> <target> — blocked on <Boz | external | clock:<when>>
-```
-
-Glyphs are canonical: `✓ ⚠️ ✗ ▶ ⏸` — no ASCII substitutes.
-
-For pure-research turns with an envelope in scope, emit only the header line:
-```
----
-**Task** `atob-<ulid>` · lane `<lane>` · status `<status>` · updated <ISO8601 AEST>
-```
-
-If no envelope in scope: `**Task** *(no envelope)*`
-
-## Pointer Syntax (in Delta `[→ ...]` blocks)
-
-- `clickup://task/<id>` · `clickup://doc/<id>`
-- `file:/sessions/.../mnt/outputs/<path>` · `computer:///...`
-- `event://<event_id>` · `dispatch://<dispatch_id>`

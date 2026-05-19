@@ -5,13 +5,12 @@ alwaysApply: true
 
 # ANVIL Stack Architecture
 
-**Hub:** `https://hub.boz.dev` (MCP endpoint: `https://hub.bozza.au/mcp`)
+**Hub:** `https://hub.boz.dev` (canonical — MCP endpoint: `https://hub.boz.dev/mcp`)
 **Monorepo:** `/Users/danielborrowman/Developer/Projects/boz.dev.ANVIL/`
 **Auth:** Static Bearer token via `HUB_API_KEY` secret. Never hardcode — always load from env.
 **CF Account ID (components):** `dac01715f027bf360c500dce1d805d94`
 
 ## Tool Routing Hierarchy (STRICT — never skip steps)
-
 1. `anvil_catalog` — check if ANVIL has a component for this task
 2. `anvil_dispatch` — route through the hub if a component exists
 3. Direct MCP plugin — only if ANVIL has no equivalent
@@ -21,7 +20,6 @@ alwaysApply: true
 Never downgrade silently. Surface errors and fall back only after confirming unreachable.
 
 ## Monorepo Structure
-
 ```
 boz.dev.ANVIL/
   hub/src/index.js          ← hub worker (anvil-hub-mcp)
@@ -42,7 +40,6 @@ boz.dev.ANVIL/
 ```
 
 ## Active Components
-
 | ID | Endpoint | Purpose |
 |---|---|---|
 | cloudflare-mcp | cloudflare.anvil.bozza.au | CF API, Zero Trust, DNS |
@@ -57,7 +54,6 @@ boz.dev.ANVIL/
 | chrome-devtools-mcp | chrome-devtools.anvil.boz.dev | Browser, Lighthouse |
 
 ## Hub-Level Tools
-
 | Tool | Purpose |
 |---|---|
 | `anvil_status` / `anvil_health_check` | Platform health |
@@ -72,7 +68,6 @@ boz.dev.ANVIL/
 | `anvil_knowledge` | Code-memory ingestion |
 
 ## Deploy Commands
-
 ```bash
 # Hub
 cd hub && npx wrangler deploy
@@ -82,7 +77,6 @@ cd components/anvil-{name}-mcp && npx wrangler deploy
 ```
 
 ## GitHub Org
-
 Default repo owner: **`Bruteforce-Group`** (not `bozza-man`).
 Use personal namespace ONLY when explicitly told to in the current session.
 Applies to: `gh` CLI, GitHub MCP, `anvil_git_push`, webhooks, deploy keys, README links, everything.
