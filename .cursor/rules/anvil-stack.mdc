@@ -14,7 +14,14 @@ alwaysApply: true
 **Auth:** Static Bearer token via `HUB_API_KEY` secret. Never hardcode — always load from env.
 **CF Account ID (components):** `dac01715f027bf360c500dce1d805d94`
 
+## Tool Routing Hierarchy (STRICT — never skip steps)
+1. `anvil_catalog` — check if ANVIL has a component for this task
+2. `anvil_dispatch` — route through the hub if a component exists
+3. Direct MCP plugin — only if ANVIL has no equivalent
+4. Raw API (curl/bash) — only if no MCP exists
+5. Browser automation — ABSOLUTE LAST RESORT
 
+Never downgrade silently. Surface errors and fall back only after confirming unreachable.
 
 ## Active Components
 | ID | Endpoint | Purpose |

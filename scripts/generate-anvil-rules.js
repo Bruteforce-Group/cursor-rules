@@ -179,11 +179,28 @@ async function generateEngineeringRules() {
   }, `# Engineering Rules (COVE-ENG-AUTONOMY-001)\n\nSource: ClickUp \`${CLICKUP_ENG_AUTONOMY_DOC}\`. Non-negotiable for all ANVIL code.\n\n${body}`);
 }
 
+const DEFAULT_TOOL_ROUTING_SECTION = [
+  '## Tool Routing Hierarchy (STRICT — never skip steps)',
+  '1. `anvil_catalog` — check if ANVIL has a component for this task',
+  '2. `anvil_dispatch` — route through the hub if a component exists',
+  '3. Direct MCP plugin — only if ANVIL has no equivalent',
+  '4. Raw API (curl/bash) — only if no MCP exists',
+  '5. Browser automation — ABSOLUTE LAST RESORT',
+  '',
+  'Never downgrade silently. Surface errors and fall back only after confirming unreachable.',
+].join('\n');
+
 async function generateAnvilStack(claudeMd) {
   console.log('Building anvil-stack from CLAUDE.md + registry…');
 
-  // Extract dispatch-first section
-  const dispatchSection = extractSection(claudeMd, 'ANVIL-First Orchestration (Mandatory)') ?? '';
+  // Static fallback — keep committed sections as ground-truth between generator runs
+  const existingStack = fs.existsSync(path.join(RULES_DIR, 'anvil-stack.mdc'))
+    ? fs.readFileSync(path.join(RULES_DIR, 'anvil-stack.mdc'), 'utf8')
+    : '';
+
+  const dispatchFromClaude = extractSection(claudeMd, 'ANVIL-First Orchestration (Mandatory)');
+  const dispatchFromExisting = existingStack.match(/(## Tool Routing Hierarchy[\s\S]+?)\n\n(?=## )/)?.[1];
+  const dispatchSection = dispatchFromClaude ?? dispatchFromExisting ?? DEFAULT_TOOL_ROUTING_SECTION;
 
   // Try live registry fetch for component table
   let componentTable = '';
@@ -199,11 +216,6 @@ async function generateAnvilStack(claudeMd) {
     } catch (_) {}
   }
 
-  // Static fallback — keep the committed table as ground-truth between generator runs
-  // (the sync workflow updates it when the registry changes)
-  const existingStack = fs.existsSync(path.join(RULES_DIR, 'anvil-stack.mdc'))
-    ? fs.readFileSync(path.join(RULES_DIR, 'anvil-stack.mdc'), 'utf8')
-    : '';
   const tableMatch = existingStack.match(/(## Active Components[\s\S]+?)\n## /);
   componentTable = tableMatch ? tableMatch[1] : '';
 
