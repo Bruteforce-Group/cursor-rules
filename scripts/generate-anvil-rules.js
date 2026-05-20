@@ -259,7 +259,7 @@ async function generateDocSync(claudeMd) {
   return buildMdc({
     description: 'Every change to system state must be reflected in its documentation in the same session — mandatory for all ANVIL work',
     version: VERSION,
-    alwaysApply: true,
+    alwaysApply: false,
   }, `# Documentation Sync (Mandatory)\n\nSource: \`.claude/CLAUDE.md\` §Documentation Sync (Mandatory) + COVE-ENG-AUTONOMY-001 Rule 5.\n\n${section}`);
 }
 
