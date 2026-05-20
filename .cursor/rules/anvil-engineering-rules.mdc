@@ -1,5 +1,6 @@
 ---
 description: ANVIL engineering autonomy rules — SDK-first, best practice, latest versions, justify custom code
+version: 1.5.0
 alwaysApply: true
 ---
 
@@ -69,6 +70,25 @@ it cannot be reverted.
 
 No valid justification → revert to SDK/best-practice path.
 Track justification as a code comment AND in the next Delta Summary.
+
+## Rule 5 — Same-Session Doc Sync
+
+Every change to system state — code, config, infra, secrets, schemas, deployments, runbooks —
+**MUST** be reflected in its documentation in the **same session**. Documentation is not a
+follow-up; it is part of the change.
+
+What counts: repo READMEs + component docs, all `CLAUDE.md` files, ClickUp governance docs
+(COVE-*, ANVIL-*) and task descriptions, auto-memory files, `anvil_registry` metadata,
+`wrangler.toml` `[vars]`, scratch backlogs referenced by open tickets.
+
+**Same-session exception:** If a doc genuinely cannot be updated (system locked, tool
+unreachable), immediately create a follow-up ClickUp task in `00-INTAKE`, link it to the
+originating work, and flag it in the Delta Summary.
+
+**Prohibited:** "I'll document it later" · code updated but runbook not · CLAUDE.md drifting
+behind repo state · marking a task complete with undone docs.
+
+Source: COVE-ENG-AUTONOMY-001 v1.1 (ClickUp `2kz0ewdg-1196`) + `.claude/CLAUDE.md` §Documentation Sync.
 
 ## Autonomy
 

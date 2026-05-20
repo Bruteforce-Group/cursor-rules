@@ -1,5 +1,6 @@
 ---
 description: ANVIL platform architecture, component registry, and routing hierarchy — always apply
+version: 1.5.0
 alwaysApply: true
 ---
 
@@ -42,16 +43,30 @@ boz.dev.ANVIL/
 ## Active Components
 | ID | Endpoint | Purpose |
 |---|---|---|
-| cloudflare-mcp | cloudflare.anvil.bozza.au | CF API, Zero Trust, DNS |
-| clickup-mcp | clickup.anvil.bozza.au | Task/project management |
-| github-mcp | github.anvil.bozza.au | Repos, PRs, Actions |
-| alerts-mcp | alerts.anvil.bozza.au | Push notifications |
-| tessie-mcp | tessie.anvil.bozza.au | Tesla |
-| unifi-mcp | unifi.anvil.bozza.au | Network |
-| ms365-mcp | ms365.anvil.bozza.au | Microsoft 365 |
-| gam-mcp | gam.anvil.bozza.au | Google Workspace |
-| elevenlabs-mcp | elevenlabs.anvil.bozza.au | TTS/audio |
-| chrome-devtools-mcp | chrome-devtools.anvil.boz.dev | Browser, Lighthouse |
+| cloudflare-mcp | cloudflare.anvil.boz.dev | CF API, Zero Trust, DNS (255 tools) |
+| clickup-mcp | clickup.anvil.boz.dev | Task/project management |
+| github-mcp | github.anvil.boz.dev | Repos, PRs, Actions |
+| alerts-mcp | alerts.anvil.boz.dev | ntfy.sh push notifications |
+| tessie-mcp | tessie.anvil.boz.dev | Tesla via Tessie API |
+| unifi-mcp | unifi.anvil.boz.dev | UniFi network (349 tools) |
+| ms365-mcp | ms365.anvil.boz.dev | Microsoft 365 (73 tools) |
+| gam-mcp | gam.anvil.boz.dev | Google Workspace (GAM) |
+| elevenlabs-mcp | elevenlabs.anvil.boz.dev | TTS, voice, transcription |
+| chrome-devtools-mcp | chrome-devtools.anvil.boz.dev | Browser rendering, Lighthouse |
+| abm-mcp | abm.anvil.boz.dev | Apple Business Manager (41 tools) |
+| imazing-mcp | imazing.anvil.boz.dev | iOS device management (~115 tools) |
+| swif-mcp | swif.anvil.boz.dev | MDM devices/employees (14 tools) |
+| telnyx-mcp | telnyx.anvil.boz.dev | Telnyx telephony (42 tools) |
+| twilio-mcp | twilio.anvil.boz.dev | Twilio SMS/voice (38 tools) |
+| anthropic-mcp | anthropic.anvil.boz.dev | Anthropic API admin (38 tools) |
+| sentinel-mcp | sentinel.anvil.boz.dev | Secrets + CF Access guard (15 tools) |
+| peekaboo-mcp | vision.anvil.boz.dev | Vision + screen interaction (26 tools) |
+| qld-courts-mcp | courts.anvil.boz.dev | QLD civil courts + QLS register (14 tools) |
+| heygen-mcp | heygen.anvil.boz.dev | HeyGen video generation (15 tools) |
+| mac-mcp | mac.anvil.boz.dev | Local Mac bridge (28 tools) |
+| inference-proxy | inference.anvil.boz.dev | Central AI gateway, logs all AI calls |
+| audit-exporter | audit.anvil.boz.dev | M365/CF/GAM audit export to D1+R2 |
+| deploy | deploy.anvil.boz.dev | Worker rollback control plane (6 tools) |
 
 ## Hub-Level Tools
 | Tool | Purpose |

@@ -1,5 +1,6 @@
 ---
 description: ANVIL hub↔component dispatch wire protocol, command vocabulary, and event types
+version: 1.5.0
 globs: "components/**/*,hub/**/*,src/**/*.ts,src/**/*.js,**/dispatch.ts,**/dispatch.js"
 alwaysApply: false
 ---
@@ -11,7 +12,7 @@ Source: ClickUp `2kz0ewdg-996` (Dispatch Protocol Specification)
 All dispatches: **HTTP POST**, JSON bodies.
 
 ### Outbound (hub → component)
-**Endpoint:** Component's registered endpoint (e.g. `https://clickup.anvil.bozza.au/dispatch`)
+**Endpoint:** Component's registered endpoint (e.g. `https://clickup.anvil.boz.dev/dispatch`)
 
 **Request body:**
 ```json
@@ -29,7 +30,7 @@ All dispatches: **HTTP POST**, JSON bodies.
 | `X-Anvil-Dispatch` | Command name (for routing) |
 | `X-Anvil-Source` | `anvil-hub-mcp` |
 | `X-Anvil-Key` | Shared secret (`HUB_API_KEY`) |
-| `CF-Access-Client-Id` | Hub service token (bypasses CF Access on `*.anvil.bozza.au`) |
+| `CF-Access-Client-Id` | Hub service token (bypasses CF Access on `*.anvil.boz.dev`) |
 | `CF-Access-Client-Secret` | Hub service token secret |
 
 **Response:** Must return JSON. 2xx = success, 4xx/5xx = failure.
@@ -94,5 +95,4 @@ After rotating: update `~/.claude.json` Bearer token header + restart Claude.
 | Domain | Auth | Use |
 |---|---|---|
 | `hub.boz.dev/mcp` | Bearer token | Claude/Cowork — **USE THIS** |
-| `anvil.bozza.au/mcp` | CF Access | Full Admins only — DO NOT use for Claude |
-| `*.anvil.bozza.au/dispatch` | X-Anvil-Key + CF Service Token | Hub→component only |
+| `*.anvil.boz.dev/dispatch` | X-Anvil-Key + CF Service Token | Hub→component only |

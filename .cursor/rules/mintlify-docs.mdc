@@ -1,5 +1,6 @@
 ---
 description: Mintlify technical writing standards for documentation projects
+version: 1.5.0
 globs: "**/*.mdx,docs/**/*"
 alwaysApply: false
 ---

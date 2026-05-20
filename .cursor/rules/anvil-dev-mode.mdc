@@ -1,5 +1,6 @@
 ---
 description: Dev mode standards for ANVIL engineering — CI, secrets, versioning, testing, logging
+version: 1.5.0
 alwaysApply: true
 ---
 
