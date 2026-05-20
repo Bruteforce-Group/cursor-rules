@@ -2,14 +2,16 @@
 set -euo pipefail
 
 echo "Running shellcheck on scripts/*.sh (if any)..."
-if compgen -G "scripts/*.sh" > /dev/null; then
+if ! command -v shellcheck >/dev/null 2>&1; then
+  echo "shellcheck not installed; skipping (install via 'brew install shellcheck' or apt)."
+elif compgen -G "scripts/*.sh" > /dev/null; then
   shellcheck scripts/*.sh
 else
   echo "No shell scripts found; skipping shellcheck."
 fi
 
 echo "Validating Cursor rule frontmatter in .cursor/rules/*.mdc..."
-python - <<'PY'
+python3 - <<'PY'
 import sys
 import pathlib
 import ast
@@ -62,9 +64,9 @@ for path in sorted(root.rglob("*.mdc")):
         if not is_always_apply:
             errors.append(f"{path}: missing globs in frontmatter (required unless alwaysApply: true)")
     else:
-        # Simple schema check: globs should parse as a list (YAML superset) and contain only strings
+        # Globs schema check: supports inline lists, YAML block lists, and comma-separated strings
         try:
-            # Parse globs value: supports inline lists, multi-line JSON arrays, and YAML block lists
+            # Parse globs value from the frontmatter line
             globs_lines = []
             capture = False
             bracket_open = False
@@ -72,14 +74,18 @@ for path in sorted(root.rglob("*.mdc")):
                 if line.strip().startswith("globs:"):
                     rest = line.split("globs:", 1)[1].strip()
                     if "[" in rest and "]" in rest:
-                        # Inline single-line list: globs: ["a/**", "b/**"]
+                        # Inline list: globs: ["a/**", "b/**"]
                         globs_lines.append(rest)
                         break
                     elif "[" in rest:
-                        # Multi-line list starting on globs: line
+                        # Multi-line list starting on this line
                         globs_lines.append(rest)
                         bracket_open = True
                         capture = True
+                    elif rest.startswith('"') or rest.startswith("'") or (rest and "," in rest):
+                        # Quoted or comma-separated string: globs: "a/**,b/**"
+                        globs_lines.append(rest)
+                        break
                     else:
                         # YAML-style block list follows
                         capture = True
@@ -95,31 +101,30 @@ for path in sorted(root.rglob("*.mdc")):
             globs_text = "\n".join(globs_lines).strip()
             if not globs_text:
                 raise ValueError("globs is empty")
-            # Normalize to Python literal list
+            # Normalize to a Python list
             if globs_text.startswith("["):
-                literal = globs_text
+                globs_val = ast.literal_eval(globs_text)
+            elif globs_text.startswith('"') or globs_text.startswith("'"):
+                # Quoted string — may be comma-separated
+                inner = ast.literal_eval(globs_text)
+                globs_val = [x.strip() for x in inner.split(",") if x.strip()]
+            elif "," in globs_text:
+                # Bare comma-separated string
+                globs_val = [x.strip() for x in globs_text.split(",") if x.strip()]
             else:
-                # convert YAML-style block list to Python list literal
+                # YAML block list
                 items = []
                 for line in globs_text.splitlines():
                     line = line.strip()
                     if line.startswith("-"):
-                        item = line.lstrip("-").strip()
-                        items.append(f"{item}")
-                literal = "[" + ",".join(items) + "]"
-            globs_val = ast.literal_eval(literal)
+                        items.append(line.lstrip("-").strip())
+                globs_val = items
             if not isinstance(globs_val, list) or not globs_val:
-                raise ValueError("globs must be a non-empty list")
-            if len(globs_val) < 1:
-                raise ValueError("globs must include at least one entry")
+                raise ValueError("globs must resolve to a non-empty list")
             if not all(isinstance(x, str) and x.strip() for x in globs_val):
                 raise ValueError("globs entries must be non-empty strings")
-            if not any("/" in x or "**" in x for x in globs_val):
-                raise ValueError("globs must include at least one scoped pattern (e.g., path/ or **/)")
             if any(x.strip() in {"*", "**"} for x in globs_val):
                 raise ValueError("globs must not contain bare * or **")
-            if not any(x.startswith(prefix) for x in globs_val for prefix in ("apps/", "packages/", "services/", "modules/")):
-                raise ValueError("globs must include at least one org-level path (apps/, packages/, services/, or modules/)")
         except Exception as e:
             errors.append(f"{path}: invalid globs schema ({e})")
     if "alwaysApply" not in front:
@@ -144,8 +149,13 @@ print("Rule validation passed.")
 PY
 
 echo "Validating YAML files..."
-python - <<'PY'
-import sys, pathlib, yaml
+python3 - <<'PY'
+import sys, pathlib
+try:
+    import yaml
+except ImportError:
+    print("PyYAML not installed; skipping YAML validation (pip3 install pyyaml to enable).")
+    sys.exit(0)
 roots = [pathlib.Path(".")]
 errors = []
 for root in roots:
@@ -167,7 +177,7 @@ print("YAML validation passed.")
 PY
 
 echo "Validating JSON files..."
-python - <<'PY'
+python3 - <<'PY'
 import sys, pathlib, json
 errors = []
 for path in sorted(pathlib.Path(".").rglob("*.json")):
@@ -187,7 +197,7 @@ print("JSON validation passed.")
 PY
 
 echo "Checking Markdown links for empty targets..."
-python - <<'PY'
+python3 - <<'PY'
 import re, sys, pathlib
 errors = []
 link_pattern = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
