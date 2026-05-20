@@ -11,7 +11,7 @@ set -euo pipefail
 # - any .mdc missing version or version mismatch with VERSION
 # - baseline exists but differs from current versions
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/..") && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.."\ &&\ pwd)"
 VERSION_FILE="$ROOT/VERSION"
 MANIFEST="$ROOT/.governance/versions.json"
 
