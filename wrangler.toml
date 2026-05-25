@@ -1,5 +1,5 @@
 name = "default_secrets_store"   # or your worker name
-account_id = "0b0ee2b5eaf1fb8a2612e40ab6488052"
+account_id = "dac01715f027bf360c500dce1d805d94"
 compatibility_date = "2024-01-01"
 
 [[secrets]]
