@@ -48,10 +48,12 @@ jobs:
         run: |
           git diff --name-only | tee /tmp/changed_files
           if [ -s /tmp/changed_files ]; then
-            echo "changed=true"  >> $GITHUB_OUTPUT
-            echo "files=$(cat /tmp/changed_files | tr '\n' ' ')" >> $GITHUB_OUTPUT
+            {
+              echo "changed=true"
+              echo "files=$(tr '\n' ' ' < /tmp/changed_files)"
+            } >> "$GITHUB_OUTPUT"
           else
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Run lint + version check
