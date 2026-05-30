@@ -14,7 +14,108 @@ alwaysApply: true
 **Auth:** Static Bearer token via `HUB_API_KEY` secret. Never hardcode — always load from env.
 **CF Account ID (components):** `dac01715f027bf360c500dce1d805d94`
 
+## ANVIL-First Orchestration (Mandatory)
 
+ANVIL (hub.boz.dev) is the central orchestration platform — all AI surfaces (Claude Code, Cowork, Chat) MUST treat it as the primary context source and execution layer.
+
+### Dispatch-First Principle
+ALL external service calls MUST follow this resolution order:
+1. `anvil_catalog` — discover available tools and components
+2. `anvil_dispatch` — execute via the hub's central router
+3. Direct MCP connector — only if dispatch is unavailable or explicitly bypassed
+4. Raw API call — only if no MCP connector exists
+5. Browser automation — absolute last resort
+
+Never skip steps 1–2. Never call a third-party API directly when an ANVIL component wraps it. Never use browser automation when an API or MCP path exists.
+
+**GAM enforcement**: Google Workspace operations (email, users, groups, Drive, audit) MUST use `gam-mcp` via `anvil_dispatch`. Never fall back to the local GAM binary (`/Users/danielborrowman/bin/gam7/gam`) via osascript or shell — the worker is always available and is the correct path.
+
+### Component Registration Convention (2026-05-22)
+
+When registering a Worker with the hub registry, the `endpoint` field MUST be `https://<sub>.anvil.boz.dev/mcp` (or `route_method='mcp'` set explicitly). Bare hostnames work via hub v2.17.0 auto-detect. The `/dispatch` suffix is the OPT-IN signal for the legacy POST transport — if a Worker uses that suffix but only implements `/mcp`, dispatch silently returns the GET fallback string instead of the tool result, and the hub logs a successful 200. **Symptom**: `anvil_dispatch{target,command}` returns the component name string. **Fix**: update the registry row's `endpoint` to end in `/mcp`. Reference incident: ClickUp `86d331278` (resolved). After updating an endpoint, force a `anvil_catalog force_sync` to refresh the routing cache.
+
+### Context Loading
+Before starting any non-trivial work in this project:
+- Check `anvil_registry` for the current component map and tool counts
+- Check `anvil_health_check` if operating on infrastructure or debugging failures
+- Check `anvil_catalog` to discover available tools before writing custom code
+- Search ClickUp for existing tasks, docs, and context before creating new ones
+
+### Component Awareness
+ANVIL is a platform of 48 active/degraded HTTP Worker components on Cloudflare (`*.anvil.boz.dev`) routed through `hub.boz.dev`. The catalog exposes 1840 tools across the active components (as of 2026-05-22). All components are platform-universal — HTTP Workers, never Claude-local connectors. When building or modifying components, they must conform to this architecture. Full inventory in `docs/SPEC-INDEX.md`.
+
+### Response Contract (Mandatory)
+
+Cove responses follow `docs/ANVIL-COVE-RESPONSE-CONTRACT-001-SPEC.md` v1.1+ — **strict tabulated layout, fixed positions**. Every substantive response has the same skeleton so Boz scans it in 2 seconds.
+
+**Fixed order** (omit sections that don't apply; positions never shift):
+
+| Position | Section                          | When                          |
+|----------|----------------------------------|-------------------------------|
+| 1        | `## Status` 4-row dashboard      | Every substantive response    |
+| 2        | Body prose (≤ 5 sentences)       | Always                         |
+| 3        | `## Build` step table            | ≥ 2 distinct steps           |
+| 4        | `## Decision` table OR `AskUserQuestion` | Offering choice / handoff |
+| 5        | `## Delta` table                 | Every substantive response    |
+| 6        | `---` + `## Footer` table        | Substantive engineering only  |
+
+**Status header** (§2.0): 4 rows — `Action` (one-sentence what happened), `State` (✓/▶/○ count, or current step N/M), `Wait` (None / Awaiting Q…), `Cost` (~$X on <model> — fit + reco).
+
+**Build table** (§2.2): 3 cols — `#`, `Step`, `Status` (`✓` done / `▶` in progress / `○` pending / `✗` failed / `~` skipped).
+
+**Decision table** (§2.3): 4 cols — `#`, `Option`, `Why`, `Recommended` (`✓` on row 1 only). Operator: "go ahead" / "default" / "yes" / "1" = row 1; "2"/"3" = that row; free text = AskUserQuestion "Other" path. **For true forks with no sensible default**, use `AskUserQuestion` instead (first option suffixed `(Recommended)`).
+
+**Delta table** (§2.5): 4 rows — `Working tree` (clean / N files), `Active leases` (cove-session-leases keys), `Tickets touched` (ClickUp IDs + status), `Sources` (citation links).
+
+**Footer table** (§2.6): 4 rows — `Tokens` (~in / ~out), `Cost` ($X est on model), `Fit` (Right-sized / Over-spec'd / Under-spec'd + rationale), `Reco` (recommended model + work class). Trigger: ≥ 3 tool calls OR ≥ 1 file edit OR ≥ 1 deploy OR ≥ 1 PR. Token math: chars/3.5 heuristic, or `anthropic_count_tokens` for high-value responses. Pricing + work-class→model matrix embedded in the spec.
+
+**AskUserQuestion** is the canonical question surface: first option suffixed `(Recommended)`, max 4 options, max 2 questions/turn, never type questions into prose.
+
+### Tool-response hygiene (input-token discipline)
+
+Conversation history accumulates across a session. Every tool result in context is paid for every subsequent turn. Extract only the fields needed downstream; do NOT paste full responses into replies.
+
+- `github_create_pull` / `github_merge_pull` → reference `number` + `html_url`. Never paste the ~8KB repo-metadata blob.
+- `clickup_create_task` → reference `id` + `url`. Drop the echoed description.
+- `anvil_catalog{action:'component'}` → use `action:'search'` when only tool names are needed; avoid the full schema dump.
+- Large `Read` calls (>100 lines) → use `Grep` first to find the relevant lines, then `Read` with `offset`/`limit` for a focused window.
+- The Delta table's `Sources` row references PR numbers / ClickUp IDs / file paths — it does NOT echo response payloads.
+
+Rule of thumb: "what do I need from this response to make the next decision?" If the answer is a single ID or URL, keep that and discard the rest.
+
+### Cove Session Coordination (Mandatory)
+
+Five rules to stop parallel-session divergence (the 2026-05-22 "ClickUp says done, code uncommitted, infra ahead of repo" class of incident). Full spec at `docs/ANVIL-COVE-SESSION-COORD-001-SPEC.md`.
+
+1. **Tickets close AFTER deploy, not before.** A ClickUp task moves to `complete` only when code is committed + PR merged + Workers redeployed + smoke green. A ticket marked `complete` with uncommitted code is a contract violation — fix it the next session that finds it.
+2. **Session-start triage.** First three actions of any session that may touch code: `git fetch origin`, `git status --short && git stash list && git log --oneline origin/main..HEAD`, reconcile anything pending BEFORE starting new work. Cost: 30 seconds. Cost of skipping: ~45min of recovery on the next deploy.
+3. **Branch-per-session.** No Cove session edits `main` directly. Every session works on `agent/<intent>` branches and lands work through PRs so divergence is visible at PR time, not deploy time.
+4. **End-of-session sweep.** Before closing: `git status --short` in any repo touched. Commit + push OR stash with a named handoff label. Update affected ClickUp tickets to reflect actual code state (not aspirational). Delta Summary MUST include a `Working tree state:` line listing any uncommitted files (or `clean`).
+5. **Component ownership lease** (high-traffic components: hub-mcp, anvil-pulse, anvil-sentinel-mcp, gam-mcp, clickup-mcp). Acquire a 1h KV lease in `cove-session-leases` (id `834670110df14601bff138eec5ac93f5`) keyed `lease:<repo>:<component>` before editing. Other sessions wait, work elsewhere, or coordinate via ClickUp comment.
+
+### Delta Summary extension
+
+Every Delta Summary now ends with:
+- `Working tree state:` — `clean` or list of uncommitted files
+- `Active leases:` — `cove-session-leases` keys this session holds
+- `Tickets touched:` — ClickUp IDs + their current status
+
+### MCP Component Template (Mandatory for New Components)
+
+Every new ANVIL MCP component MUST conform to `docs/ANVIL-MCP-TEMPLATE-001-SPEC.md`. The spec covers directory layout, mandatory `wrangler.jsonc` bindings (HUB service binding + SS_SHARED_SECRET + METRICS AE dataset), registry endpoint convention (must end in `/mcp`), tool naming (`<name>_<action>` prefix), required endpoints (`/mcp`, `/health`, `/observability`, `/status`), auth (CF Access > X-Anvil-Secret > Bearer), mandatory code patterns (UTF-8 base64, dispatch-first, error envelope, idempotency, audit logging), lifecycle states, doc requirements, CI/smoke checks, and versioning. The PR description for every new component MUST include the compliance checklist from §15 of the spec. Components that skip the checklist will be flagged by `spec-watcher` on the next sweep.
+
+### Scheduler & Event Bus (anvil-pulse, v0.6+)
+
+`anvil-pulse` (pulse.anvil.boz.dev) is the canonical scheduler + event bus on the platform. It exposes 25 `pulse_*` MCP tools — `pulse_schedule|list|cancel|run_now|status|history|emit|watchdog_init|metrics|graph|webhook_register|template_register|template_list|template_apply|schema_register|schema_validate|slo_check|slo_breaches|cost_rollup|cost_summary|region_heartbeat|region_status|downgrade_log|rbac_list_scopes|rbac_list_tokens`. Tier 1–4 capabilities (lease, idempotency, retry backoff, DLQ routing, priority lanes, DAG, SLO monitor, schema registry, cost annotation, RBAC scaffold, multi-region heartbeat) are wired. Use Pulse as the substrate for any new recurring/event-triggered orchestration concern — do not build a parallel scheduler. Recurring crons + DLQ + event subscriptions all go through Pulse. CF Agents framework lives at `anvil-pulse-agents` (`agents.anvil.boz.dev`).
+
+### Resource Hierarchy
+When fulfilling a request, prefer ANVIL's own resources in this order:
+1. ANVIL platform tools (via dispatch) — for any operation an existing component handles
+2. ClickUp — for task management, documentation, and project context
+3. Local Mac tools (osascript/mac-mcp) — for filesystem, app automation, and system operations
+4. Web search / browser — only when no structured tool exists
+
+---
 
 ## Active Components
 | ID | Endpoint | Purpose |
@@ -43,6 +144,7 @@ alwaysApply: true
 | inference-proxy | inference.anvil.boz.dev | Central AI gateway, logs all AI calls |
 | audit-exporter | audit.anvil.boz.dev | M365/CF/GAM audit export to D1+R2 |
 | deploy | deploy.anvil.boz.dev | Worker rollback control plane (6 tools) |
+
 
 
 ## Hub-Level Tools

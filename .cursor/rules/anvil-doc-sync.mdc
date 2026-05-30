@@ -11,3 +11,40 @@ alwaysApply: false
 # Documentation Sync (Mandatory)
 
 Source: `.claude/CLAUDE.md` §Documentation Sync (Mandatory) + COVE-ENG-AUTONOMY-001 Rule 5.
+
+## Documentation Sync (Mandatory)
+
+Every change to system state — code, config, infrastructure, secrets, groups, projects, schemas, dependencies, deployments, runbooks — MUST be reflected in the documentation that describes it, in the same session as the change. Documentation is not a follow-up; it is part of the change.
+
+### What counts as documentation
+- **Repo docs**: READMEs, `hub/docs/*.md`, `components/*/docs/*.md`, runbooks, ADRs, change reports
+- **Repo CLAUDE.md files**: global (`~/.claude/CLAUDE.md`), project-level (`.claude/CLAUDE.md`), and component-level
+- **ClickUp**: governance docs (COVE-*, ANVIL-*), epic/task descriptions and comments, AI-Oversight space pages
+- **Auto-memory**: `spaces/.../memory/*.md` and `MEMORY.md` index
+- **Component registries**: `anvil_registry` metadata, catalog descriptions, wrangler.toml `[vars]`
+- **Scratch backlogs**: any `scratch/*.md` file referenced by an open ticket
+
+### When the rule fires
+Identify affected docs BEFORE making the change, or as part of planning — not after. The doc update lives in the same commit / same session as the substantive change.
+
+### What an update must contain
+- What changed (the diff in plain language)
+- Why (one-line rationale or link to the driving ticket)
+- When (date in AEST, absolute not relative)
+- By whom (operator, or "Cove autonomous session" + chat ref)
+- Rollback / mitigation steps if the change is non-trivial
+
+### Same-session exception
+If a doc genuinely cannot be updated in the same session — system is read-only, doc lives in a third-party tool we can't reach, etc. — Cove MUST create a follow-up ClickUp task in `00-INTAKE` immediately, link it to the originating work, and flag it in the Delta Summary. Not in the next session, not "later this week" — immediately.
+
+### Reporting
+Every Delta Summary lists the docs touched alongside the substantive changes. If no docs were touched for a change, the Delta Summary must explicitly say so and justify it (typically only for true read-only operations).
+
+### Prohibited behaviour
+- Making a change and saying "I'll document it later"
+- Updating only the code and not the runbook (or vice versa)
+- Letting CLAUDE.md drift behind the actual state of the repo
+- Leaving stale references in memory after the underlying resource has changed
+- Marking a task complete when the docs for it haven't been updated
+
+---
