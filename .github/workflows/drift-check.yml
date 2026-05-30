@@ -35,12 +35,14 @@ jobs:
           ANVIL_HUB_API_KEY: ${{ secrets.ANVIL_HUB_API_KEY }}
         run: |
           if node scripts/generate-anvil-rules.js --check 2>&1 | tee /tmp/drift-output; then
-            echo "drifted=false" >> $GITHUB_OUTPUT
+            echo "drifted=false" >> "$GITHUB_OUTPUT"
           else
-            echo "drifted=true"  >> $GITHUB_OUTPUT
-            echo "output<<EOF"   >> $GITHUB_OUTPUT
-            cat /tmp/drift-output >> $GITHUB_OUTPUT
-            echo "EOF"           >> $GITHUB_OUTPUT
+            {
+              echo "drifted=true"
+              echo "output<<EOF"
+              cat /tmp/drift-output
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
           fi
 
       - name: Open drift issue
