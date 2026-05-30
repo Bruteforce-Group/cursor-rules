@@ -157,6 +157,20 @@ Rules are divided into two categories:
   - optional explicit IDs: `CLICKUP_TRACKING_LIST_ID`, `CLICKUP_DRIFT_LIST_ID`
   - optional debug toggle: `CLICKUP_TASK_RESOLVE_DEBUG` (`1`/`true`/`on`) to log resolution path (explicit/dynamic/fallback) in workflow logs
 
+### Low-risk auto-ship
+
+- `low-risk-auto-ship.yml` provides a low-friction merge lane for trusted small changes.
+- Trigger model:
+  - add PR label `automerge:low-risk`
+  - workflow runs on `pull_request_target` updates
+  - only PRs to `main` are considered
+- Safety gates before auto-ship:
+  - PR must only touch approved low-risk paths (docs, selected CI/workflow files, rule/version metadata files)
+  - unresolved review threads are auto-resolved for labeled low-risk PRs
+  - bot submits an approval review
+  - auto-merge is enabled with squash strategy (`--auto --squash`)
+- If a PR includes out-of-scope files, the workflow leaves a comment and does not auto-ship.
+
 #### Debug runbook
 
 - Enable diagnostics by setting repo variable `CLICKUP_TASK_RESOLVE_DEBUG=true`.

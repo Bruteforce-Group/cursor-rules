@@ -1,0 +1,143 @@
+name: Low Risk Auto Ship
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review, labeled]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  auto-ship:
+    if: >
+      github.event.pull_request.draft == false &&
+      contains(github.event.pull_request.labels.*.name, 'automerge:low-risk')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate low-risk eligibility
+        id: gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            const allowed = [
+              /^\.github\/workflows\/[^/]+\.yml$/,
+              /^scripts\/clickup-drift-task\.js$/,
+              /^README\.md$/,
+              /^docs\/.+/,
+              /^\.cursor\/rules\/.+\.mdc$/,
+              /^\.governance\/versions\.json$/,
+              /^VERSION$/,
+              /^requirements-docs\.txt$/,
+              /^wrangler\.jsonc$/,
+            ];
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner,
+              repo,
+              pull_number,
+              per_page: 100,
+            });
+            const changed = files.map(f => f.filename);
+            const disallowed = changed.filter((file) => !allowed.some((r) => r.test(file)));
+
+            core.setOutput('eligible', disallowed.length === 0 ? 'true' : 'false');
+            core.setOutput('disallowed_files', disallowed.join(', '));
+
+      - name: Stop when files are outside low-risk scope
+        if: steps.gate.outputs.eligible != 'true'
+        env:
+          DISALLOWED_FILES: ${{ steps.gate.outputs.disallowed_files }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request.number;
+            const disallowed = process.env.DISALLOWED_FILES || "(none reported)";
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: pull_number,
+              body:
+                "Low-risk auto-ship skipped: this PR includes files outside the approved scope. " +
+                "Remove the `automerge:low-risk` label or split the change.\n\n" +
+                `Disallowed files: ${disallowed}`,
+            });
+
+      - name: Resolve unresolved review threads
+        if: steps.gate.outputs.eligible == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const number = context.payload.pull_request.number;
+
+            const query = `
+              query($owner: String!, $repo: String!, $number: Int!, $after: String) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $number) {
+                    reviewThreads(first: 100, after: $after) {
+                      nodes { id isResolved }
+                      pageInfo { hasNextPage endCursor }
+                    }
+                  }
+                }
+              }`;
+            const mutation = `
+              mutation($threadId: ID!) {
+                resolveReviewThread(input: { threadId: $threadId }) {
+                  thread { id isResolved }
+                }
+              }`;
+
+            let after = null;
+            const unresolvedIds = [];
+            do {
+              const res = await github.graphql(query, { owner, repo, number, after });
+              const threads = res.repository.pullRequest.reviewThreads;
+              for (const t of threads.nodes) {
+                if (!t.isResolved) unresolvedIds.push(t.id);
+              }
+              after = threads.pageInfo.hasNextPage ? threads.pageInfo.endCursor : null;
+            } while (after);
+
+            for (const threadId of unresolvedIds) {
+              await github.graphql(mutation, { threadId });
+            }
+
+            core.info(`Resolved ${unresolvedIds.length} review thread(s).`);
+
+      - name: Approve low-risk PR
+        if: steps.gate.outputs.eligible == 'true'
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request.number;
+            await github.rest.pulls.createReview({
+              owner,
+              repo,
+              pull_number,
+              event: "APPROVE",
+              body:
+                "Auto-approved by Low Risk Auto Ship. " +
+                "PR is labeled `automerge:low-risk` and file changes match approved low-risk scope.",
+            });
+
+      - name: Enable auto-merge (squash)
+        if: steps.gate.outputs.eligible == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr merge "$PR_URL" --auto --squash
