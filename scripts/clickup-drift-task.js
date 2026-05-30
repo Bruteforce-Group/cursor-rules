@@ -1,22 +1,25 @@
 #!/usr/bin/env node
 /*
- * ClickUp drift task lifecycle helper for CI.
+ * ClickUp task lifecycle helper for CI.
  *
  * Actions:
- *   - upsert: create or update a canonical drift task in a target list.
- *   - close:  mark the canonical drift task as closed.
+ *   - upsert: create or update a canonical task in a target list.
+ *   - close:  mark the canonical task as closed.
  *
  * Required env:
  *   CLICKUP_API_TOKEN
  *
  * Recommended env:
- *   CLICKUP_DRIFT_LIST_ID   (if absent, script exits 0 with a warning)
+ *   CLICKUP_TASK_LIST_ID (preferred)
+ *   CLICKUP_TRACKING_LIST_ID / CLICKUP_DRIFT_LIST_ID (fallback aliases)
+ *   If no list ID is provided, script exits 0 with a warning.
  *
  * Optional env:
  *   CLICKUP_TASK_ACTION      ("upsert" | "close", default: "upsert")
- *   CLICKUP_DRIFT_TITLE      task title (default set below)
- *   CLICKUP_DRIFT_BODY       task markdown body
- *   CLICKUP_DRIFT_BODY_FILE  path to markdown body file (takes precedence)
+ *   CLICKUP_TASK_TITLE / CLICKUP_DRIFT_TITLE      task title (default set below)
+ *   CLICKUP_TASK_BODY / CLICKUP_DRIFT_BODY        task markdown body
+ *   CLICKUP_TASK_BODY_FILE / CLICKUP_DRIFT_BODY_FILE
+ *                                               path to markdown body file (takes precedence)
  */
 
 'use strict';
@@ -88,23 +91,29 @@ function latestMatchingTask(tasks, title) {
 }
 
 function readBody() {
-  if (process.env.CLICKUP_DRIFT_BODY_FILE) {
-    const p = process.env.CLICKUP_DRIFT_BODY_FILE;
+  const bodyFile = process.env.CLICKUP_TASK_BODY_FILE || process.env.CLICKUP_DRIFT_BODY_FILE;
+  if (bodyFile) {
+    const p = bodyFile;
     return fs.readFileSync(p, 'utf8');
   }
-  return process.env.CLICKUP_DRIFT_BODY || '';
+  return process.env.CLICKUP_TASK_BODY || process.env.CLICKUP_DRIFT_BODY || '';
 }
 
 async function main() {
   const token = (process.env.CLICKUP_API_TOKEN || '').trim();
-  const listId = (process.env.CLICKUP_DRIFT_LIST_ID || '').trim();
+  const listId = (
+    process.env.CLICKUP_TASK_LIST_ID ||
+    process.env.CLICKUP_TRACKING_LIST_ID ||
+    process.env.CLICKUP_DRIFT_LIST_ID ||
+    ''
+  ).trim();
   const action = (process.env.CLICKUP_TASK_ACTION || 'upsert').trim();
-  const title = (process.env.CLICKUP_DRIFT_TITLE || DEFAULT_TITLE).trim();
+  const title = (process.env.CLICKUP_TASK_TITLE || process.env.CLICKUP_DRIFT_TITLE || DEFAULT_TITLE).trim();
   const body = readBody();
 
   if (!token) throw new Error('CLICKUP_API_TOKEN not set');
   if (!listId) {
-    console.warn('CLICKUP_DRIFT_LIST_ID not set; skipping ClickUp drift task automation.');
+    console.warn('No ClickUp task list ID set; skipping ClickUp task automation.');
     return;
   }
   if (!['upsert', 'close'].includes(action)) {

@@ -141,6 +141,17 @@ Rules are divided into two categories:
 - SBOM generation (Syft) and Trivy SBOM scan (HIGH/CRITICAL; ignore-unfixed); SBOM and report uploaded.
 - Dependabot (`.github/dependabot.yml`) keeps GitHub Actions deps updated weekly and other ecosystems with major bumps ignored by default.
 
+### ClickUp CI tracking
+
+- `clickup-ci-tracker.yml` tracks critical CI workflows on `main` (`Drift Check`, `Sync ANVIL Rules`, `Security Scans`, `Docs`, `Version Governance`) and auto-manages ClickUp tasks:
+  - failing runs (`failure`, `timed_out`, `cancelled`, `action_required`, `startup_failure`) -> upsert/open task
+  - successful runs -> close task
+- `drift-check.yml`, `sync-from-anvil.yml`, and `clickup-drift-close-on-merge.yml` still manage the dedicated drift task lifecycle.
+- Required for CI tracking writes:
+  - repo secret: `CLICKUP_API_TOKEN`
+  - repo variable: `CLICKUP_TRACKING_LIST_ID` (generic CI tracking list)
+- Drift-specific tracking can keep using `CLICKUP_DRIFT_LIST_ID` (or share the same list via `CLICKUP_TRACKING_LIST_ID`).
+
 ### Branch protection (recommended)
 
 - Require passing checks on main/protected branches: `lint`, `version-governance`, `security`.
