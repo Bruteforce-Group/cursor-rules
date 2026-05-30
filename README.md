@@ -157,6 +157,24 @@ Rules are divided into two categories:
   - optional explicit IDs: `CLICKUP_TRACKING_LIST_ID`, `CLICKUP_DRIFT_LIST_ID`
   - optional debug toggle: `CLICKUP_TASK_RESOLVE_DEBUG` (`1`/`true`/`on`) to log resolution path (explicit/dynamic/fallback) in workflow logs
 
+#### Debug runbook
+
+- Enable diagnostics by setting repo variable `CLICKUP_TASK_RESOLVE_DEBUG=true`.
+- Trigger a workflow (`Drift Check`, `Sync ANVIL Rules`, or any tracked workflow on `main`).
+- Inspect the step that runs `node scripts/clickup-drift-task.js` and look for `[clickup-resolve]` lines.
+- Typical outputs:
+  - explicit ID path:
+    - `[clickup-resolve] resolution path: explicit_id`
+  - dynamic name path:
+    - `[clickup-resolve] resolution input: space="AI Oversight & Governance", list="ANVIL Hub Active Dev", team="auto"`
+    - `[clickup-resolve] found 3 space(s) in team 90161246640`
+    - `[clickup-resolve] matched preferred space "AI Oversight & Governance" (90163531881)`
+    - `[clickup-resolve] collected 42 list candidate(s) for list match "ANVIL Hub Active Dev"`
+    - `[clickup-resolve] resolution path: dynamic_name (folder="none")`
+  - fallback path:
+    - `[clickup-resolve] resolution path: dynamic_name_miss` (or `dynamic_name_error`)
+    - `[clickup-resolve] resolution path: fallback_id`
+
 ### Branch protection (recommended)
 
 - Require passing checks on main/protected branches: `lint`, `version-governance`, `security`.
