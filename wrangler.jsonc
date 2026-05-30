@@ -3,6 +3,9 @@
   "name": "bozza-docs",
   "account_id": "dac01715f027bf360c500dce1d805d94",
   "compatibility_date": "2026-05-30",
+  // Keep the *.workers.dev URL enabled alongside the custom domain so there is
+  // always a reachable URL independent of boz.dev zone WAF rules.
+  "workers_dev": true,
   // Assets-only Worker: serves the static docs site built into ./site.
   // No `main` is needed when there is no Worker script.
   "assets": {
