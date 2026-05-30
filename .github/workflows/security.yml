@@ -26,15 +26,19 @@ jobs:
         run: /tmp/gitleaks detect --source . --no-git --redact --no-banner
 
   osv:
-    permissions:
-      contents: read
-      security-events: write
-    # The repo's only dependency manifest is requirements-docs.txt; parse it as
-    # a requirements.txt so OSV has a package source to scan.
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.8
-    with:
-      scan-args: |-
-        --lockfile=requirements.txt:requirements-docs.txt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The repo's only dependency manifest is requirements-docs.txt; parse it
+      # as a requirements.txt so OSV-Scanner has a package source to scan.
+      - name: Install OSV-Scanner
+        env:
+          OSV_VERSION: "2.3.8"
+        run: |
+          curl -sSfL "https://github.com/google/osv-scanner/releases/download/v${OSV_VERSION}/osv-scanner_linux_amd64" -o /tmp/osv-scanner
+          chmod +x /tmp/osv-scanner
+      - name: Run OSV-Scanner
+        run: /tmp/osv-scanner --lockfile=requirements.txt:requirements-docs.txt
 
   trivy:
     runs-on: ubuntu-latest
