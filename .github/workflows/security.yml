@@ -59,6 +59,7 @@ jobs:
           curl -sSfL "${base}/osv-scanner_linux_amd64" -O
           curl -sSfL "${base}/osv-scanner_SHA256SUMS" -O
           grep -E "[[:space:]][*]?osv-scanner_linux_amd64$" osv-scanner_SHA256SUMS | sha256sum -c -
+          mv osv-scanner_linux_amd64 osv-scanner
           chmod +x osv-scanner
       - name: Run OSV-Scanner
         run: /tmp/osv-scanner --lockfile=requirements.txt:requirements-docs.txt

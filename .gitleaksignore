@@ -1,0 +1,4 @@
+# gitleaks false-positive allowlist (fingerprints).
+# Documentation placeholder "Authorization: Bearer YOUR_API_KEY" in the now-deleted
+# .cursor/rules.md (curl-auth-header rule). Not a real secret.
+337a3cf0de2aeca8e920eaeff6a1bc551a0b979e:.cursor/rules.md:curl-auth-header:103
