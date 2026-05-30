@@ -38,8 +38,17 @@ THEME = DOCS / "theme"
 NAV_FILE = DOCS / "nav.json"
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
-# Rewrite relative .md links to .html (skip external + anchors).
+# Rewrite relative .md links to clean (extensionless) URLs that match
+# Cloudflare Static Assets' default auto-trim behaviour (avoids 307 redirects).
 MD_LINK_RE = re.compile(r'href="(?!https?:|mailto:|/|#)([^"]+?)\.md(#[^"]*)?"')
+
+
+def _clean_link(match: re.Match) -> str:
+    base = match.group(1)
+    frag = match.group(2) or ""
+    if base == "index":
+        return f'href="/{frag}"' if frag else 'href="/"'
+    return f'href="/{base}{frag}"'
 
 
 def parse_frontmatter(text: str) -> tuple[dict, str]:
@@ -62,7 +71,7 @@ def build_nav(nav: dict, active_slug: str) -> str:
             out.append(f'<li class="nav-group-title">{group["group"]}</li>')
         for page in group.get("pages", []):
             slug = page["slug"]
-            href = "/" if slug == "index" else f"/{slug}.html"
+            href = "/" if slug == "index" else f"/{slug}"
             cls = ' class="active"' if slug == active_slug else ""
             out.append(f'<li><a href="{href}"{cls}>{page["title"]}</a></li>')
     out.append("</ul>")
@@ -109,7 +118,7 @@ def main() -> int:
         meta, body = parse_frontmatter(src.read_text(encoding="utf-8"))
         md.reset()
         content_html = md.convert(body)
-        content_html = MD_LINK_RE.sub(r'href="/\1.html\2"', content_html)
+        content_html = MD_LINK_RE.sub(_clean_link, content_html)
         toc_html = md.toc if md.toc.strip() else ""
         toc_block = f'<div class="toc-title">On this page</div>{toc_html}' if toc_html else ""
 
