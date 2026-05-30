@@ -1,6 +1,6 @@
 ---
 description: General engineering rules that apply across the codebase
-version: 1.6.0
+version: 1.7.0
 alwaysApply: true
 ---
 - **Be explicit about what has and has not been done**: When responding to user requests, clearly separate completed actions from pending ones. Avoid ambiguity. For each action you describe, state its status explicitly:

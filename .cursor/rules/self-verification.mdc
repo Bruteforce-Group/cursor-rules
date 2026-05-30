@@ -1,6 +1,6 @@
 ---
 description: Self-verification protocol — applied after completing any user request
-version: 1.6.0
+version: 1.7.0
 alwaysApply: true
 ---
 

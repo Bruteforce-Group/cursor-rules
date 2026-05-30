@@ -1,23 +1,27 @@
 ---
-description: Technical writing and documentation standards for Mintlify and general docs
-version: 1.6.0
+description: Technical writing and documentation standards for our self-managed Markdown docs
+version: 1.7.0
 globs: [
   "docs/**",
   "apps/**/docs/**",
   "packages/**/docs/**",
-  "**/*.mdx",
   "**/*.md"
 ]
 alwaysApply: false
 ---
 
-- Use clear, direct language; write in second person ("you") for instructions, active voice, and present tense.
+Docs are plain Markdown, built into a static site by `scripts/build_docs.py` and
+deployed to Cloudflare. Write portable Markdown only — no docs-platform-specific
+components (no Mintlify/MDX components, JSX, or custom tags).
+
+- Use clear, direct language; write in second person ("you"), active voice, and present tense.
 - Lead with the most important information (inverted pyramid); break complex procedures into numbered steps with prerequisites and expected outcomes.
-- Maintain consistent terminology throughout; define jargon on first use and use parallel structure in lists and headings.
-- Use Mintlify components appropriately: Steps for procedures, Tabs for platform-specific content, CodeGroup for multi-language examples, Accordions for progressive disclosure, RequestExample/ResponseExample for API docs.
-- Include complete, runnable code examples with realistic data, proper error handling, expected output, and language/filename annotations; never include real secrets.
-- Document all API parameters (including optional) with clear descriptions; show both success and error response examples with rate limiting details.
-- Ship accessible docs: descriptive alt text for all images (wrapped in Frame), proper heading hierarchy starting at H2, specific link text instead of "click here."
-- Begin every page with YAML frontmatter (title, description); keep keyword-rich headings for navigation and SEO.
-- Test all code examples before publishing; include troubleshooting sections for likely failure points and verification steps to confirm success.
-- For the full Mintlify component reference and examples, see docs/mintlify-style-guide.md or fetch https://docs.bozza.au/llms.txt.
+- Maintain consistent terminology; define jargon on first use and use parallel structure in lists and headings.
+- Begin every page with YAML frontmatter containing `title` and `description` (both required — CI rejects pages missing either).
+- Start body headings at `##` (the `title` frontmatter renders as the page `<h1>`); keep headings keyword-rich for navigation.
+- Register every page in `docs/nav.json` so it appears in the sidebar; a nav entry without a matching file fails CI.
+- Link between pages with relative `.md` links (e.g. `[usage](usage.md)`); the build rewrites them to `.html` and the link checker fails on missing targets or anchors.
+- Use fenced code blocks with a language hint; provide complete, runnable examples with realistic data, proper error handling, and expected output. Never include real secrets.
+- Store images under `docs/assets/` and reference them relatively; every image needs descriptive alt text (enforced by the checker). Use specific link text, never "click here".
+- Use standard Markdown tables for structured comparisons and blockquotes for callouts/notes (they render as styled callouts in the theme).
+- Validate and preview locally before pushing: `python3 scripts/check_docs_links.py` then `python3 scripts/build_docs.py`. See `docs/style-guide.md` for the full conventions.

@@ -1,6 +1,6 @@
 ---
 description: ANVIL component development standards — scaffold, wrangler config, deploy checklist
-version: 1.6.0
+version: 1.7.0
 globs: "components/**/*,hub/**/*,src/**/*.ts,src/**/*.js,**/wrangler.toml"
 alwaysApply: false
 ---

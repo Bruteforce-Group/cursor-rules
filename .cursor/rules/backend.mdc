@@ -1,6 +1,6 @@
 ---
 description: Backend and API rules for server-side code and data layers
-version: 1.6.0
+version: 1.7.0
 globs: [
   "backend/**",
   "server/**",

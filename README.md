@@ -85,9 +85,8 @@ Rules are divided into two categories:
 - `performance.mdc`: Performance and efficiency practices (profiling, budgets).
 - `object-detection.mdc`: Vision/object-detection practices (coverage, privacy, latency).
 - `ai-insights.mdc`: AI insights module standards (deterministic analytics, model routing).
-- `docs-writing.mdc`: Technical writing and documentation standards.
+- `docs-writing.mdc`: Plain-Markdown technical writing standards for the self-managed docs site.
 - `ui-testing.mdc`: Visual regression testing for GUI/TUI applications.
-- `mintlify-docs.mdc`: Mintlify component reference for docs.bozza.au.
 
 #### On-demand (agent-requestable)
 
@@ -97,36 +96,35 @@ Rules are divided into two categories:
 
 | Module | Version | Scoping |
 | --- | --- | --- |
-| anvil-stack | 1.6.0 | always-applied |
-| anvil-engineering-rules | 1.6.0 | always-applied |
-| anvil-dev-mode | 1.6.0 | always-applied |
-| anvil-task-system | 1.6.0 | always-applied |
-| anvil-component-scaffold | 1.6.0 | glob-scoped |
-| anvil-dispatch-protocol | 1.6.0 | glob-scoped |
-| autonomous-development-lifecycle | 1.6.0 | always-applied |
-| general | 1.6.0 | always-applied |
-| security | 1.6.0 | always-applied |
-| observability | 1.6.0 | always-applied |
-| compliance | 1.6.0 | always-applied |
-| self-verification | 1.6.0 | always-applied |
-| python-standards | 1.6.0 | always-applied |
-| project-creation | 1.6.0 | always-applied |
-| logging-and-data | 1.6.0 | always-applied |
-| backend | 1.6.0 | glob-scoped |
-| frontend | 1.6.0 | glob-scoped |
-| infra | 1.6.0 | glob-scoped |
-| mobile | 1.6.0 | glob-scoped |
-| data | 1.6.0 | glob-scoped |
-| ml-ai | 1.6.0 | glob-scoped |
-| secrets | 1.6.0 | glob-scoped |
-| qa-testing | 1.6.0 | glob-scoped |
-| performance | 1.6.0 | glob-scoped |
-| object-detection | 1.6.0 | glob-scoped |
-| ai-insights | 1.6.0 | glob-scoped |
-| docs-writing | 1.6.0 | glob-scoped |
-| ui-testing | 1.6.0 | glob-scoped |
-| mintlify-docs | 1.6.0 | glob-scoped |
-| agent-integration | 1.6.0 | on-demand |
+| anvil-stack | 1.7.0 | always-applied |
+| anvil-engineering-rules | 1.7.0 | always-applied |
+| anvil-dev-mode | 1.7.0 | always-applied |
+| anvil-task-system | 1.7.0 | always-applied |
+| anvil-component-scaffold | 1.7.0 | glob-scoped |
+| anvil-dispatch-protocol | 1.7.0 | glob-scoped |
+| autonomous-development-lifecycle | 1.7.0 | always-applied |
+| general | 1.7.0 | always-applied |
+| security | 1.7.0 | always-applied |
+| observability | 1.7.0 | always-applied |
+| compliance | 1.7.0 | always-applied |
+| self-verification | 1.7.0 | always-applied |
+| python-standards | 1.7.0 | always-applied |
+| project-creation | 1.7.0 | always-applied |
+| logging-and-data | 1.7.0 | always-applied |
+| backend | 1.7.0 | glob-scoped |
+| frontend | 1.7.0 | glob-scoped |
+| infra | 1.7.0 | glob-scoped |
+| mobile | 1.7.0 | glob-scoped |
+| data | 1.7.0 | glob-scoped |
+| ml-ai | 1.7.0 | glob-scoped |
+| secrets | 1.7.0 | glob-scoped |
+| qa-testing | 1.7.0 | glob-scoped |
+| performance | 1.7.0 | glob-scoped |
+| object-detection | 1.7.0 | glob-scoped |
+| ai-insights | 1.7.0 | glob-scoped |
+| docs-writing | 1.7.0 | glob-scoped |
+| ui-testing | 1.7.0 | glob-scoped |
+| agent-integration | 1.7.0 | on-demand |
 
 ### Versioning & governance
 
@@ -163,6 +161,11 @@ Rules are divided into two categories:
 | Centralized   | Data-center GPUs (A10/A100/4090)        | Target ≤50 ms/frame or ≥40 FPS, mAP@0.5 ≥0.65, mAP@0.5:0.95 ≥0.40 |
 
 ### Changelog
+
+#### v1.7.0
+
+- **Replaced Mintlify with a self-managed docs pipeline:** removed the Mintlify CI workflow, `docs.json`, `.mdx` pages, the Mintlify admin `wrangler.toml`, and the `mintlify-docs.mdc` rule. Docs are now plain Markdown built by `scripts/build_docs.py` and validated by `scripts/check_docs_links.py`, deployed to Cloudflare Workers Static Assets via `.github/workflows/docs.yml` and `wrangler.jsonc`.
+- **Rewrote `docs-writing.mdc`** for portable plain-Markdown standards (frontmatter, relative links, `nav.json`, asset/alt-text rules) and removed the Mintlify component rule.
 
 #### v1.6.0
 
@@ -201,12 +204,16 @@ Rules are divided into two categories:
 4. For project-specific overrides, add `.mdc` files to `<project>/.cursor/rules/` — they sit alongside (not replace) user-level rules.
 5. Commit rule changes to this repo so updates are versioned and auditable.
 
-## Documentation (docs.bozza.au)
+## Documentation (self-managed)
 
-- Primary docs are hosted from `bruteforce-group/docs` (branch `main`, path `docs/`) and published to `https://docs.bozza.au` via the Mintlify GitHub App. This repo is for rules; author docs in the central docs repo.
-- Keep `docs/docs.json` in that repo in sync with actual files: every page listed must have a matching MDX/MD file under `docs/`. Add or remove nav entries together with the files to avoid broken-links failures.
-- The full Mintlify component reference and style guide is available at `docs/mintlify-style-guide.md`.
-- If you run link checks here, `.github/workflows/mintlify-deploy.yml` only runs `mintlify broken-links` from `docs/` and skips when `docs/docs.json` is absent. No deploy step runs in this repo.
+This repo's docs are plain Markdown under `docs/`, built into a static site and
+deployed to Cloudflare Workers — no third-party docs platform.
+
+- **Author:** add `docs/<slug>.md` with `title` + `description` frontmatter and register it in `docs/nav.json`.
+- **Validate + build locally:** `pip install -r requirements-docs.txt`, then `python3 scripts/check_docs_links.py` and `python3 scripts/build_docs.py` (output in `site/`).
+- **CI:** `.github/workflows/docs.yml` runs the link check + build on PRs and additionally deploys to Cloudflare on `main`.
+- **Deploy config:** `wrangler.jsonc` (Workers Static Assets). Deploys need a `CLOUDFLARE_API_TOKEN` repo secret with Workers edit permission. Attach the `docs.bozza.au` custom domain via the commented `routes` entry once the zone is available.
+- **Style:** see `docs/style-guide.md`.
 
 ## Contributing
 

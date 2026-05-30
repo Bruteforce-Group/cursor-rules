@@ -1,0 +1,2 @@
+# Documentation site build dependency (self-managed static generator).
+markdown==3.7

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{title}} · {{site_title}}</title>
+  <meta name="description" content="{{description}}" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="/">{{site_title}}</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" onclick="document.body.classList.toggle('nav-open')">Menu</button>
+  </header>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Documentation">
+      {{nav}}
+    </nav>
+    <main id="main" class="content">
+      <article>
+        <h1>{{title}}</h1>
+        <p class="lead">{{description}}</p>
+        {{content}}
+      </article>
+      <footer class="page-footer">
+        <p>Built from Markdown by <code>scripts/build_docs.py</code>. Edit the source in <code>docs/</code> and push.</p>
+      </footer>
+    </main>
+    <aside class="toc" aria-label="On this page">
+      {{toc}}
+    </aside>
+  </div>
+</body>
+</html>

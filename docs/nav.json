@@ -1,0 +1,14 @@
+{
+  "title": "Bozza Docs",
+  "groups": [
+    {
+      "group": "Getting started",
+      "pages": [
+        { "slug": "index", "title": "Overview" },
+        { "slug": "usage", "title": "Using the rules" },
+        { "slug": "ci-workflow", "title": "CI & deploy" },
+        { "slug": "style-guide", "title": "Writing style guide" }
+      ]
+    }
+  ]
+}

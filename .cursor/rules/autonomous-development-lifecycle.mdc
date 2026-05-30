@@ -1,6 +1,6 @@
 ---
 description: Autonomous development lifecycle — own every change from implementation through tests, security, CI, and merge readiness
-version: 1.6.0
+version: 1.7.0
 alwaysApply: true
 ---
 

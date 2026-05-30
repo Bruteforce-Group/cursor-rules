@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bozza-docs",
+  "account_id": "dac01715f027bf360c500dce1d805d94",
+  "compatibility_date": "2026-05-30",
+  // Assets-only Worker: serves the static docs site built into ./site.
+  // No `main` is needed when there is no Worker script.
+  "assets": {
+    "directory": "./site",
+    "not_found_handling": "404-page"
+  }
+  // To serve on docs.bozza.au, attach a custom domain once the bozza.au zone
+  // is in this account and the deploy token has zone access:
+  // "routes": [{ "pattern": "docs.bozza.au", "custom_domain": true }]
+}

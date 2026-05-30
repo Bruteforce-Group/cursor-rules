@@ -1,6 +1,6 @@
 ---
 description: "Logging, data storage, persistence, and transfer verification standards"
-version: 1.6.0
+version: 1.7.0
 alwaysApply: true
 ---
 

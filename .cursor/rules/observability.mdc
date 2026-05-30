@@ -1,6 +1,6 @@
 ---
 description: Observability rules for metrics, logs, traces, and alerting
-version: 1.6.0
+version: 1.7.0
 globs: [
   "monitoring/**",
   "observability/**",
