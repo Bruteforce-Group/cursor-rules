@@ -29,6 +29,7 @@ jobs:
           CLICKUP_DRIFT_LIST_NAME: ${{ vars.CLICKUP_DRIFT_LIST_NAME }}
           CLICKUP_DRIFT_FALLBACK_LIST_ID: "901614505478"
           CLICKUP_TASK_ACTION: close
+          CLICKUP_TASK_RESOLVE_DEBUG: ${{ vars.CLICKUP_TASK_RESOLVE_DEBUG }}
           CLICKUP_DRIFT_TITLE: "[drift] ANVIL-sourced cursor rules out of sync"
           CLICKUP_DRIFT_BODY_FILE: /tmp/clickup-close.md
           PR_URL: ${{ github.event.pull_request.html_url }}

@@ -19,6 +19,8 @@
  *   CLICKUP_TEAM_ID          optional explicit workspace/team ID for dynamic lookup
  *   CLICKUP_TASK_FALLBACK_LIST_ID
  *                            fallback list ID if dynamic lookup fails
+ *   CLICKUP_TASK_RESOLVE_DEBUG
+ *                            set to 1/true/on to emit resolution diagnostics
  *   CLICKUP_TASK_TITLE / CLICKUP_DRIFT_TITLE      task title (default set below)
  *   CLICKUP_TASK_BODY / CLICKUP_DRIFT_BODY        task markdown body
  *   CLICKUP_TASK_BODY_FILE / CLICKUP_DRIFT_BODY_FILE
@@ -34,6 +36,7 @@ const API = 'https://api.clickup.com/api/v2';
 const DEFAULT_TITLE = '[drift] ANVIL-sourced cursor rules out of sync';
 // Known stable ANVIL Hub active dev list (used as final fallback).
 const DEFAULT_FALLBACK_LIST_ID = '901614505478';
+const DEBUG_FLAGS = new Set(['1', 'true', 'yes', 'on', 'debug']);
 
 function requestJson(method, path, token, body = null) {
   return new Promise((resolve, reject) => {
@@ -110,6 +113,15 @@ function normalize(value) {
     .toLowerCase();
 }
 
+function isDebugEnabled() {
+  const v = normalize(process.env.CLICKUP_TASK_RESOLVE_DEBUG);
+  return DEBUG_FLAGS.has(v);
+}
+
+function logDebug(message) {
+  if (isDebugEnabled()) console.log(`[clickup-resolve] ${message}`);
+}
+
 function pickByName(candidates, desired) {
   const wanted = normalize(desired);
   if (!wanted) return null;
@@ -125,15 +137,24 @@ async function discoverListByName(token, teamId, listName, spaceName) {
   if (!resolvedTeamId) {
     const teams = await requestJson('GET', '/team', token);
     resolvedTeamId = teams?.teams?.[0]?.id || '';
+    logDebug(`resolved team ID from /team: ${resolvedTeamId || 'none'}`);
+  } else {
+    logDebug(`using provided team ID: ${resolvedTeamId}`);
   }
   if (!resolvedTeamId) return null;
 
   const spaceResp = await requestJson('GET', `/team/${resolvedTeamId}/space?archived=false`, token);
   const spaces = spaceResp?.spaces || [];
+  logDebug(`found ${spaces.length} space(s) in team ${resolvedTeamId}`);
   if (!spaces.length) return null;
 
   const preferredSpace = pickByName(spaces, spaceName);
   const spaceCandidates = preferredSpace ? [preferredSpace] : spaces;
+  if (preferredSpace) {
+    logDebug(`matched preferred space "${preferredSpace.name}" (${preferredSpace.id})`);
+  } else {
+    logDebug(`no exact/partial space match for "${spaceName}", searching all spaces`);
+  }
 
   const allLists = [];
   for (const space of spaceCandidates) {
@@ -151,6 +172,7 @@ async function discoverListByName(token, teamId, listName, spaceName) {
     }
   }
 
+  logDebug(`collected ${allLists.length} list candidate(s) for list match "${listName}"`);
   return pickByName(allLists, listName);
 }
 
@@ -163,6 +185,7 @@ async function resolveListId(token) {
   ).trim();
   if (explicitListId) {
     console.log(`Using explicit ClickUp list ID: ${explicitListId}`);
+    logDebug('resolution path: explicit_id');
     return explicitListId;
   }
 
@@ -179,16 +202,20 @@ async function resolveListId(token) {
     'AI Oversight & Governance'
   ).trim();
   const teamId = (process.env.CLICKUP_TEAM_ID || '').trim();
+  logDebug(`resolution input: space="${spaceName}", list="${listName}", team="${teamId || 'auto'}"`);
 
   try {
     const found = await discoverListByName(token, teamId, listName, spaceName);
     if (found?.id) {
       console.log(`Resolved ClickUp list dynamically: "${found.space}" / "${found.name}" (${found.id})`);
+      logDebug(`resolution path: dynamic_name (folder="${found.folder || 'none'}")`);
       return found.id;
     }
     console.warn(`Could not resolve ClickUp list by name "${spaceName}" / "${listName}".`);
+    logDebug('resolution path: dynamic_name_miss');
   } catch (err) {
     console.warn(`Dynamic ClickUp list resolution failed: ${err.message || err}`);
+    logDebug('resolution path: dynamic_name_error');
   }
 
   const fallbackListId = (
@@ -199,6 +226,7 @@ async function resolveListId(token) {
   ).trim();
   if (fallbackListId) {
     console.warn(`Falling back to ClickUp list ID: ${fallbackListId}`);
+    logDebug('resolution path: fallback_id');
     return fallbackListId;
   }
 

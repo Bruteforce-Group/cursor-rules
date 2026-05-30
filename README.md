@@ -155,6 +155,7 @@ Rules are divided into two categories:
   - repo secret: `CLICKUP_API_TOKEN`
   - optional repo vars for dynamic routing: `CLICKUP_TRACKING_SPACE_NAME`, `CLICKUP_TRACKING_LIST_NAME`, `CLICKUP_DRIFT_SPACE_NAME`, `CLICKUP_DRIFT_LIST_NAME`
   - optional explicit IDs: `CLICKUP_TRACKING_LIST_ID`, `CLICKUP_DRIFT_LIST_ID`
+  - optional debug toggle: `CLICKUP_TASK_RESOLVE_DEBUG` (`1`/`true`/`on`) to log resolution path (explicit/dynamic/fallback) in workflow logs
 
 ### Branch protection (recommended)
 
