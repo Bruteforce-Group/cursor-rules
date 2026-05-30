@@ -65,22 +65,22 @@ jobs:
           cat > /tmp/clickup-drift.md <<EOF
           ## ANVIL cursor-rules drift detected
 
-          The generator detected that committed `.mdc` files differ from canonical sources.
+          The generator detected that committed \`.mdc\` files differ from canonical sources.
 
           **Run:** ${RUN_URL}
           **Repo:** ${REPO_NAME}
-          **Ref:** `${REF_NAME}`
+          **Ref:** \`${REF_NAME}\`
 
           **Sources checked:**
-          - ClickUp `2kz0ewdg-1196` (COVE-ENG-AUTONOMY-001)
-          - ClickUp `2kz0ewdg-896` (COVE-PERSONA-001)
-          - ClickUp `2kz0ewdg-1176` (COVE-SAFETY-001)
-          - `Bruteforce-Group/ANVIL` `.claude/CLAUDE.md`
+          - ClickUp \`2kz0ewdg-1196\` (COVE-ENG-AUTONOMY-001)
+          - ClickUp \`2kz0ewdg-896\` (COVE-PERSONA-001)
+          - ClickUp \`2kz0ewdg-1176\` (COVE-SAFETY-001)
+          - \`Bruteforce-Group/ANVIL\` \`.claude/CLAUDE.md\`
 
           **Generator output:**
-          ```
+          \`\`\`
           ${DRIFT_OUTPUT}
-          ```
+          \`\`\`
           EOF
           node scripts/clickup-drift-task.js
 
