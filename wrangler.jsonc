@@ -8,8 +8,9 @@
   "assets": {
     "directory": "./site",
     "not_found_handling": "404-page"
-  }
-  // To serve on docs.bozza.au, attach a custom domain once the bozza.au zone
-  // is in this account and the deploy token has zone access:
-  // "routes": [{ "pattern": "docs.bozza.au", "custom_domain": true }]
+  },
+  // Custom domain (boz.dev zone is in this account). wrangler provisions the
+  // proxied DNS record + edge cert on deploy; the deploy token has zone
+  // Workers Routes / DNS / SSL permissions.
+  "routes": [{ "pattern": "docs.boz.dev", "custom_domain": true }]
 }

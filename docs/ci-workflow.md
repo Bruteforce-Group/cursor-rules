@@ -36,9 +36,9 @@ The steps are:
 }
 ```
 
-Deploys require a `CLOUDFLARE_API_TOKEN` repository secret (Workers Scripts
-edit permission) and the account ID in `wrangler.jsonc`. Until a custom domain
-is attached, the site is served from the Worker's `*.workers.dev` URL.
+Deploys require a `CLOUDFLARE_API_TOKEN` repository secret and the account ID in
+`wrangler.jsonc`. The site is served at **https://docs.boz.dev** (custom domain,
+provisioned automatically on deploy) and also on the Worker's `*.workers.dev` URL.
 
 ## Common failures
 

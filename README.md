@@ -212,7 +212,7 @@ deployed to Cloudflare Workers — no third-party docs platform.
 - **Author:** add `docs/<slug>.md` with `title` + `description` frontmatter and register it in `docs/nav.json`.
 - **Validate + build locally:** `pip install -r requirements-docs.txt`, then `python3 scripts/check_docs_links.py` and `python3 scripts/build_docs.py` (output in `site/`).
 - **CI:** `.github/workflows/docs.yml` runs the link check + build on PRs and additionally deploys to Cloudflare on `main`.
-- **Deploy config:** `wrangler.jsonc` (Workers Static Assets). Deploys need a `CLOUDFLARE_API_TOKEN` repo secret with Workers edit permission. Attach the `docs.bozza.au` custom domain via the commented `routes` entry once the zone is available.
+- **Deploy config:** `wrangler.jsonc` (Workers Static Assets). Deploys need a `CLOUDFLARE_API_TOKEN` repo secret (Workers Scripts + `boz.dev` zone Routes/DNS/SSL). Served at **https://docs.boz.dev** (custom domain) and the `*.workers.dev` URL.
 - **Style:** see `docs/style-guide.md`.
 
 ## Contributing
