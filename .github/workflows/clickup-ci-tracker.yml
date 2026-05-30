@@ -1,0 +1,100 @@
+name: ClickUp CI Tracker
+
+on:
+  workflow_run:
+    workflows:
+      - Drift Check
+      - Sync ANVIL Rules
+      - Security Scans
+      - Docs
+      - Version Governance
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.name != 'ClickUp CI Tracker'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Determine tracking action
+        id: decide
+        env:
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          if [ "$HEAD_BRANCH" != "main" ]; then
+            echo "track=false" >> "$GITHUB_OUTPUT"
+            echo "reason=non-main-branch" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          case "$CONCLUSION" in
+            success)
+              echo "track=true" >> "$GITHUB_OUTPUT"
+              echo "action=close" >> "$GITHUB_OUTPUT"
+              ;;
+            failure|timed_out|cancelled|action_required|startup_failure)
+              echo "track=true" >> "$GITHUB_OUTPUT"
+              echo "action=upsert" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "track=true" >> "$GITHUB_OUTPUT"
+              echo "action=close" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Upsert/close ClickUp task for tracked CI workflow
+        if: steps.decide.outputs.track == 'true'
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+          CLICKUP_TASK_LIST_ID: ${{ vars.CLICKUP_TRACKING_LIST_ID }}
+          CLICKUP_TASK_SPACE_NAME: ${{ vars.CLICKUP_TRACKING_SPACE_NAME }}
+          CLICKUP_TASK_LIST_NAME: ${{ vars.CLICKUP_TRACKING_LIST_NAME }}
+          CLICKUP_TASK_FALLBACK_LIST_ID: "901614505478"
+          CLICKUP_TASK_ACTION: ${{ steps.decide.outputs.action }}
+          CLICKUP_TASK_RESOLVE_DEBUG: ${{ vars.CLICKUP_TASK_RESOLVE_DEBUG }}
+          CLICKUP_TASK_TITLE: "[ci-track] ${{ github.event.workflow_run.name }} (${{ github.event.workflow_run.head_branch }})"
+          CLICKUP_TASK_BODY_FILE: /tmp/clickup-ci-tracker.md
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          EVENT_NAME: ${{ github.event.workflow_run.event }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_NUMBER: ${{ github.event.workflow_run.run_number }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          ACTOR: ${{ github.event.workflow_run.actor.login }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          cat > /tmp/clickup-ci-tracker.md <<EOF
+          ## CI workflow tracking
+
+          **Workflow:** ${WORKFLOW_NAME}
+          **Conclusion:** ${CONCLUSION}
+          **Action:** ${CLICKUP_TASK_ACTION}
+          **Run:** ${RUN_URL}
+          **Repository:** ${REPOSITORY}
+          **Event:** ${EVENT_NAME}
+          **Branch:** \`${HEAD_BRANCH}\`
+          **Commit:** \`${HEAD_SHA}\`
+          **Run number / attempt:** ${RUN_NUMBER} / ${RUN_ATTEMPT}
+          **Actor:** ${ACTOR}
+
+          This task is auto-managed by \`ClickUp CI Tracker\`.
+          It reopens/updates on failing runs and closes on successful runs.
+          EOF
+          node scripts/clickup-drift-task.js
+
+      - name: Skip tracking details
+        if: steps.decide.outputs.track != 'true'
+        run: echo "Skipping ClickUp CI tracking for this run."

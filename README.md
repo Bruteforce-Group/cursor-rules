@@ -141,6 +141,54 @@ Rules are divided into two categories:
 - SBOM generation (Syft) and Trivy SBOM scan (HIGH/CRITICAL; ignore-unfixed); SBOM and report uploaded.
 - Dependabot (`.github/dependabot.yml`) keeps GitHub Actions deps updated weekly and other ecosystems with major bumps ignored by default.
 
+### ClickUp CI tracking
+
+- `clickup-ci-tracker.yml` tracks critical CI workflows on `main` (`Drift Check`, `Sync ANVIL Rules`, `Security Scans`, `Docs`, `Version Governance`) and auto-manages ClickUp tasks:
+  - failing runs (`failure`, `timed_out`, `cancelled`, `action_required`, `startup_failure`) -> upsert/open task
+  - successful runs -> close task
+- `drift-check.yml`, `sync-from-anvil.yml`, and `clickup-drift-close-on-merge.yml` still manage the dedicated drift task lifecycle.
+- List routing strategy:
+  - primary: dynamic list resolution by name (`CLICKUP_*_SPACE_NAME` + `CLICKUP_*_LIST_NAME`)
+  - secondary: explicit list ID (`CLICKUP_TRACKING_LIST_ID` / `CLICKUP_DRIFT_LIST_ID`)
+  - final fallback (chosen default): ClickUp list ID `901614505478` (ANVIL Hub active dev list)
+- Required for CI tracking writes:
+  - repo secret: `CLICKUP_API_TOKEN`
+  - optional repo vars for dynamic routing: `CLICKUP_TRACKING_SPACE_NAME`, `CLICKUP_TRACKING_LIST_NAME`, `CLICKUP_DRIFT_SPACE_NAME`, `CLICKUP_DRIFT_LIST_NAME`
+  - optional explicit IDs: `CLICKUP_TRACKING_LIST_ID`, `CLICKUP_DRIFT_LIST_ID`
+  - optional debug toggle: `CLICKUP_TASK_RESOLVE_DEBUG` (`1`/`true`/`on`) to log resolution path (explicit/dynamic/fallback) in workflow logs
+
+### Low-risk auto-ship
+
+- `low-risk-auto-ship.yml` provides a low-friction merge lane for trusted small changes.
+- Trigger model:
+  - add PR label `automerge:low-risk`
+  - workflow runs on `pull_request_target` updates
+  - only PRs to `main` are considered
+- Safety gates before auto-ship:
+  - PR must only touch approved low-risk paths (docs, selected CI/workflow files, rule/version metadata files)
+  - unresolved review threads are auto-resolved for labeled low-risk PRs
+  - bot submits an approval review
+  - auto-merge is enabled with squash strategy (`--auto --squash`)
+- If a PR includes out-of-scope files, the workflow leaves a comment and does not auto-ship.
+
+#### Debug runbook
+
+- Enable diagnostics by setting repo variable `CLICKUP_TASK_RESOLVE_DEBUG=true`.
+- Trigger a workflow (`Drift Check`, `Sync ANVIL Rules`, or any tracked workflow on `main`).
+- Inspect the step that runs `node scripts/clickup-drift-task.js` and look for `[clickup-resolve]` lines.
+- Typical outputs:
+  - explicit ID path:
+    - `[clickup-resolve] resolution path: explicit_id`
+  - dynamic name path:
+    - `[clickup-resolve] resolution input: space="AI Oversight & Governance", list="ANVIL Hub Active Dev", team="auto"`
+    - `[clickup-resolve] found 3 space(s) in team 90161246640`
+    - `[clickup-resolve] matched preferred space "AI Oversight & Governance" (90163531881)`
+    - `[clickup-resolve] collected 42 list candidate(s) for list match "ANVIL Hub Active Dev"`
+    - `[clickup-resolve] resolution path: dynamic_name (folder="none")`
+  - fallback path:
+    - `[clickup-resolve] resolution path: dynamic_name_miss` (or `dynamic_name_error`)
+    - `[clickup-resolve] resolution path: fallback_id`
+
 ### Branch protection (recommended)
 
 - Require passing checks on main/protected branches: `lint`, `version-governance`, `security`.
