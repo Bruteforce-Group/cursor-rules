@@ -10,12 +10,15 @@
  *   CLICKUP_API_TOKEN
  *
  * Recommended env:
- *   CLICKUP_TASK_LIST_ID (preferred)
- *   CLICKUP_TRACKING_LIST_ID / CLICKUP_DRIFT_LIST_ID (fallback aliases)
- *   If no list ID is provided, script exits 0 with a warning.
+ *   CLICKUP_TASK_LIST_ID (preferred explicit list ID)
+ *   CLICKUP_TASK_LIST_NAME + CLICKUP_TASK_SPACE_NAME (dynamic resolution by name)
+ *   CLICKUP_TRACKING_* / CLICKUP_DRIFT_* aliases are also supported.
  *
  * Optional env:
  *   CLICKUP_TASK_ACTION      ("upsert" | "close", default: "upsert")
+ *   CLICKUP_TEAM_ID          optional explicit workspace/team ID for dynamic lookup
+ *   CLICKUP_TASK_FALLBACK_LIST_ID
+ *                            fallback list ID if dynamic lookup fails
  *   CLICKUP_TASK_TITLE / CLICKUP_DRIFT_TITLE      task title (default set below)
  *   CLICKUP_TASK_BODY / CLICKUP_DRIFT_BODY        task markdown body
  *   CLICKUP_TASK_BODY_FILE / CLICKUP_DRIFT_BODY_FILE
@@ -29,6 +32,8 @@ const https = require('https');
 
 const API = 'https://api.clickup.com/api/v2';
 const DEFAULT_TITLE = '[drift] ANVIL-sourced cursor rules out of sync';
+// Known stable ANVIL Hub active dev list (used as final fallback).
+const DEFAULT_FALLBACK_LIST_ID = '901614505478';
 
 function requestJson(method, path, token, body = null) {
   return new Promise((resolve, reject) => {
@@ -99,21 +104,117 @@ function readBody() {
   return process.env.CLICKUP_TASK_BODY || process.env.CLICKUP_DRIFT_BODY || '';
 }
 
-async function main() {
-  const token = (process.env.CLICKUP_API_TOKEN || '').trim();
-  const listId = (
+function normalize(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase();
+}
+
+function pickByName(candidates, desired) {
+  const wanted = normalize(desired);
+  if (!wanted) return null;
+  const exact = candidates.find((c) => normalize(c.name) === wanted);
+  if (exact) return exact;
+  return candidates.find((c) => normalize(c.name).includes(wanted)) || null;
+}
+
+async function discoverListByName(token, teamId, listName, spaceName) {
+  if (!listName) return null;
+
+  let resolvedTeamId = teamId;
+  if (!resolvedTeamId) {
+    const teams = await requestJson('GET', '/team', token);
+    resolvedTeamId = teams?.teams?.[0]?.id || '';
+  }
+  if (!resolvedTeamId) return null;
+
+  const spaceResp = await requestJson('GET', `/team/${resolvedTeamId}/space?archived=false`, token);
+  const spaces = spaceResp?.spaces || [];
+  if (!spaces.length) return null;
+
+  const preferredSpace = pickByName(spaces, spaceName);
+  const spaceCandidates = preferredSpace ? [preferredSpace] : spaces;
+
+  const allLists = [];
+  for (const space of spaceCandidates) {
+    const folderless = await requestJson('GET', `/space/${space.id}/list?archived=false`, token);
+    for (const list of folderless?.lists || []) {
+      allLists.push({ id: list.id, name: list.name, space: space.name, folder: null });
+    }
+
+    const folders = await requestJson('GET', `/space/${space.id}/folder?archived=false`, token);
+    for (const folder of folders?.folders || []) {
+      const lists = await requestJson('GET', `/folder/${folder.id}/list?archived=false`, token);
+      for (const list of lists?.lists || []) {
+        allLists.push({ id: list.id, name: list.name, space: space.name, folder: folder.name });
+      }
+    }
+  }
+
+  return pickByName(allLists, listName);
+}
+
+async function resolveListId(token) {
+  const explicitListId = (
     process.env.CLICKUP_TASK_LIST_ID ||
     process.env.CLICKUP_TRACKING_LIST_ID ||
     process.env.CLICKUP_DRIFT_LIST_ID ||
     ''
   ).trim();
+  if (explicitListId) {
+    console.log(`Using explicit ClickUp list ID: ${explicitListId}`);
+    return explicitListId;
+  }
+
+  const listName = (
+    process.env.CLICKUP_TASK_LIST_NAME ||
+    process.env.CLICKUP_TRACKING_LIST_NAME ||
+    process.env.CLICKUP_DRIFT_LIST_NAME ||
+    'ANVIL Hub Active Dev'
+  ).trim();
+  const spaceName = (
+    process.env.CLICKUP_TASK_SPACE_NAME ||
+    process.env.CLICKUP_TRACKING_SPACE_NAME ||
+    process.env.CLICKUP_DRIFT_SPACE_NAME ||
+    'AI Oversight & Governance'
+  ).trim();
+  const teamId = (process.env.CLICKUP_TEAM_ID || '').trim();
+
+  try {
+    const found = await discoverListByName(token, teamId, listName, spaceName);
+    if (found?.id) {
+      console.log(`Resolved ClickUp list dynamically: "${found.space}" / "${found.name}" (${found.id})`);
+      return found.id;
+    }
+    console.warn(`Could not resolve ClickUp list by name "${spaceName}" / "${listName}".`);
+  } catch (err) {
+    console.warn(`Dynamic ClickUp list resolution failed: ${err.message || err}`);
+  }
+
+  const fallbackListId = (
+    process.env.CLICKUP_TASK_FALLBACK_LIST_ID ||
+    process.env.CLICKUP_TRACKING_FALLBACK_LIST_ID ||
+    process.env.CLICKUP_DRIFT_FALLBACK_LIST_ID ||
+    DEFAULT_FALLBACK_LIST_ID
+  ).trim();
+  if (fallbackListId) {
+    console.warn(`Falling back to ClickUp list ID: ${fallbackListId}`);
+    return fallbackListId;
+  }
+
+  return '';
+}
+
+async function main() {
+  const token = (process.env.CLICKUP_API_TOKEN || '').trim();
+  const listId = await resolveListId(token);
   const action = (process.env.CLICKUP_TASK_ACTION || 'upsert').trim();
   const title = (process.env.CLICKUP_TASK_TITLE || process.env.CLICKUP_DRIFT_TITLE || DEFAULT_TITLE).trim();
   const body = readBody();
 
   if (!token) throw new Error('CLICKUP_API_TOKEN not set');
   if (!listId) {
-    console.warn('No ClickUp task list ID set; skipping ClickUp task automation.');
+    console.warn('No ClickUp list could be resolved; skipping ClickUp task automation.');
     return;
   }
   if (!['upsert', 'close'].includes(action)) {

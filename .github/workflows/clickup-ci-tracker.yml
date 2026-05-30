@@ -58,6 +58,9 @@ jobs:
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
           CLICKUP_TASK_LIST_ID: ${{ vars.CLICKUP_TRACKING_LIST_ID }}
+          CLICKUP_TASK_SPACE_NAME: ${{ vars.CLICKUP_TRACKING_SPACE_NAME }}
+          CLICKUP_TASK_LIST_NAME: ${{ vars.CLICKUP_TRACKING_LIST_NAME }}
+          CLICKUP_TASK_FALLBACK_LIST_ID: "901614505478"
           CLICKUP_TASK_ACTION: ${{ steps.decide.outputs.action }}
           CLICKUP_TASK_TITLE: "[ci-track] ${{ github.event.workflow_run.name }} (${{ github.event.workflow_run.head_branch }})"
           CLICKUP_TASK_BODY_FILE: /tmp/clickup-ci-tracker.md

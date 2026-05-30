@@ -147,10 +147,14 @@ Rules are divided into two categories:
   - failing runs (`failure`, `timed_out`, `cancelled`, `action_required`, `startup_failure`) -> upsert/open task
   - successful runs -> close task
 - `drift-check.yml`, `sync-from-anvil.yml`, and `clickup-drift-close-on-merge.yml` still manage the dedicated drift task lifecycle.
+- List routing strategy:
+  - primary: dynamic list resolution by name (`CLICKUP_*_SPACE_NAME` + `CLICKUP_*_LIST_NAME`)
+  - secondary: explicit list ID (`CLICKUP_TRACKING_LIST_ID` / `CLICKUP_DRIFT_LIST_ID`)
+  - final fallback (chosen default): ClickUp list ID `901614505478` (ANVIL Hub active dev list)
 - Required for CI tracking writes:
   - repo secret: `CLICKUP_API_TOKEN`
-  - repo variable: `CLICKUP_TRACKING_LIST_ID` (generic CI tracking list)
-- Drift-specific tracking can keep using `CLICKUP_DRIFT_LIST_ID` (or share the same list via `CLICKUP_TRACKING_LIST_ID`).
+  - optional repo vars for dynamic routing: `CLICKUP_TRACKING_SPACE_NAME`, `CLICKUP_TRACKING_LIST_NAME`, `CLICKUP_DRIFT_SPACE_NAME`, `CLICKUP_DRIFT_LIST_NAME`
+  - optional explicit IDs: `CLICKUP_TRACKING_LIST_ID`, `CLICKUP_DRIFT_LIST_ID`
 
 ### Branch protection (recommended)
 

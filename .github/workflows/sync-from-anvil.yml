@@ -106,6 +106,9 @@ jobs:
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
           CLICKUP_DRIFT_LIST_ID: ${{ vars.CLICKUP_DRIFT_LIST_ID }}
+          CLICKUP_DRIFT_SPACE_NAME: ${{ vars.CLICKUP_DRIFT_SPACE_NAME }}
+          CLICKUP_DRIFT_LIST_NAME: ${{ vars.CLICKUP_DRIFT_LIST_NAME }}
+          CLICKUP_DRIFT_FALLBACK_LIST_ID: "901614505478"
           CLICKUP_TASK_ACTION: upsert
           CLICKUP_DRIFT_TITLE: "[drift] ANVIL-sourced cursor rules out of sync"
           CLICKUP_DRIFT_BODY_FILE: /tmp/clickup-sync.md
@@ -131,6 +134,9 @@ jobs:
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
           CLICKUP_DRIFT_LIST_ID: ${{ vars.CLICKUP_DRIFT_LIST_ID }}
+          CLICKUP_DRIFT_SPACE_NAME: ${{ vars.CLICKUP_DRIFT_SPACE_NAME }}
+          CLICKUP_DRIFT_LIST_NAME: ${{ vars.CLICKUP_DRIFT_LIST_NAME }}
+          CLICKUP_DRIFT_FALLBACK_LIST_ID: "901614505478"
           CLICKUP_TASK_ACTION: close
           CLICKUP_DRIFT_TITLE: "[drift] ANVIL-sourced cursor rules out of sync"
           CLICKUP_DRIFT_BODY_FILE: /tmp/clickup-sync-close.md
