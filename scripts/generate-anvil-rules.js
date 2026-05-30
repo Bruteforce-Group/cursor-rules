@@ -43,6 +43,9 @@ const RULES_DIR  = path.join(REPO_ROOT, '.cursor', 'rules');
 const VERSION    = fs.readFileSync(path.join(REPO_ROOT, 'VERSION'), 'utf8').trim();
 
 // ── Source IDs ─────────────────────────────────────────────────────────────
+// ClickUp Docs moved to the workspace-scoped v3 API; team/workspace id default
+// matches the anvil-clickup-mcp component (env override supported).
+const CLICKUP_TEAM_ID           = (process.env.CLICKUP_TEAM_ID || '90161246640').trim();
 const CLICKUP_ENG_AUTONOMY_DOC  = '2kz0ewdg-1196';
 const CLICKUP_PERSONA_DOC       = '2kz0ewdg-896';
 const CLICKUP_PERSONA_PAGE      = '2kz0ewdg-516';
@@ -67,20 +70,34 @@ function httpsGet(url, headers = {}) {
   });
 }
 
-async function clickupGet(path) {
+async function clickupGetV3(path) {
   const token = process.env.CLICKUP_API_TOKEN;
   if (!token) throw new Error('CLICKUP_API_TOKEN not set');
-  const res = await httpsGet(`https://api.clickup.com/api/v2${path}`, {
+  const res = await httpsGet(`https://api.clickup.com/api/v3${path}`, {
     Authorization: token,
     'Content-Type': 'application/json',
   });
-  if (res.status !== 200) throw new Error(`ClickUp ${path} → HTTP ${res.status}: ${res.body.slice(0, 200)}`);
+  if (res.status !== 200) throw new Error(`ClickUp v3 ${path} → HTTP ${res.status}: ${res.body.slice(0, 200)}`);
   return JSON.parse(res.body);
 }
 
+// Flatten the v3 page tree (a doc page can have nested child pages).
+function flattenPages(pages) {
+  const out = [];
+  for (const p of pages || []) {
+    out.push(p);
+    if (Array.isArray(p.pages)) out.push(...flattenPages(p.pages));
+  }
+  return out;
+}
+
 async function fetchClickupDocPages(docId) {
-  const data = await clickupGet(`/doc/${docId}/page`);
-  return data; // array of page objects with .content
+  // v3 workspace-scoped Docs API; request markdown content inline.
+  const data = await clickupGetV3(
+    `/workspaces/${CLICKUP_TEAM_ID}/docs/${docId}/pages?content_format=text%2Fmd`,
+  );
+  const top = Array.isArray(data) ? data : (data.pages || []);
+  return flattenPages(top); // page objects with .id, .name, .content
 }
 
 async function fetchClickupPage(docId, pageId) {
@@ -152,7 +169,10 @@ function writeRule(filename, content) {
 async function generateEngineeringRules() {
   console.log('Fetching COVE-ENG-AUTONOMY-001…');
   const pages = await fetchClickupDocPages(CLICKUP_ENG_AUTONOMY_DOC);
-  const page = pages[0]; // single page
+  const page = pages.find(p => (p.content || '').trim()) || pages[0];
+  if (!page || !(page.content || '').trim()) {
+    throw new Error(`No page content returned for COVE-ENG-AUTONOMY-001 (${CLICKUP_ENG_AUTONOMY_DOC})`);
+  }
   const raw = page.content;
 
   // The ClickUp doc content is already well-structured markdown.
