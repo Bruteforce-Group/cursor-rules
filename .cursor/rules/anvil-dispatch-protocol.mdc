@@ -1,6 +1,6 @@
 ---
 description: ANVIL hub↔component dispatch wire protocol, command vocabulary, and event types
-version: 1.5.0
+version: 1.6.0
 globs: "components/**/*,hub/**/*,src/**/*.ts,src/**/*.js,**/dispatch.ts,**/dispatch.js"
 alwaysApply: false
 ---

@@ -51,10 +51,8 @@ if [ -f "$README" ]; then
   python - <<PY
 import re, pathlib
 readme = pathlib.Path("$README")
+target = "$new_version"
 text = readme.read_text(encoding="utf-8")
-def repl(match):
-    name = match.group(1)
-    return f"| {name} | {match.group(2).split('|')[2].strip()} |"
 text = re.sub(r"\| ([^|]+) \| ([0-9]+\.[0-9]+\.[0-9]+) \|", lambda m: f"| {m.group(1)} | {target} |", text)
 readme.write_text(text, encoding="utf-8")
 PY

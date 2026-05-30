@@ -1,6 +1,6 @@
 ---
 description: Security rules for secure-by-default development and operations
-version: 1.5.0
+version: 1.6.0
 globs: [
   "security/**",
   "apps/*/security/**",

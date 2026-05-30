@@ -62,6 +62,7 @@ Rules are divided into two categories:
 
 #### Engineering standards (always-applied)
 
+- `autonomous-development-lifecycle.mdc`: Own changes end-to-end — implementation, tests, security, CI, and merge readiness, ending with a required completion report.
 - `general.mdc`: Status reporting, dependency hygiene, logging, no secrets.
 - `security.mdc`: Secure development practices (threat modeling, hardening).
 - `observability.mdc`: Observability practices (metrics, logs, traces, alerts).
@@ -96,35 +97,36 @@ Rules are divided into two categories:
 
 | Module | Version | Scoping |
 | --- | --- | --- |
-| anvil-stack | 1.0.0 | always-applied |
-| anvil-engineering-rules | 1.0.0 | always-applied |
-| anvil-dev-mode | 1.0.0 | always-applied |
-| anvil-task-system | 1.0.0 | always-applied |
-| anvil-component-scaffold | 1.0.0 | glob-scoped |
-| anvil-dispatch-protocol | 1.0.0 | glob-scoped |
-| general | 1.2.1 | always-applied |
-| security | 1.1.0 | always-applied |
-| observability | 1.1.0 | always-applied |
-| compliance | 1.1.0 | always-applied |
-| self-verification | 1.1.0 | always-applied |
-| python-standards | 1.0.0 | always-applied |
-| project-creation | 1.1.0 | always-applied |
-| logging-and-data | 1.0.0 | always-applied |
-| backend | 1.1.0 | glob-scoped |
-| frontend | 1.1.0 | glob-scoped |
-| infra | 1.1.0 | glob-scoped |
-| mobile | 1.1.0 | glob-scoped |
-| data | 1.1.0 | glob-scoped |
-| ml-ai | 1.1.0 | glob-scoped |
-| secrets | 1.1.0 | glob-scoped |
-| qa-testing | 1.1.0 | glob-scoped |
-| performance | 1.1.0 | glob-scoped |
-| object-detection | 1.1.0 | glob-scoped |
-| ai-insights | 1.1.0 | glob-scoped |
-| docs-writing | 1.1.0 | glob-scoped |
-| ui-testing | 1.0.0 | glob-scoped |
-| mintlify-docs | 1.1.0 | glob-scoped |
-| agent-integration | 1.0.0 | on-demand |
+| anvil-stack | 1.6.0 | always-applied |
+| anvil-engineering-rules | 1.6.0 | always-applied |
+| anvil-dev-mode | 1.6.0 | always-applied |
+| anvil-task-system | 1.6.0 | always-applied |
+| anvil-component-scaffold | 1.6.0 | glob-scoped |
+| anvil-dispatch-protocol | 1.6.0 | glob-scoped |
+| autonomous-development-lifecycle | 1.6.0 | always-applied |
+| general | 1.6.0 | always-applied |
+| security | 1.6.0 | always-applied |
+| observability | 1.6.0 | always-applied |
+| compliance | 1.6.0 | always-applied |
+| self-verification | 1.6.0 | always-applied |
+| python-standards | 1.6.0 | always-applied |
+| project-creation | 1.6.0 | always-applied |
+| logging-and-data | 1.6.0 | always-applied |
+| backend | 1.6.0 | glob-scoped |
+| frontend | 1.6.0 | glob-scoped |
+| infra | 1.6.0 | glob-scoped |
+| mobile | 1.6.0 | glob-scoped |
+| data | 1.6.0 | glob-scoped |
+| ml-ai | 1.6.0 | glob-scoped |
+| secrets | 1.6.0 | glob-scoped |
+| qa-testing | 1.6.0 | glob-scoped |
+| performance | 1.6.0 | glob-scoped |
+| object-detection | 1.6.0 | glob-scoped |
+| ai-insights | 1.6.0 | glob-scoped |
+| docs-writing | 1.6.0 | glob-scoped |
+| ui-testing | 1.6.0 | glob-scoped |
+| mintlify-docs | 1.6.0 | glob-scoped |
+| agent-integration | 1.6.0 | on-demand |
 
 ### Versioning & governance
 
@@ -161,6 +163,10 @@ Rules are divided into two categories:
 | Centralized   | Data-center GPUs (A10/A100/4090)        | Target ≤50 ms/frame or ≥40 FPS, mAP@0.5 ≥0.65, mAP@0.5:0.95 ≥0.40 |
 
 ### Changelog
+
+#### v1.6.0
+
+- **Added `autonomous-development-lifecycle.mdc`:** Always-applied operating-mode rule that makes the agent own the full change lifecycle (repository discovery, environment verification, implementation/testing/security standards, commit & PR discipline, CI monitoring, deployment readiness, automerge governance, post-merge validation, follow-ups) and end with a required completion report.
 
 #### v1.3.0
 

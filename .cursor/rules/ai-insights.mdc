@@ -1,6 +1,6 @@
 ---
 description: AI insights module standards for deterministic analytics, model routing, and LLM integration
-version: 1.5.0
+version: 1.6.0
 globs: [
   "ai/**",
   "insights/**",

@@ -1,6 +1,6 @@
 ---
 description: Performance and efficiency rules for services and applications
-version: 1.5.0
+version: 1.6.0
 globs: [
   "perf/**",
   "performance/**",
