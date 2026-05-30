@@ -6,93 +6,75 @@ on:
       - "**"
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
 jobs:
   gitleaks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # The gitleaks-action wrapper requires a paid GITLEAKS_LICENSE for org
+      # repos; the MIT-licensed gitleaks CLI is free, so run the binary directly.
+      - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: "8.30.1"
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tgz
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
       - name: Run gitleaks
-        uses: zricethezav/gitleaks-action@v2.3.2
-        with:
-          args: "detect --redact --verbose"
+        run: /tmp/gitleaks detect --source . --no-git --redact --no-banner
 
   osv:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run OSV-Scanner
-        uses: google/osv-scanner@v1
-        with:
-          scan-args: "./"
+    permissions:
+      contents: read
+      security-events: write
+    # The repo's only dependency manifest is requirements-docs.txt; parse it as
+    # a requirements.txt so OSV has a package source to scan.
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.8
+    with:
+      scan-args: |-
+        --lockfile=requirements.txt:requirements-docs.txt
 
   trivy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Grype FS scan (replaced Trivy)
-        uses: anchore/scan-action@v5  # REPLACED: trivy-action removed due to CVE-2026-33634 supply chain compromise
+      - name: Grype filesystem scan (HIGH/CRITICAL)
+        uses: anchore/scan-action@v5
         with:
-          # scan-type removed (Grype auto-detects)
-          # vuln-type removed (Grype scans all)
-          # scanners removed (Grype handles this)
-          severity: "HIGH,CRITICAL"
-          # ignore-unfixed removed (use Grype severity-cutoff)
+          path: "."
+          severity-cutoff: high
           fail-build: true
-          output-format: table
-          # output handled by Grype natively
-      - name: Upload Grype report
-        uses: actions/upload-artifact@v4
-        with:
-          name: grype-report
-          path: grype-report.txt
 
   trivy-lockfiles:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Grype lockfile scan (replaced Trivy) (deps only)
-        uses: anchore/scan-action@v5  # REPLACED: trivy-action removed due to CVE-2026-33634 supply chain compromise
+      - name: Grype dependency scan (HIGH/CRITICAL)
+        uses: anchore/scan-action@v5
         with:
-          # scan-type removed (Grype auto-detects)
-          vuln-type: "library"
-          scanners: "vuln"
-          severity: "HIGH,CRITICAL"
-          # ignore-unfixed removed (use Grype severity-cutoff)
+          path: "."
+          severity-cutoff: high
           fail-build: true
-          output-format: table
-          # output handled by Grype natively
-          skip-dirs: ".git"
-      - name: Upload Trivy lockfile report
-        uses: actions/upload-artifact@v4
-        with:
-          name: grype-lock-report
-          path: grype-lock-report.txt
 
   sbom:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Generate SBOM with Syft
-        uses: anchore/syft-action@v0.1.13
+        uses: anchore/sbom-action@v0
         with:
-          output: "sbom.cyclonedx.json"
-      - name: Scan SBOM with Grype (replaced Trivy)
-        uses: anchore/scan-action@v5  # REPLACED: trivy-action removed due to CVE-2026-33634 supply chain compromise
+          path: "."
+          format: spdx-json
+          output-file: sbom.spdx.json
+          artifact-name: sbom.spdx.json
+      - name: Scan SBOM with Grype (HIGH/CRITICAL)
+        uses: anchore/scan-action@v5
         with:
-          scan-type: "sbom"
-          sbom: sbom.cyclonedx.json
-          severity: "HIGH,CRITICAL"
-          # ignore-unfixed removed (use Grype severity-cutoff)
+          sbom: sbom.spdx.json
+          severity-cutoff: high
           fail-build: true
-          output-format: table
-          # output handled by Grype natively
-      - name: Upload SBOM and report
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom-and-report
-          path: |
-            sbom.cyclonedx.json
-            grype-sbom-report.txt
 
   canary:
     runs-on: ubuntu-latest
