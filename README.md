@@ -54,6 +54,7 @@ Rules are divided into two categories:
 - `anvil-engineering-rules.mdc`: COVE-ENG-AUTONOMY-001 rules 1–4 (SDK-first, best practice, latest versions, justify custom code).
 - `anvil-dev-mode.mdc`: Dev standards — CI, secrets, versioning, structured logging, CF Workers patterns.
 - `anvil-task-system.mdc`: ATOB lanes, safety gates, task envelope, output contract footer format.
+- `auto-memory-soft-delete.mdc`: Soft-delete lifecycle for file-backed auto-memory entries.
 
 #### ANVIL platform (glob-scoped)
 
