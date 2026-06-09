@@ -1,0 +1,29 @@
+---
+description: Require soft-delete tombstones for file-backed auto-memory entries
+version: 1.0.0
+globs: ["**/MEMORY.md", "**/memory/*.md", "**/memory/**/*.md", "scripts/memory_soft_delete.py"]
+alwaysApply: false
+---
+
+# Auto-Memory Soft Delete
+
+File-backed auto-memory deletes must be soft deletes:
+
+- Remove the active pointer from `MEMORY.md`.
+- Move the memory file under `.trash/` inside the same memory root.
+- Add tombstone metadata: `deleted`, `deleted_at`, `delete_reason`,
+  and `original_path`.
+- Treat repeated deletes as idempotent success when the active file is already gone.
+- Hard delete only through a retention-aware garbage collector scoped to `.trash/`.
+
+Do not use shell `rm`, broad filesystem unlink, or edit-only tombstones that
+leave active index references.
+
+When the memory root is mounted, use:
+
+```bash
+scripts/memory_soft_delete.py delete \
+  --root <memory-root> \
+  --path <relative-memory.md> \
+  --reason <reason>
+```
