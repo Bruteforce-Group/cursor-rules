@@ -6,6 +6,7 @@
       "pages": [
         { "slug": "index", "title": "Overview" },
         { "slug": "usage", "title": "Using the rules" },
+        { "slug": "auto-memory-soft-delete", "title": "Auto-memory soft delete" },
         { "slug": "ci-workflow", "title": "CI & deploy" },
         { "slug": "style-guide", "title": "Writing style guide" }
       ]
