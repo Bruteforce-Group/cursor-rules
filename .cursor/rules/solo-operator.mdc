@@ -1,0 +1,109 @@
+---
+description: Single-operator mode for Boz — relaxes multi-agent/reviewer team rules while keeping security and quality gates
+version: 1.7.0
+alwaysApply: true
+---
+
+# Single-Operator Mode (Boz)
+
+**Precedence:** When this rule conflicts with team-oriented guidance in `anvil-stack.mdc`, `autonomous-development-lifecycle.mdc`, `anvil-task-system.mdc`, `project-creation.mdc`, `anvil-output-contract.mdc`, or mirrored copies in project `.cursor/rules/`, **this rule wins** for workflow and process. Do **not** edit auto-generated rule bodies to reflect solo mode — this companion file is the override.
+
+**Context:** Boz is the sole operator. Default assumption is **one active Cursor session** unless he explicitly opens parallel agents or Cowork sessions. Team rules exist for historical multi-session incidents; they are guidance, not blockers, in solo mode.
+
+---
+
+## Session & coordination (relaxed)
+
+| Team rule | Solo override |
+|---|---|
+| **Component ownership lease** (`cove-session-leases` KV) mandatory before editing hub-mcp, pulse, etc. | **Optional.** Acquire a lease only when Boz has **parallel sessions** open on the same component, or when he asks for coordination. Skip for normal single-session work. |
+| **Branch-per-session** — never edit `main` directly | **Recommended, not mandatory.** Prefer `agent/<intent>` branches for non-trivial or deploy-bound work. Direct commits to `main` are acceptable for trivial fixes when Boz approves and CI will gate merge. |
+| Multi-session divergence warnings | Assume **single session** unless told otherwise. Session-start triage (`git fetch`, `git status`, reconcile pending) stays **recommended** at session start — low cost, high value. |
+| End-of-session sweep with lease/ticket delta lines | End-of-session: `git status --short`, commit/push or stash. **No lease reporting** unless a lease was actually held. |
+
+---
+
+## Git, PRs, and merge (solo)
+
+| Team rule | Solo override |
+|---|---|
+| Never merge without explicit approval | Merge/self-merge is allowed when **Boz approves** (explicit "merge", "ship it", "go ahead", or standing automerge instruction for the task). No external reviewer required. |
+| Draft PR default | PRs may be **ready for review** (non-draft) when Boz wants fast iteration. Draft is fine for WIP. |
+| Required reviews complete (automerge gate) | **Not required** in solo repos. Boz is the reviewer. |
+| Automerge eligible only with external review | **Automerge eligible** when ALL hold: Boz approved automerge or gave ship instruction; PR not draft (unless explicitly merging draft); **CI fully passing**; branch mergeable; no unresolved security findings; no pending migrations needing approval; no known production blockers. **External review is not a gate.** |
+| Force push to `main`/`master` | **Still forbidden** unless Boz explicitly requests it. |
+
+**Self-merge path:** push branch → open PR (optional for trivial) → wait for green CI → merge when Boz approves. Squash or merge commit per repo convention.
+
+---
+
+## ClickUp & ATOB (lighter touch)
+
+| Team rule | Solo override |
+|---|---|
+| Every non-trivial task → create INTAKE ClickUp task first | **Skip for trivial work** (single-file fix, config tweak, question, exploration). Create ClickUp tasks for **substantial** work: multi-file features, deploys, infra, legal/financial/identity-flagged items, or when Boz asks for tracking. |
+| Deliverables never chat-only | **Chat OK for trivial** outcomes (answers, small diffs, one-liner fixes). Use ClickUp Docs/tasks for **substantial** deliverables: runbooks, architecture decisions, incident reports, multi-step project plans. |
+| Every task persists in ClickUp AND D1 | Envelope + ClickUp sync applies when an **`task_id` / ATOB envelope is in scope** or Boz started tracked work. Not required for casual Cursor coding. |
+| Continuity contract on every run with task_id | Full continuity contract still applies **when a task_id is referenced**. Otherwise, proceed without envelope ceremony. |
+| Search ClickUp before create | Still **recommended** for substantial tasks to avoid duplicates — not a blocker for trivial chat work. |
+| Safety gates (financial, identity, legal, etc.) | **Unchanged — never relaxed.** Escalate regardless of solo mode. |
+
+---
+
+## Response format (relaxed)
+
+| Team rule | Solo override |
+|---|---|
+| ANVIL Cove Response Contract tabulated layout on every substantive reply | **Optional for casual turns** — questions, small fixes, exploration, status checks. Use normal concise prose. |
+| Mandatory Status / Build / Delta / Footer tables | **Required for:** deploy reports, PR/merge completion reports, incident postmortems, multi-step engineering handoffs, and when Boz asks for the formal contract. |
+| ATOB output footer (`anvil-output-contract.mdc`) | Applies only when working on **ATOB tasks** or Cowork substantive outputs — not routine Cursor IDE assistance. |
+| Tool-response hygiene (don't paste full MCP payloads) | **Unchanged** — always extract IDs/URLs only. |
+
+---
+
+## What stays mandatory (do not relax)
+
+These team rules remain **fully in force** in solo mode:
+
+- **Security:** least privilege, no secrets in code/chat, fail-closed auth, secret scanning, safety gates on financial/identity/legal/irreversible actions.
+- **Testing before merge:** lint, typecheck, tests, and CI green before treating work as complete or merging.
+- **SDK-first + engineering rules:** `anvil-engineering-rules.mdc` Rules 1–5 (including doc sync for **real** behavior/infra changes).
+- **Documentation sync:** README, runbooks, CLAUDE.md, and component docs updated in the **same session** as substantive changes — not deferred.
+- **No force push to main** without explicit Boz request.
+- **Deploy discipline:** forward deploy via CI (merge → Auto-Deploy), not routine local `wrangler deploy`.
+- **Self-verification:** test changes before reporting done; don't assume commands succeeded.
+- **Commit discipline:** conventional commits; don't commit unless Boz asked (per user commit rule).
+- **ANVIL dispatch-first**, scan-before-open, idempotency on side effects — operational safety unchanged.
+
+---
+
+## Project creation (solo adjustment)
+
+For **new projects** under `project-creation.mdc`:
+
+- ClickUp board setup: **required for new standalone projects** and ANVIL components — still create/link a board.
+- Per-change deliverables: chat OK for trivial; ClickUp for substantial milestones and formal deliverables.
+
+---
+
+## Reporting (solo)
+
+Lifecycle-bearing work may use a **short completion summary** instead of the full tabulated completion report, unless Boz asked for the formal report or the work involved deploy/merge:
+
+```
+Done: <one line>
+Branch/PR: <ref or n/a>
+CI: <pass/fail/pending>
+Deployed: <yes/no/pending>
+Open: <blockers or none>
+```
+
+Use the full `CI / PR STATUS` block from `autonomous-development-lifecycle.mdc` for deploys, merges, and high-risk changes.
+
+---
+
+## Canonical reference
+
+- Global rule: `~/.cursor/rules/solo-operator.mdc` (this file)
+- Team rules (unchanged bodies): `anvil-stack.mdc`, `autonomous-development-lifecycle.mdc`, `anvil-task-system.mdc`
+- ANVIL project rules: `boz.dev.ANVIL/.claude/CLAUDE.md` (engineering/deploy rules; solo workflow defers to this file)

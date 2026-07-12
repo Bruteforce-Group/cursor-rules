@@ -29,5 +29,7 @@
   "security": "1.7.0",
   "self-verification": "1.7.0",
   "ui-testing": "1.7.0",
-  "autonomous-development-lifecycle": "1.7.0"
+  "autonomous-development-lifecycle": "1.7.0",
+  "auto-memory-soft-delete": "1.7.0",
+  "solo-operator": "1.7.0"
 }
