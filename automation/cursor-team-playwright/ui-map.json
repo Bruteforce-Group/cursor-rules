@@ -1,0 +1,62 @@
+{
+  "dashboard_url": "https://cursor.com/dashboard",
+  "sections": {
+    "team_content": {
+      "navigation": ["Team Content", "Team Rules", "Rules", "Content"],
+      "urls": [
+        "/dashboard/settings/team-content",
+        "/dashboard/team-content",
+        "/dashboard/settings/rules",
+        "/dashboard/settings"
+      ],
+      "editor_labels": ["Team Content", "Team Rules", "Rules", "Instructions"],
+      "save_labels": ["Save", "Update", "Apply"]
+    },
+    "commands": {
+      "navigation": ["Commands", "Team Commands", "Custom Commands"],
+      "urls": [
+        "/dashboard/settings/commands",
+        "/dashboard/team-content/commands",
+        "/dashboard/settings/team-content"
+      ],
+      "add_labels": ["Add command", "New command", "Create command"],
+      "name_labels": ["Command name", "Name", "Title"],
+      "editor_labels": ["Command", "Prompt", "Instructions", "Content"],
+      "save_labels": ["Save", "Create", "Update"]
+    },
+    "bugbot": {
+      "navigation": ["Bugbot", "Bugbot Rules", "Code Review"],
+      "urls": [
+        "/dashboard/settings/bugbot",
+        "/dashboard/bugbot",
+        "/dashboard/settings/code-review"
+      ],
+      "editor_labels": ["Team Rules", "Bugbot Rules", "Instructions", "Prompt"],
+      "save_labels": ["Save", "Update", "Apply"]
+    },
+    "security_agents": {
+      "navigation": ["Security Agents", "Security", "Agents"],
+      "urls": [
+        "/dashboard/settings/security-agents",
+        "/dashboard/security-agents",
+        "/dashboard/settings/security"
+      ],
+      "add_labels": ["Add agent", "New agent", "Create agent"],
+      "name_labels": ["Agent name", "Name", "Title"],
+      "editor_labels": ["Instructions", "Prompt", "Configuration"],
+      "save_labels": ["Save", "Create", "Update"]
+    },
+    "approval_agents": {
+      "navigation": ["Approval Agents", "Approvals", "Agents"],
+      "urls": [
+        "/dashboard/settings/approval-agents",
+        "/dashboard/approval-agents",
+        "/dashboard/settings/approvals"
+      ],
+      "add_labels": ["Add agent", "New agent", "Create agent"],
+      "name_labels": ["Agent name", "Name", "Title"],
+      "editor_labels": ["Instructions", "Prompt", "Configuration"],
+      "save_labels": ["Save", "Create", "Update"]
+    }
+  }
+}

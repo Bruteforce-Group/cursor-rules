@@ -1,0 +1,14 @@
+{
+  "name": "@bruteforce/cursor-team-playwright",
+  "private": true,
+  "type": "module",
+  "description": "Apply the canonical Bruteforce-Group Cursor Team package through the authenticated Cursor dashboard.",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "dry-run": "node setup.mjs --dry-run",
+    "install-browser": "playwright install chrome"
+  },
+  "dependencies": {
+    "playwright": "latest"
+  }
+}
