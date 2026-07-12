@@ -31,6 +31,16 @@ Any workspace you open                     <-- rules active in every chat
 ./scripts/sync-to-user-rules.sh --list
 ```
 
+## Cursor Team and internal CI
+
+- `cursor-team/manifest.json` is the machine-readable Team package inventory.
+- `cursor-team/*.md` contains Team Content, Bugbot, Security Agent, and Approval Agent configurations.
+- `.cursor/commands/*.md` contains the operator commands distributed with Team Content.
+- `scripts/validate_cursor_team.py` enforces the portal-only ANVIL boundary, exact event route, required templates, commands, and consolidated checks.
+- `docs/cursor-team-rollout.md` is the apply-and-verify runbook.
+
+Cursor agents connect externally only through `https://portal.boz.dev/mcp` and contribute evidence to `anvil/quality`, `anvil/security`, `anvil/approval`, `anvil/governance`, or `anvil/deployment`.
+
 ## Layout
 
 - `.cursor/rules/*.mdc`: Individual rule files written in Cursor's Markdown-with-frontmatter format.
@@ -51,6 +61,7 @@ Rules are divided into two categories:
 #### ANVIL platform (always-applied)
 
 - `anvil-stack.mdc`: Hub architecture, component registry, routing hierarchy, deploy commands.
+- `anvil-default-logging.mdc`: Mandatory structured, bounded, redacted ANVIL lifecycle logging and correlation.
 - `anvil-engineering-rules.mdc`: COVE-ENG-AUTONOMY-001 rules 1–4 (SDK-first, best practice, latest versions, justify custom code).
 - `anvil-dev-mode.mdc`: Dev standards — CI, secrets, versioning, structured logging, CF Workers patterns.
 - `anvil-task-system.mdc`: ATOB lanes, safety gates, task envelope, output contract footer format.
@@ -65,7 +76,11 @@ Rules are divided into two categories:
 
 #### Engineering standards (always-applied)
 
+- `autonomous-cloud-orchestration.mdc`: Multi-workstream cloud-agent planning, safe autonomy, blocker recovery, and integration discipline.
 - `autonomous-development-lifecycle.mdc`: Own changes end-to-end — implementation, tests, security, CI, and merge readiness, ending with a required completion report.
+- `cursor-internal-ci.mdc`: Cursor-plus-ANVIL CI operating model, event envelope, consolidated checks, and GitHub Actions retirement gates.
+- `cursor-team-source-of-truth.mdc`: Organisation authority, repository inheritance, drift detection, rollout, and exception policy.
+- `docker-cicd.mdc`: Container build, test, publication, provenance, deployment, and rollback standards.
 - `general.mdc`: Status reporting, dependency hygiene, logging, no secrets.
 - `security.mdc`: Secure development practices (threat modeling, hardening).
 - `observability.mdc`: Observability practices (metrics, logs, traces, alerts).
@@ -100,6 +115,7 @@ Rules are divided into two categories:
 | Module | Version | Scoping |
 | --- | --- | --- |
 | anvil-stack | 1.7.1 | always-applied |
+| anvil-default-logging | 1.7.1 | always-applied |
 | anvil-engineering-rules | 1.7.1 | always-applied |
 | anvil-dev-mode | 1.7.1 | always-applied |
 | anvil-task-system | 1.7.1 | always-applied |
@@ -108,8 +124,12 @@ Rules are divided into two categories:
 | anvil-doc-sync | 1.7.1 | glob-scoped |
 | anvil-output-contract | 1.7.1 | glob-scoped |
 | auto-memory-soft-delete | 1.7.1 | always-applied |
+| autonomous-cloud-orchestration | 1.7.1 | always-applied |
 | solo-operator | 1.7.1 | always-applied |
 | autonomous-development-lifecycle | 1.7.1 | always-applied |
+| cursor-internal-ci | 1.7.1 | always-applied |
+| cursor-team-source-of-truth | 1.7.1 | always-applied |
+| docker-cicd | 1.7.1 | always-applied |
 | general | 1.7.1 | always-applied |
 | security | 1.7.1 | always-applied |
 | observability | 1.7.1 | always-applied |
@@ -197,7 +217,7 @@ Rules are divided into two categories:
 
 ### Branch protection (recommended)
 
-- Require passing checks on main/protected branches: `lint`, `version-governance`, `security`.
+- During migration, require existing repository checks plus the available ANVIL checks. After parity, require `anvil/quality`, `anvil/security`, `anvil/approval`, `anvil/governance`, and applicable `anvil/deployment`.
 - Block force-pushes and require PRs with at least one approval.
 - Optionally require status checks for object detection budgets if relevant to your workflows.
 
