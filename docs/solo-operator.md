@@ -34,9 +34,15 @@ Boz operates as a **single operator** — one person, typically one active Curso
 Cursor cloud agents should follow solo-operator conventions:
 
 1. **Branches:** `cursor/<intent>-f909` (cloud task convention)
-2. **PRs:** Mark ready for review when merge is intended; use draft only for WIP
-3. **Low-risk auto-ship:** For docs/rules-only PRs within [approved scope](../.github/workflows/low-risk-auto-ship.yml), add label `automerge:low-risk` to trigger auto-approve + squash merge when CI passes
-4. **Leases:** Skip `cove-session-leases` unless parallel sessions target the same component
+2. **Git push only:** The Cursor Cloud GitHub integration **cannot** update PRs, add labels, approve, or merge. Attempts return:
+   ```
+   GraphQL: Resource not accessible by integration (updatePullRequest)
+   ```
+3. **Auto-ship:** Push to a `cursor/**` branch and open a PR. When the change is low-risk (docs, rules, README, workflows in approved scope), [Cursor Agent Auto Ship](../.github/workflows/cursor-agent-auto-ship.yml) auto-approves and squash-merges after CI passes — no agent-side PR API calls needed.
+4. **Draft PRs:** The auto-ship workflow marks draft `cursor/**` PRs ready for review, then ships on the follow-up event.
+5. **Manual fallback:** Comment `/ship` on the PR (repo OWNER/MEMBER/COLLABORATOR) to squash-merge immediately.
+6. **Non-cursor branches:** Add label `automerge:low-risk` to trigger [Low Risk Auto Ship](../.github/workflows/low-risk-auto-ship.yml).
+7. **Leases:** Skip `cove-session-leases` unless parallel sessions target the same component
 
 ## Sync to user-level rules
 
