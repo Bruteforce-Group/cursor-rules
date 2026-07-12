@@ -60,6 +60,8 @@ Rules are divided into two categories:
 
 - `anvil-component-scaffold.mdc`: Component naming, wrangler.toml template, deploy checklist. Fires on `components/**/*`, `hub/**/*`, `**/wrangler.toml`.
 - `anvil-dispatch-protocol.mdc`: Hub↔component wire format, event vocabulary, auth architecture. Fires on `**/dispatch*`, `**/index.ts`, `**/index.js`, `components/**/*`.
+- `anvil-doc-sync.mdc`: Same-session documentation sync for any change to system state. Fires on `components/**`, `hub/**`, `docs/**`, `**/CLAUDE.md`, `**/AGENTS.md`.
+- `anvil-output-contract.mdc`: ATOB v2 structured output contract for COVE/Cowork task responses. Fires on ATOB/task-envelope files.
 
 #### Engineering standards (always-applied)
 
@@ -69,7 +71,7 @@ Rules are divided into two categories:
 - `observability.mdc`: Observability practices (metrics, logs, traces, alerts).
 - `compliance.mdc`: Compliance practices (auditability, retention, approvals).
 - `self-verification.mdc`: Verify work is complete before reporting done.
-- `python-standards.mdc`: Python tooling (uv, ruff, mypy, pytest, hatchling).
+- `solo-operator.mdc`: Single-operator mode (Boz) — relaxes multi-agent/reviewer team rules while keeping security and quality gates.
 - `project-creation.mdc`: Project scaffolding standards.
 - `logging-and-data.mdc`: Logging, data storage, and transfer verification.
 
@@ -97,39 +99,42 @@ Rules are divided into two categories:
 
 | Module | Version | Scoping |
 | --- | --- | --- |
-| anvil-stack | 1.7.0 | always-applied |
-| anvil-engineering-rules | 1.7.0 | always-applied |
-| anvil-dev-mode | 1.7.0 | always-applied |
-| anvil-task-system | 1.7.0 | always-applied |
-| anvil-component-scaffold | 1.7.0 | glob-scoped |
-| anvil-dispatch-protocol | 1.7.0 | glob-scoped |
-| autonomous-development-lifecycle | 1.7.0 | always-applied |
-| general | 1.7.0 | always-applied |
-| security | 1.7.0 | always-applied |
-| observability | 1.7.0 | always-applied |
-| compliance | 1.7.0 | always-applied |
-| self-verification | 1.7.0 | always-applied |
-| python-standards | 1.7.0 | always-applied |
-| project-creation | 1.7.0 | always-applied |
-| logging-and-data | 1.7.0 | always-applied |
-| backend | 1.7.0 | glob-scoped |
-| frontend | 1.7.0 | glob-scoped |
-| infra | 1.7.0 | glob-scoped |
-| mobile | 1.7.0 | glob-scoped |
-| data | 1.7.0 | glob-scoped |
-| ml-ai | 1.7.0 | glob-scoped |
-| secrets | 1.7.0 | glob-scoped |
-| qa-testing | 1.7.0 | glob-scoped |
-| performance | 1.7.0 | glob-scoped |
-| object-detection | 1.7.0 | glob-scoped |
-| ai-insights | 1.7.0 | glob-scoped |
-| docs-writing | 1.7.0 | glob-scoped |
-| ui-testing | 1.7.0 | glob-scoped |
-| agent-integration | 1.7.0 | on-demand |
+| anvil-stack | 1.7.1 | always-applied |
+| anvil-engineering-rules | 1.7.1 | always-applied |
+| anvil-dev-mode | 1.7.1 | always-applied |
+| anvil-task-system | 1.7.1 | always-applied |
+| anvil-component-scaffold | 1.7.1 | glob-scoped |
+| anvil-dispatch-protocol | 1.7.1 | glob-scoped |
+| anvil-doc-sync | 1.7.1 | glob-scoped |
+| anvil-output-contract | 1.7.1 | glob-scoped |
+| auto-memory-soft-delete | 1.7.1 | always-applied |
+| solo-operator | 1.7.1 | always-applied |
+| autonomous-development-lifecycle | 1.7.1 | always-applied |
+| general | 1.7.1 | always-applied |
+| security | 1.7.1 | always-applied |
+| observability | 1.7.1 | always-applied |
+| compliance | 1.7.1 | always-applied |
+| self-verification | 1.7.1 | always-applied |
+| project-creation | 1.7.1 | always-applied |
+| logging-and-data | 1.7.1 | always-applied |
+| backend | 1.7.1 | glob-scoped |
+| frontend | 1.7.1 | glob-scoped |
+| infra | 1.7.1 | glob-scoped |
+| mobile | 1.7.1 | glob-scoped |
+| data | 1.7.1 | glob-scoped |
+| ml-ai | 1.7.1 | glob-scoped |
+| secrets | 1.7.1 | glob-scoped |
+| qa-testing | 1.7.1 | glob-scoped |
+| performance | 1.7.1 | glob-scoped |
+| object-detection | 1.7.1 | glob-scoped |
+| ai-insights | 1.7.1 | glob-scoped |
+| docs-writing | 1.7.1 | glob-scoped |
+| ui-testing | 1.7.1 | glob-scoped |
+| agent-integration | 1.7.1 | on-demand |
 
 ### Versioning & governance
 
-- Repo version: `VERSION` (currently 1.3.0) and module versions in each `.mdc`.
+- Repo version: `VERSION` (currently 1.7.1) and module versions in each `.mdc`.
 - Baseline: `.governance/versions.json` records expected versions; CI (`version-governance.yml`) fails if mismatched.
 - Local hook (optional): run `git config core.hooksPath .githooks` to enable the provided `pre-commit` hook; it auto-runs `scripts/bump_rule_versions.sh` when rules change and restages versioned files.
 - Manual bump: `scripts/bump_rule_versions.sh [new_version]` (defaults to patch bump from `VERSION`)  .
@@ -210,6 +215,12 @@ Rules are divided into two categories:
 | Centralized   | Data-center GPUs (A10/A100/4090)        | Target ≤50 ms/frame or ≥40 FPS, mAP@0.5 ≥0.65, mAP@0.5:0.95 ≥0.40 |
 
 ### Changelog
+
+#### v1.7.1
+
+- **Cursor rule config correctness:** Removed redundant `globs` from the always-applied `security`, `observability`, and `compliance` rules (globs are ignored when `alwaysApply: true`), and switched `agent-integration` to `alwaysApply: false` so it is a proper Agent Requested (on-demand) rule.
+- **Linter:** `scripts/lint.sh` now recognizes all three Cursor activation modes (Always, Auto Attached, Agent Requested) instead of requiring globs on every non-always rule.
+- **README sync:** Reconciled the rule lists and version table with the actual `.cursor/rules/` files — dropped the stale `python-standards` reference and documented `anvil-doc-sync`, `anvil-output-contract`, `auto-memory-soft-delete`, and `solo-operator`.
 
 #### v1.7.0
 

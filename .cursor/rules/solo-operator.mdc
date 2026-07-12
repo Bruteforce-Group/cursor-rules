@@ -1,6 +1,6 @@
 ---
 description: Single-operator mode for Boz — relaxes multi-agent/reviewer team rules while keeping security and quality gates
-version: 1.7.0
+version: 1.7.1
 alwaysApply: true
 ---
 

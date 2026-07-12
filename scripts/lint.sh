@@ -60,9 +60,16 @@ for path in sorted(root.rglob("*.mdc")):
         if "alwaysApply" in line
     )
 
+    # Cursor supports three activation modes:
+    #   - Always: alwaysApply: true (globs ignored)
+    #   - Auto Attached: alwaysApply: false + globs
+    #   - Agent Requested: alwaysApply: false + a description (no globs required)
     if "globs:" not in front:
-        if not is_always_apply:
-            errors.append(f"{path}: missing globs in frontmatter (required unless alwaysApply: true)")
+        if not is_always_apply and "description:" not in front:
+            errors.append(
+                f"{path}: needs globs (auto-attached), alwaysApply: true (always), "
+                "or a description (agent-requested)"
+            )
     else:
         # Globs schema check: supports inline lists, YAML block lists, and comma-separated strings
         try:

@@ -1,6 +1,6 @@
 ---
 description: Infrastructure and IaC rules (Terraform, pipelines, deploy artifacts)
-version: 1.7.0
+version: 1.7.1
 globs: ["infra/**", "ops/**", "deploy/**", "apps/**/infra/**", "packages/**/infra/**", "**/*.tf", "**/*.tfvars", "**/*.yaml", "**/*.yml", "**/Dockerfile", "**/docker-compose*.yml", ".github/workflows/*.yml"]
 alwaysApply: false
 ---

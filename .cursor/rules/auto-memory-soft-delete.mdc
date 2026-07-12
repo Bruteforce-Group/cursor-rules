@@ -1,6 +1,6 @@
 ---
 description: Require soft-delete tombstones for file-backed auto-memory entries
-version: 1.7.0
+version: 1.7.1
 globs: ["**/MEMORY.md", "**/memory/*.md", "**/memory/**/*.md", "scripts/memory_soft_delete.py"]
 alwaysApply: false
 ---

@@ -1,6 +1,6 @@
 ---
 description: ML/AI pipeline rules for data prep, training, evaluation, and serving
-version: 1.7.0
+version: 1.7.1
 globs: [
   "ml/**",
   "ai/**",

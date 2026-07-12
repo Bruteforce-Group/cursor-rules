@@ -1,6 +1,6 @@
 ---
 description: ATOB task orchestration — lanes, safety gates, task envelope, and ClickUp rules
-version: 1.7.0
+version: 1.7.1
 alwaysApply: true
 ---
 

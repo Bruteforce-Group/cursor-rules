@@ -1,16 +1,6 @@
 ---
 description: Observability rules for metrics, logs, traces, and alerting
-version: 1.7.0
-globs: [
-  "monitoring/**",
-  "observability/**",
-  "telemetry/**",
-  "apps/**/monitoring/**",
-  "packages/**/monitoring/**",
-  "**/*metrics*",
-  "**/*tracing*",
-  "**/*logging*"
-]
+version: 1.7.1
 alwaysApply: true
 ---
 - Emit structured, leveled logs; avoid secrets/PII and include correlation/request IDs.
