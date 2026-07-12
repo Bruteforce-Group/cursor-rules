@@ -22,7 +22,7 @@ anvil_dispatch
   command: events_ingest
 ```
 
-Never call `hub.boz.dev`, a component hostname, or an internal mesh endpoint directly. Never request, expose, or transmit the ANVIL mesh secret.
+Never call an internal hub hostname, component hostname, or mesh endpoint directly. Never request, expose, or transmit the ANVIL mesh secret.
 
 Every meaningful result must identify one contributed consolidated check and its conclusion:
 

@@ -21,7 +21,7 @@ anvil_dispatch
   command: events_ingest
 ```
 
-Do not configure `hub.boz.dev`, a component hostname, or an internal mesh endpoint in Cursor.
+Do not configure an internal hub hostname, component hostname, or mesh endpoint in Cursor.
 
 ## Apply in Cursor Team
 
