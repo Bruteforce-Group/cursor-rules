@@ -35,6 +35,15 @@ alwaysApply: true
 
 **Self-merge path:** push branch → open PR (optional for trivial) → wait for green CI → merge when Boz approves. Squash or merge commit per repo convention.
 
+### Cloud agents & Cursor (solo)
+
+| Team rule | Solo override |
+|---|---|
+| **Branch-per-session** (`agent/<intent>`) | Cloud agents use `cursor/<intent>-f909` per cloud task config; local solo work may use `agent/<intent>` or direct `main` for trivial fixes. |
+| **Draft PR default** | Mark PR **ready for review** when Boz wants merge; draft only for WIP. |
+| **External review required** | Not required. For docs/rules-only PRs, add label `automerge:low-risk` to trigger [Low Risk Auto Ship](.github/workflows/low-risk-auto-ship.yml) (auto-approve + squash merge when CI green). |
+| **Component ownership lease** | Skip unless parallel sessions on the same component. |
+
 ---
 
 ## ClickUp & ATOB (lighter touch)

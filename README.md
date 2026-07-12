@@ -18,6 +18,16 @@ Any workspace you open                     <-- rules active in every chat
 <project>/.cursor/rules/*.mdc              <-- project-specific overrides
 ```
 
+### Single-operator mode
+
+Boz runs as a **single operator** (one person, typically one Cursor session). Team-oriented rules in this repo — session leases, branch-per-session mandates, mandatory ClickUp intake, external PR review, tabulated response contracts — exist for historical multi-session coordination.
+
+**`solo-operator.mdc`** is an always-applied companion that **overrides** those team workflow rules when they conflict, without editing ANVIL-sourced rule bodies. Security, CI, SDK-first engineering, and documentation sync stay mandatory.
+
+- Rule file: `.cursor/rules/solo-operator.mdc`
+- Docs: [docs/solo-operator.md](docs/solo-operator.md)
+- Low-risk docs/rules PRs: add GitHub label `automerge:low-risk` to trigger auto-approve + merge when CI is green
+
 ## Quick start
 
 ```bash

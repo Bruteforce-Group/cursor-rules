@@ -16,7 +16,17 @@ You have two options:
 
 Commit the rules so CI and teammates pick them up.
 
-## Author a documentation page
+## Single-operator mode
+
+When one person runs all sessions (default for Boz), **`solo-operator.mdc` overrides team workflow rules** — leases, mandatory ClickUp tickets, external PR review, and tabulated response format — while keeping security and CI gates.
+
+See [Single-operator mode](solo-operator.md) for the full override table and cloud-agent conventions.
+
+After editing `solo-operator.mdc`, sync to user-level rules:
+
+```bash
+./scripts/sync-to-user-rules.sh --force
+```
 
 Documentation lives in `docs/` as Markdown. To add a page:
 
