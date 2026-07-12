@@ -10,6 +10,9 @@ else
   echo "No shell scripts found; skipping shellcheck."
 fi
 
+echo "Validating Cursor Team package..."
+python3 scripts/validate_cursor_team.py
+
 echo "Validating Cursor rule frontmatter in .cursor/rules/*.mdc..."
 python3 - <<'PY'
 import sys
