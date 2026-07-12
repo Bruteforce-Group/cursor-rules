@@ -241,6 +241,7 @@ def main() -> int:
         print("Cursor Team configuration errors:")
         for error in errors:
             print(f" - {error}")
+            print(f"::error title=Cursor Team validation::{error}")
         return 1
 
     print(
