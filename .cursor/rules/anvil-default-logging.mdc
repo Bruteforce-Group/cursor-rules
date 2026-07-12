@@ -1,0 +1,322 @@
+---
+description: Default hybrid logging contract using Cloudflare observability for telemetry and ANVIL for durable engineering state
+version: 1.0.0
+alwaysApply: true
+---
+
+# Default ANVIL and Cloudflare Logging Contract
+
+## Core principle
+
+Use Cloudflare observability for high-volume operational telemetry.
+
+Use ANVIL for durable engineering state, decisions, approvals, task continuity, and audit records.
+
+Neither replaces the other:
+
+- Cloudflare answers: what executed, when, where, how long, and with what result?
+- ANVIL answers: what were we trying to achieve, what changed, why, who approved it, and what remains?
+
+This is a solo-operator model. Boz is the decision authority. ANVIL is the continuity and governance layer, not an additional human approval layer.
+
+## Precedence
+
+This rule supplements:
+
+- `anvil-stack.mdc`
+- `solo-operator.mdc`
+- `autonomous-cloud-orchestration.mdc`
+- `autonomous-development-lifecycle.mdc`
+- `observability.mdc`
+- `self-verification.mdc`
+- security, secrets, compliance, documentation, and deployment rules
+- repository-specific `.cursor/rules/**`, `AGENTS.md`, and `CLAUDE.md`
+
+Hard security, legal, identity, financial, evidentiary, irreversible, cross-tenant, and production gates always take precedence.
+
+## Logging architecture
+
+### Layer 1 — Cloudflare operational telemetry
+
+Every ANVIL Worker, MCP component, Workflow, Queue consumer, Durable Object, and supporting service should emit structured operational telemetry through Cloudflare-native observability.
+
+Use:
+
+- Workers Logs for invocation logs, custom logs, errors, and uncaught exceptions
+- structured JSON logs rather than concatenated strings
+- Workers traces and custom spans where available for cross-service request flows
+- Workers Logpush or Tail Workers when logs need external export or central processing
+- Analytics Engine for low-cost aggregate metrics, counters, latency distributions, and operational dimensions
+- Workflows observability for durable workflow instance and step execution state
+
+Cloudflare telemetry is not the canonical task or decision store.
+
+### Layer 2 — ANVIL durable state
+
+Return meaningful engineering state to ANVIL through the current canonical tool or component discovered via `anvil_catalog` or `anvil_find_capability`.
+
+Use ANVIL for:
+
+- objectives and task lifecycle
+- execution plans and material plan changes
+- workstream state
+- blockers and approvals
+- architecture decisions
+- security and migration decisions
+- risk acceptances
+- validation summaries
+- commit, PR, merge, deployment, and rollback state
+- deferred work and unresolved risks
+- durable non-sensitive learnings
+
+Prefer the ANVIL task system for task continuity, event/audit surfaces for operational lifecycle events, and memory or knowledge surfaces only for durable non-sensitive facts and learnings.
+
+Do not store secrets, credentials, access tokens, raw PII, privileged payloads, or evidentiary content in general-purpose logs or memory.
+
+### Layer 3 — Repository-native evidence
+
+Use Git and GitHub for code-native evidence:
+
+- commits
+- pull requests
+- reviews and comments
+- issues
+- CI checks
+- release records
+- signed tags
+
+ANVIL records should link to repository evidence rather than duplicate entire diffs or CI logs.
+
+## Required correlation fields
+
+All substantive telemetry and ANVIL state events should carry the same correlation envelope where available:
+
+```json
+{
+  "event_version": "1.0",
+  "timestamp": "ISO-8601 UTC",
+  "timestamp_aest": "ISO-8601 Australia/Brisbane",
+  "correlation_id": "stable request or session correlation ID",
+  "session_id": "Cursor or autonomous session identifier",
+  "task_id": "ANVIL task ID when one exists",
+  "project": "project or repository name",
+  "repository": "owner/repo",
+  "branch": "current branch",
+  "worktree": "worktree identifier when applicable",
+  "workstream": "workstream identifier when applicable",
+  "component": "ANVIL component or service",
+  "environment": "local|development|staging|production",
+  "actor": "cursor-cloud|cursor-local|cove|boz|workflow|component",
+  "event_type": "namespaced event type",
+  "severity": "debug|info|warning|error|critical",
+  "status": "started|running|blocked|failed|completed|cancelled",
+  "summary": "short human-readable summary"
+}
+```
+
+Generate one correlation ID at the start of a substantive session or request and propagate it across:
+
+- local agent reports
+- ANVIL dispatches
+- Worker service bindings
+- Queues
+- Workflows
+- Durable Objects
+- GitHub references
+- Cloudflare logs, traces, and metrics
+
+Use `X-Correlation-ID` for HTTP boundaries unless a repository-specific contract defines another canonical header.
+
+## Event vocabulary
+
+Use namespaced event types. Prefer stable machine-readable values such as:
+
+```text
+engineering.session.started
+engineering.session.paused
+engineering.session.resumed
+engineering.session.completed
+engineering.plan.created
+engineering.plan.changed
+engineering.workstream.started
+engineering.workstream.blocked
+engineering.workstream.completed
+engineering.integration.completed
+engineering.validation.started
+engineering.validation.failed
+engineering.validation.completed
+engineering.commit.created
+engineering.branch.pushed
+engineering.pr.created
+engineering.pr.updated
+engineering.pr.merged
+engineering.deploy.started
+engineering.deploy.failed
+engineering.deploy.completed
+engineering.rollback.started
+engineering.rollback.completed
+governance.decision.requested
+governance.decision.approved
+governance.decision.modified
+governance.decision.denied
+security.finding.detected
+security.finding.resolved
+```
+
+Do not create a new event name when an established vocabulary already covers the event.
+
+## What must be returned to ANVIL
+
+For substantive engineering work, record these durable transitions:
+
+- objective accepted
+- material execution plan created or changed
+- parallel workstreams created or integrated
+- genuine blocker identified
+- operator decision requested or received
+- architecture, security, migration, or risk decision made
+- validation completed or failed after remediation attempts
+- commit or PR created
+- merge completed
+- deploy or rollback completed or failed
+- session paused, completed, or abandoned
+- deferred work that remains inside the original objective
+
+Do not send every command, file read, test assertion, token, progress character, or repetitive retry to ANVIL.
+
+## What belongs only in Cloudflare telemetry
+
+Keep high-volume or ephemeral details in Cloudflare observability unless they become material to a decision or incident:
+
+- individual request invocations
+- per-call latency
+- retry attempts
+- cache hits and misses
+- routine successful dispatches
+- queue delivery attempts
+- workflow step timing
+- resource usage
+- debug-level implementation details
+- sampled payload metadata that contains no sensitive content
+
+Promote a telemetry event into ANVIL only when it changes task state, reveals a meaningful failure, requires a decision, or affects risk.
+
+## Noise and sampling controls
+
+- Do not log every shell command or every agent thought.
+- Use DEBUG for detailed API and implementation diagnostics.
+- Use INFO for meaningful state transitions.
+- Use WARNING for degraded but recoverable conditions.
+- Use ERROR for failed operations requiring remediation.
+- Use CRITICAL for security, data-loss, production, or platform-wide incidents.
+- Apply head sampling to routine successful traffic where appropriate.
+- Never sample away errors, security events, governance decisions, deploy results, or task state transitions.
+- Aggregate high-cardinality operational metrics in Analytics Engine rather than emitting repeated durable ANVIL events.
+
+## Sensitive data rules
+
+Never log:
+
+- secrets or credentials
+- authentication headers
+- session tokens
+- private keys
+- raw environment variables
+- full request or response bodies by default
+- raw legal evidence
+- personal or client PII unless a dedicated approved evidentiary store requires it
+- prompts or model outputs containing sensitive case data
+
+Redact at the source before sending data to Cloudflare or ANVIL.
+
+Use identifiers and secure pointers to approved storage instead of embedding sensitive content.
+
+## Failure and fallback behaviour
+
+Logging must not make the primary engineering action fail unless the missing audit record would violate a hard compliance, evidence, security, or production gate.
+
+When ANVIL is temporarily unavailable:
+
+1. Continue safe repository-local work where allowed.
+2. Write a bounded structured event spool under an approved gitignored state directory.
+3. Do not include secrets or sensitive payloads.
+4. Retry with exponential backoff and jitter.
+5. Flush idempotently when ANVIL recovers.
+6. Record that continuity was restored.
+
+When Cloudflare observability is unavailable:
+
+1. Preserve the durable ANVIL state transition.
+2. Record telemetry degradation as one ANVIL event.
+3. Avoid retry storms.
+4. Continue safe work unless observability is a deployment gate for the affected change.
+
+Use deterministic idempotency keys for durable events to prevent duplicates.
+
+## Session-start behaviour
+
+For substantive work:
+
+1. Establish the objective and repository.
+2. Generate or reuse a correlation ID.
+3. Resolve an existing ANVIL task when one is already in scope.
+4. Create a task only when required by the applicable solo-operator and project rules.
+5. Emit one `engineering.session.started` durable transition.
+6. Use the same identifiers for subsequent Cloudflare telemetry and ANVIL events.
+
+Do not create task-system ceremony for trivial read-only questions or one-line local edits unless a repository-specific rule requires it.
+
+## Progress behaviour
+
+Return progress to ANVIL only at meaningful boundaries:
+
+- plan accepted or materially changed
+- workstream starts, blocks, or completes
+- integration completes
+- validation fails materially or becomes green
+- governance decision is requested or received
+- PR, merge, deploy, or rollback changes state
+
+Human-facing milestone reports and ANVIL state should agree.
+
+## Completion behaviour
+
+Before reporting completion:
+
+1. Run required validation and self-verification.
+2. Confirm branch, working-tree, commit, PR, CI, merge, and deploy state.
+3. Emit one `engineering.session.completed` durable record containing links and summaries, not raw logs.
+4. Include unresolved blockers and deferred in-scope work.
+5. Ensure Cloudflare operational telemetry carries the same correlation ID.
+
+A completion event must never claim that code was committed, merged, deployed, or validated unless that state was verified.
+
+## Cloudflare configuration expectations
+
+For ANVIL-owned Workers and components:
+
+- enable Workers observability in Wrangler configuration for every deployed environment
+- emit structured JSON objects
+- include version and deployment metadata
+- preserve correlation IDs through service bindings and queues
+- define sampling deliberately by environment
+- use CI or specification checks to prevent observability configuration drift
+- prefer service bindings over HTTP for Worker-to-Worker calls while retaining correlation context
+
+Do not deploy observability configuration changes directly from a Cursor session when ANVIL deployment rules require CI-only forward deployment.
+
+## Validation
+
+Changes affecting this logging contract must verify:
+
+- valid MDC frontmatter
+- consistent event vocabulary
+- no duplicate canonical logging rule
+- no conflict with `solo-operator.mdc`
+- no conflict with ANVIL dispatch-first routing
+- no weakening of safety or deployment gates
+- structured logs contain required identifiers
+- redaction tests exist for logging libraries
+- failure paths do not create retry storms
+- durable event writes are idempotent
+- documentation is updated in the same session
