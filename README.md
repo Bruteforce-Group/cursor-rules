@@ -27,7 +27,7 @@ Boz runs as a **single operator** (one person, typically one Cursor session). Te
 - Rule file: `.cursor/rules/solo-operator.mdc`
 - Docs: [docs/solo-operator.md](docs/solo-operator.md)
 - Low-risk docs/rules PRs: add GitHub label `automerge:low-risk` to trigger auto-approve + merge when CI is green
-- **Cursor Cloud agents:** cannot call GitHub PR APIs (`updatePullRequest` blocked). Push to `cursor/**` branches; [Cursor Agent Auto Ship](.github/workflows/cursor-agent-auto-ship.yml) handles approve + merge in Actions
+- **Cursor Cloud agents:** cannot call GitHub PR APIs on the built-in token (`updatePullRequest` blocked). **Fix:** add `GH_TOKEN` to Cloud Environment — see [docs/cursor-github-integration.md](docs/cursor-github-integration.md). **Fallback:** push to `cursor/**` + [Cursor Agent Auto Ship](.github/workflows/cursor-agent-auto-ship.yml)
 
 ## Quick start
 

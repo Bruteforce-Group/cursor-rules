@@ -42,7 +42,9 @@ Cursor cloud agents should follow solo-operator conventions:
 4. **Draft PRs:** The auto-ship workflow marks draft `cursor/**` PRs ready for review, then ships on the follow-up event.
 5. **Manual fallback:** Comment `/ship` on the PR (repo OWNER/MEMBER/COLLABORATOR) to squash-merge immediately.
 6. **Non-cursor branches:** Add label `automerge:low-risk` to trigger [Low Risk Auto Ship](../.github/workflows/low-risk-auto-ship.yml).
-7. **Leases:** Skip `cove-session-leases` unless parallel sessions target the same component
+7. **Full GitHub API access:** Add `GH_TOKEN` PAT to Cursor Cloud Environment — [setup guide](cursor-github-integration.md).
+8. **Verify:** run `./scripts/verify-github-agent-permissions.sh` in a cloud agent session.
+9. **Leases:** Skip `cove-session-leases` unless parallel sessions target the same component
 
 ## Sync to user-level rules
 

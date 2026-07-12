@@ -7,6 +7,7 @@
         { "slug": "index", "title": "Overview" },
         { "slug": "usage", "title": "Using the rules" },
         { "slug": "solo-operator", "title": "Single-operator mode" },
+        { "slug": "cursor-github-integration", "title": "Cursor GitHub integration" },
         { "slug": "cursor-team-source-of-truth", "title": "Cursor Team source of truth" },
         { "slug": "cursor-team-rollout", "title": "Cursor Team rollout" },
         { "slug": "cursor-team-playwright", "title": "Cursor Team Playwright setup" },

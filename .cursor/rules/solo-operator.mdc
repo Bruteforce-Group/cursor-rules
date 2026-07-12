@@ -41,7 +41,7 @@ alwaysApply: true
 |---|---|
 | **Branch-per-session** (`agent/<intent>`) | Cloud agents use `cursor/<intent>-f909` per cloud task config; local solo work may use `agent/<intent>` or direct `main` for trivial fixes. |
 | **Draft PR default** | Mark PR **ready for review** when Boz wants merge; draft only for WIP. |
-| **PR update / label / merge via agent API** | **Not available.** Cursor Cloud GitHub integration returns `Resource not accessible by integration (updatePullRequest)`. Agents use **git push only**; [Cursor Agent Auto Ship](.github/workflows/cursor-agent-auto-ship.yml) approves and merges eligible `cursor/**` PRs in Actions. Manual fallback: comment `/ship` on the PR. |
+| **PR update / label / merge via agent API** | **Not available** on built-in Cursor token (`updatePullRequest`). **Fix:** add `GH_TOKEN` PAT to Cursor Cloud Environment (see `docs/cursor-github-integration.md`). **Fallback:** git push only + [Cursor Agent Auto Ship](.github/workflows/cursor-agent-auto-ship.yml) or `/ship` comment. |
 | **External review required** | Not required for eligible low-risk `cursor/**` PRs — auto-ship workflow approves + squash merges when CI green. Non-cursor branches: add label `automerge:low-risk`. |
 | **Component ownership lease** | Skip unless parallel sessions on the same component. |
 
