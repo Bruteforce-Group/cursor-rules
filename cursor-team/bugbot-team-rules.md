@@ -41,6 +41,13 @@ Leave concise, actionable findings with file/line evidence. Distinguish `blockin
 
 At completion, send a structured event to ANVIL through the portal:
 
+```text
+https://portal.boz.dev/mcp
+  anvil_dispatch
+    target: anvil-event-ingest-mcp
+    command: events_ingest
+```
+
 - source: `cursor-bugbot`
 - event type: `cursor.quality.completed` or `cursor.quality.failed`
 - contributed check: `anvil/quality`
