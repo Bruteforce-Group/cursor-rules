@@ -1,6 +1,6 @@
 ---
 description: ATOB v2 output contract — structured footer format for COVE/Cowork task responses
-version: 1.7.0
+version: 1.7.1
 globs: "**/atob*,**/*.task.json,**/task-envelope*,**/*atob*"
 alwaysApply: false
 ---

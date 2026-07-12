@@ -1,7 +1,7 @@
 ---
 description: "Contains Studio AI agent library reference for project creation and development tasks"
-version: 1.7.0
-alwaysApply: true
+version: 1.7.1
+alwaysApply: false
 ---
 
 # Contains Studio Agent Integration

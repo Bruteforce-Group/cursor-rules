@@ -1,6 +1,6 @@
 ---
 description: QA and testing rules for reliability and fast feedback
-version: 1.7.0
+version: 1.7.1
 globs: ["tests/**", "qa/**", "apps/**/tests/**", "packages/**/tests/**", "**/*.spec.*", "**/*.test.*", "**/__tests__/**", "**/*.feature"]
 alwaysApply: false
 ---

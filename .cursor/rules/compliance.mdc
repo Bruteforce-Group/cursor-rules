@@ -1,16 +1,6 @@
 ---
 description: Compliance and governance rules (auditability, retention, approvals)
-version: 1.7.0
-globs: [
-  "compliance/**",
-  "audit/**",
-  "governance/**",
-  "apps/**/compliance/**",
-  "packages/**/compliance/**",
-  "**/*.tf",
-  "**/*.yml",
-  "**/*.yaml"
-]
+version: 1.7.1
 alwaysApply: true
 ---
 - Ensure changes to regulated data paths have documented approvals and change records.

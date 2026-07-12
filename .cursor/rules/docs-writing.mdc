@@ -1,6 +1,6 @@
 ---
 description: Technical writing and documentation standards for our self-managed Markdown docs
-version: 1.7.0
+version: 1.7.1
 globs: [
   "docs/**",
   "apps/**/docs/**",

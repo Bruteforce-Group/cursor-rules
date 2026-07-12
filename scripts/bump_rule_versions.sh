@@ -27,7 +27,7 @@ fi
 echo "$new_version" > "$VERSION_FILE"
 
 echo "Setting version=$new_version in .mdc rule files..."
-python - <<PY
+python3 - <<PY
 import pathlib, re, sys
 root = pathlib.Path("$ROOT/.cursor/rules")
 target = "$new_version"
@@ -48,7 +48,7 @@ PY
 
 README="$ROOT/README.md"
 if [ -f "$README" ]; then
-  python - <<PY
+  python3 - <<PY
 import re, pathlib
 readme = pathlib.Path("$README")
 target = "$new_version"
@@ -58,7 +58,7 @@ readme.write_text(text, encoding="utf-8")
 PY
 fi
 
-python - <<PY
+python3 - <<PY
 import json, pathlib
 root = pathlib.Path("$ROOT")
 manifest = root/".governance/versions.json"

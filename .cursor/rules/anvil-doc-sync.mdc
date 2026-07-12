@@ -1,6 +1,6 @@
 ---
 description: Every change to system state must be reflected in its documentation in the same session — mandatory for all ANVIL work
-version: 1.7.0
+version: 1.7.1
 globs: ["components/**", "hub/**", "docs/**", "**/CLAUDE.md", "**/AGENTS.md"]
 alwaysApply: false
 ---
