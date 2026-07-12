@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "policy_repo": "Bruteforce-Group/cursor-rules",
+  "policy_ref": "main",
+  "policy_version": "1.7.1",
+  "external_anvil_endpoint": "https://portal.boz.dev/mcp",
+  "team_content": {
+    "rules_file": "cursor-team/team-content-rules.md",
+    "commands_directory": ".cursor/commands"
+  },
+  "bugbot": {
+    "team_rules_file": "cursor-team/bugbot-team-rules.md"
+  },
+  "security_agents": [
+    {
+      "name": "Vulnerability Scanner",
+      "configuration_file": "cursor-team/vulnerability-scanner.md",
+      "triggers": ["cron"]
+    },
+    {
+      "name": "Security Reviewer",
+      "configuration_file": "cursor-team/security-reviewer.md",
+      "triggers": ["pull_request.opened", "pull_request.synchronized"]
+    }
+  ],
+  "approval_agents": [
+    {
+      "name": "Pull Request Router and Approver",
+      "configuration_file": "cursor-team/approval-agent.md",
+      "triggers": ["pull_request.opened", "pull_request.synchronized"]
+    }
+  ],
+  "consolidated_checks": [
+    "anvil/quality",
+    "anvil/security",
+    "anvil/approval",
+    "anvil/governance",
+    "anvil/deployment"
+  ]
+}

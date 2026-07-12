@@ -16,6 +16,7 @@
   "autonomous-development-lifecycle": "1.7.1",
   "backend": "1.7.1",
   "compliance": "1.7.1",
+  "cursor-internal-ci": "1.7.1",
   "cursor-team-source-of-truth": "1.7.1",
   "data": "1.7.1",
   "docker-cicd": "1.7.1",

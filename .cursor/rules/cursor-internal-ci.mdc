@@ -1,0 +1,111 @@
+---
+description: Cursor agents are the primary CI and review execution layer; ANVIL is the control plane and GitHub is the source ledger and merge enforcement boundary
+version: 1.7.1
+alwaysApply: true
+---
+
+# Cursor Internal CI
+
+## Operating model
+
+For repositories governed by Bruteforce-Group:
+
+- Cursor Bugbot, Security Agents, Approval Agents, and Cloud Agents perform review, security analysis, approval routing, remediation, and quality validation.
+- ANVIL is the durable control plane for policy, correlation, audit history, triage, and follow-up automation.
+- GitHub remains the canonical source ledger, pull-request record, ruleset enforcement point, release/tag store, and commit-status surface.
+- GitHub Actions is a compatibility execution layer only. Do not add or retain a GitHub Actions job when Cursor plus ANVIL provides equivalent evidence and enforcement.
+
+## External boundary
+
+All Cursor agents and external systems connect to ANVIL only through:
+
+```text
+https://portal.boz.dev/mcp
+```
+
+Use the portal tool `anvil_dispatch`. Never call a component hostname, `hub.boz.dev`, or an internal service-binding endpoint directly. Never request, expose, or transmit the ANVIL mesh secret.
+
+Once the portal has authenticated and onboarded the caller, ANVIL routes internally using mesh authentication.
+
+## Canonical policy
+
+The policy source of truth is:
+
+```text
+Bruteforce-Group/cursor-rules@main
+```
+
+Repository copies are generated or synchronised outputs. They may add stricter repository-specific requirements but must not silently weaken mandatory security, testing, documentation, autonomy, logging, or deployment gates.
+
+Before evaluating a PR or taking autonomous action:
+
+1. Read repository-local `AGENTS.md`, `.cursor/rules/**`, and applicable commands.
+2. Verify the canonical rules lock or recorded source commit.
+3. Report missing, stale, modified, or weakened canonical policy to ANVIL.
+4. Continue safe review work while treating unresolved mandatory-policy drift as a merge blocker.
+
+## Required ANVIL event envelope
+
+Every meaningful Cursor CI action must emit a structured event through the portal. Use:
+
+```text
+anvil_dispatch
+  target: anvil-event-ingest-mcp
+  command: events_ingest
+```
+
+Minimum payload:
+
+```json
+{
+  "source": "cursor-<agent-kind>",
+  "event_type": "cursor.<domain>.<state>",
+  "detail": "Human-readable summary",
+  "correlation_id": "cursor:<repository>:<pull-request-or-run>:<commit-sha>",
+  "idempotency_key": "<agent>:<repository>:<commit-sha>:<policy-version>",
+  "payload": {
+    "repository": "owner/repo",
+    "pull_request": 0,
+    "commit_sha": "...",
+    "agent": "...",
+    "policy_repo": "Bruteforce-Group/cursor-rules",
+    "policy_version": "1.7.1",
+    "conclusion": "success|failure|neutral|cancelled",
+    "severity": "info|low|medium|high|critical",
+    "summary": "...",
+    "findings": [],
+    "evidence": []
+  }
+}
+```
+
+Do not send credentials, raw secret values, full environment dumps, or unbounded logs. Redact sensitive data and send references to durable evidence where available.
+
+## Consolidated check contract
+
+Cursor agents provide evidence for five ANVIL-owned commit checks:
+
+- `anvil/quality`
+- `anvil/security`
+- `anvil/approval`
+- `anvil/governance`
+- `anvil/deployment`
+
+Agent events must identify which check they contribute to and their proposed conclusion. ANVIL is authoritative for publishing or updating the consolidated GitHub check. Individual agents must not report success when required evidence is absent.
+
+## GitHub Actions retirement rule
+
+A GitHub Actions workflow may be removed only when all conditions hold:
+
+1. An equivalent Cursor/ANVIL execution path is enabled.
+2. The path has produced successful evidence for at least three representative runs, including one changed-code run and one failure-path run.
+3. ANVIL publishes the corresponding required GitHub check.
+4. The repository or organisation ruleset requires that check.
+5. Rollback instructions exist.
+6. The removed workflow is not the sole source of artifact provenance, release signing, platform-specific testing, or deployment recovery.
+
+Retire duplicate review/security workflows first. Retire build/test workflows after parity. Move production deployment last.
+
+## Safety
+
+Cursor CI autonomy does not bypass production, destructive, identity, legal, financial, cross-tenant, secret-rotation, irreversible migration, or privilege-change approval gates. GitHub branch protections and ANVIL safety gates remain authoritative.
