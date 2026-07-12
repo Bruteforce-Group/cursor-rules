@@ -1,3 +1,8 @@
+---
+title: Cursor + ANVIL internal CI migration
+description: Move review and CI execution from duplicate GitHub Actions to Cursor agents and ANVIL checks with measured parity and rollback.
+---
+
 # Cursor + ANVIL internal CI migration
 
 ## Target
