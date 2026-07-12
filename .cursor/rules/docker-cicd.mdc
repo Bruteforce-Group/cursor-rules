@@ -1,0 +1,101 @@
+---
+description: Docker-first CI/CD standards for reproducible validation, builds, releases, and ANVIL-aligned deployment governance
+version: 1.0.0
+alwaysApply: true
+---
+
+# Docker-First CI/CD
+
+## Default posture
+
+Use Docker as the default reproducible execution environment for CI validation and build pipelines whenever the project can run in containers.
+
+The same image or build stages used in CI should be runnable locally. Avoid maintaining separate local and CI-only build logic.
+
+Project-specific `AGENTS.md`, platform constraints, and ANVIL safety rules take precedence where Docker is unsuitable, including native Apple Silicon/Metal builds or hardware-dependent tests.
+
+## Required pipeline
+
+For container-capable projects, prefer this lifecycle:
+
+1. build the validation or application image
+2. run formatting and lint checks
+3. run static type checking
+4. run unit tests
+5. run integration or contract tests
+6. run security and secret scans
+7. build release artifacts or production image
+8. publish only after all required gates pass
+9. deploy only through the repository's approved CI/CD path
+10. verify deployment health and report state back to ANVIL
+
+Do not treat a successful image build as proof that tests or runtime checks passed.
+
+## Image standards
+
+- Use multi-stage builds where build tooling is not needed at runtime.
+- Pin base image versions and prefer digest pinning for release images.
+- Keep lockfiles authoritative and use deterministic install commands.
+- Run as a non-root user.
+- Use a read-only root filesystem where practical.
+- Drop Linux capabilities unless explicitly required.
+- Set `no-new-privileges` where supported.
+- Do not bake secrets, credentials, `.env` files, tokens, or private keys into image layers.
+- Use `.dockerignore` to exclude secrets, VCS data, caches, local artifacts, and unnecessary build context.
+- Add health checks for long-running services where the runtime supports them.
+- Generate an SBOM and scan release images for known vulnerabilities.
+- Sign published release images when the registry and pipeline support signing.
+
+## CI execution
+
+CI should build the image once and reuse that immutable image for its validation stages where practical.
+
+Use BuildKit/Buildx caching with CI-native cache storage. Do not rely on mutable developer-machine caches for correctness.
+
+Container validation must fail closed. Do not convert failed lint, type, tests, security scans, or image builds into warnings merely to keep a pipeline green.
+
+## CD and ANVIL alignment
+
+Docker is the build and packaging substrate; it does not override ANVIL governance.
+
+- ANVIL remains the durable source of truth for objectives, blockers, approvals, lifecycle state, deploy results, and unresolved work.
+- GitHub Actions or the repository-approved CI platform remains the forward-deployment path.
+- Production deploys, traffic changes, identity changes, destructive migrations, legal actions, external communications, and material cost changes remain safety-gated.
+- For Cloudflare Workers, continue using the approved CI workflow for forward deploys. Do not replace Workers deployment with a long-running container architecture unless the project explicitly requires it.
+- Emit build, test, scan, publish, deploy, rollback, and health-verification milestones to ANVIL under the default logging rule.
+- Keep high-volume container runtime telemetry in the configured observability platform and promote material lifecycle events into ANVIL.
+
+## Registry and publication
+
+Publishing an image requires:
+
+- green required checks
+- no unresolved critical/high vulnerability findings unless formally accepted
+- immutable version tag
+- source commit SHA label
+- build provenance where supported
+- SBOM attachment or registry metadata
+- no embedded secrets
+
+Do not use `latest` as the sole production identifier. A convenience `latest` tag may accompany an immutable semver or commit tag.
+
+## Local parity
+
+Provide copy-paste commands in project documentation for:
+
+```bash
+docker build -t <project>:dev .
+docker run --rm <project>:dev
+```
+
+For service stacks, provide Docker Compose or a devcontainer when it materially improves reproducibility.
+
+## Exceptions
+
+Document exceptions when:
+
+- the target is macOS-native, iOS, Metal, GPU-driver-specific, or tied to physical hardware
+- Docker cannot reproduce the target runtime accurately
+- vendor deployment tooling requires a non-container path
+
+Even under an exception, use containers for portable linting, docs, schemas, or cross-platform tests where useful.
