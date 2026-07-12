@@ -3,6 +3,7 @@
   "agent-integration": "1.7.1",
   "ai-insights": "1.7.1",
   "anvil-component-scaffold": "1.7.1",
+  "anvil-default-logging": "1.7.1",
   "anvil-dev-mode": "1.7.1",
   "anvil-dispatch-protocol": "1.7.1",
   "anvil-doc-sync": "1.7.1",
@@ -10,9 +11,14 @@
   "anvil-output-contract": "1.7.1",
   "anvil-stack": "1.7.1",
   "anvil-task-system": "1.7.1",
+  "auto-memory-soft-delete": "1.7.1",
+  "autonomous-cloud-orchestration": "1.7.1",
+  "autonomous-development-lifecycle": "1.7.1",
   "backend": "1.7.1",
   "compliance": "1.7.1",
+  "cursor-team-source-of-truth": "1.7.1",
   "data": "1.7.1",
+  "docker-cicd": "1.7.1",
   "docs-writing": "1.7.1",
   "frontend": "1.7.1",
   "general": "1.7.1",
@@ -28,8 +34,6 @@
   "secrets": "1.7.1",
   "security": "1.7.1",
   "self-verification": "1.7.1",
-  "ui-testing": "1.7.1",
-  "autonomous-development-lifecycle": "1.7.1",
-  "auto-memory-soft-delete": "1.7.1",
-  "solo-operator": "1.7.1"
+  "solo-operator": "1.7.1",
+  "ui-testing": "1.7.1"
 }

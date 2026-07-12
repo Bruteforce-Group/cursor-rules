@@ -1,0 +1,121 @@
+---
+description: Organisation-wide Cursor governance source of truth, repository inheritance, drift detection, and rollout policy
+version: 1.7.1
+alwaysApply: true
+---
+
+# Cursor Team Governance Source of Truth
+
+## Canonical authority
+
+`Bruteforce-Group/cursor-rules` on the protected `main` branch is the canonical source of truth for Cursor engineering governance across Boz's repositories and Cursor Team.
+
+The canonical rule set is:
+
+```text
+https://github.com/Bruteforce-Group/cursor-rules/tree/main/.cursor/rules
+```
+
+Repository-local rules may add project facts, commands, hardware constraints, or stricter safeguards. They must not silently weaken or contradict canonical security, autonomous execution, testing, documentation, deployment, ANVIL logging, or solo-operator rules.
+
+## Precedence
+
+1. Explicit current-task instruction from Boz.
+2. Hard safety and security gates.
+3. Canonical rules from this repository.
+4. Repository-specific `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/**` additions.
+5. Language or framework guidance.
+
+A repository-specific rule may override process details only when it is more specific and does not weaken a mandatory canonical safeguard. Any intentional exception must be documented with owner, rationale, risk, and expiry or review date.
+
+## Required inherited rules
+
+Every managed repository must inherit at least:
+
+- `solo-operator.mdc`
+- `autonomous-cloud-orchestration.mdc`
+- `autonomous-development-lifecycle.mdc`
+- `self-verification.mdc`
+- `anvil-default-logging.mdc`
+- `anvil-engineering-rules.mdc`
+- `security.mdc`
+- `secrets.mdc`
+- `qa-testing.mdc`
+- `docker-cicd.mdc` where the project is container-capable
+
+All other canonical rules are inherited when their globs or scope apply.
+
+## Autonomous default
+
+Cursor Cloud Agents operate under `autonomous-cloud-orchestration.mdc` by default for substantive engineering objectives. Agents should plan, use meaningful parallel workstreams, continue around blockers, integrate results, repair CI, and resume after approvals without repeated prompting.
+
+The solo-operator model remains authoritative: Boz is the sole human reviewer and approver; external reviewer ceremony is not required unless a specific repository or regulated workflow requires it.
+
+## Distribution model
+
+Repositories must consume the canonical rules through one of these controlled mechanisms:
+
+1. Cursor Team-managed rule repository integration, pinned to `Bruteforce-Group/cursor-rules` and branch `main`.
+2. An automated sync workflow that copies canonical rules into `.cursor/rules/` and opens a PR.
+3. Local user-level sync using `scripts/sync-to-user-rules.sh` for local Cursor sessions.
+
+Do not hand-copy and independently maintain canonical rule bodies in downstream repositories.
+
+## Pinning and updates
+
+- Team integration tracks protected `main`.
+- Automated repository sync records the canonical commit SHA.
+- Downstream updates use PRs and normal CI.
+- Emergency rollback pins the last known-good canonical commit.
+- Changes to canonical governance require same-session documentation and ANVIL lifecycle reporting.
+
+## Drift detection
+
+Managed repositories must detect:
+
+- missing required rules
+- modified canonical rule bodies
+- stale canonical commit SHA
+- project overrides that weaken mandatory safeguards
+- broken references or invalid frontmatter
+
+Drift is reported to ANVIL with repository, expected SHA, actual SHA, affected files, severity, and remediation path. High-risk weakening of security, secrets, deployment, or safety rules blocks merge.
+
+## ANVIL reporting
+
+Meaningful governance events are durable ANVIL events:
+
+- `governance.sync_started`
+- `governance.sync_completed`
+- `governance.sync_failed`
+- `governance.drift_detected`
+- `governance.exception_created`
+- `governance.exception_expired`
+
+Use the workflow correlation ID format:
+
+```text
+github-actions:<run_id>:<run_attempt>
+```
+
+Full diff and CI logs stay in GitHub. ANVIL receives bounded, redacted lifecycle state and evidence pointers.
+
+## Repository onboarding
+
+For each new repository:
+
+1. Enable the Cursor Team canonical rule source.
+2. Add or verify repository `AGENTS.md` with project-specific commands and limitations.
+3. Enable canonical-rule drift validation in CI.
+4. Confirm required rules are effective in Cursor Cloud Agent.
+5. Record the canonical commit SHA.
+6. Run lint, typecheck, tests, build, and rule validation.
+7. Report onboarding completion to ANVIL.
+
+## Prohibited
+
+- Maintaining divergent copies of canonical rules without an explicit exception.
+- Disabling canonical security or safety rules in a project override.
+- Pointing the Cursor Team at an unprotected branch.
+- Using a personal fork as the organisation authority.
+- Silently skipping governance sync or drift reporting.
