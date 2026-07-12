@@ -1,34 +1,37 @@
 ---
 title: "Overview"
-description: "Canonical Cursor rules plus a self-managed documentation site built from Markdown and deployed on Cloudflare."
+description: "Canonical Cursor rules, Cursor Team agent contracts, and a self-managed documentation site deployed on Cloudflare."
 ---
 
-This repository is the canonical source of truth for our Cursor AI rules. It
-also publishes this documentation site, which is built from plain Markdown by a
-small self-managed generator and deployed to Cloudflare Workers — no third-party
-docs platform.
+This repository is the canonical source of truth for Cursor AI governance across Bruteforce Group. It also publishes this documentation site, built from plain Markdown by a small self-managed generator and deployed to Cloudflare Workers.
 
 ## What's here
 
-- `.cursor/rules/`: rule files per domain (backend, frontend, infra, data, security, ANVIL, and cross-cutting standards).
+- `.cursor/rules/`: canonical rule files for ANVIL, autonomous execution, engineering domains, security, testing, documentation, and governance.
+- `.cursor/commands/`: versioned operator commands for rule sync, governance audit, autonomy resume, and Cursor CI reporting.
+- `cursor-team/`: Team Content, Bugbot, Security Agent, Approval Agent, and machine-readable manifest files.
 - `docs/`: the Markdown source for this site, plus `nav.json` and the HTML theme.
+- `scripts/validate_cursor_team.py`: validates the Cursor Team package and ANVIL event boundary.
 - `scripts/build_docs.py`: renders `docs/*.md` into static HTML under `site/`.
 - `scripts/check_docs_links.py`: validates internal links, anchors, and image assets.
-- `.github/workflows/docs.yml`: builds and link-checks on PRs, then deploys on `main`.
+- `.github/workflows/docs.yml`: builds and link-checks on pull requests, then deploys on `main`.
 
-## How the docs are managed
+## How governance is distributed
 
-Everything is owned in this repo and enforced by CI:
-
-1. Author pages as Markdown in `docs/` with `title` + `description` frontmatter.
-2. Register each page in [`docs/nav.json`](usage.md) so it appears in the sidebar.
-3. CI runs the link checker and the build on every pull request.
-4. On merge to `main`, CI builds the site and deploys it to Cloudflare.
+1. `Bruteforce-Group/cursor-rules@main` is the protected policy authority.
+2. Cursor Team consumes the versioned Team Content and agent contracts.
+3. `Bruteforce-Group/team-foundry` provides the Git-backed distribution layer.
+4. Project repositories add only project facts or stricter safeguards.
+5. External agents enter ANVIL only through `https://portal.boz.dev/mcp`.
+6. ANVIL correlates evidence and owns the consolidated GitHub checks.
 
 ## Key behaviours
 
-- Rules apply through Cursor's rule system based on the `globs` in each `.mdc`.
 - Cross-cutting rules use `alwaysApply: true`; domain rules activate on matching files.
-- The docs site is static HTML — fast, portable, and fully under our control.
+- Cursor Bugbot, Security Agents, Approval Agents, and Cloud Agents contribute evidence for the exact commit SHA.
+- ANVIL owns `anvil/quality`, `anvil/security`, `anvil/approval`, `anvil/governance`, and `anvil/deployment`.
+- GitHub remains the source ledger and merge-enforcement boundary.
+- GitHub Actions is retired only after equivalent Cursor and ANVIL success-path and failure-path parity.
+- The docs site is static HTML, portable, and fully under our control.
 
-Next: read [how to use the rules](usage.md) in your own project.
+Start with [using the rules](usage.md), then apply the [Cursor Team rollout](cursor-team-rollout.md).

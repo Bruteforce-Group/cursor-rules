@@ -3,10 +3,23 @@
   "policy_repo": "Bruteforce-Group/cursor-rules",
   "policy_ref": "main",
   "policy_version": "1.7.1",
+  "distribution_repo": "Bruteforce-Group/team-foundry",
   "external_anvil_endpoint": "https://portal.boz.dev/mcp",
+  "event_ingest": {
+    "portal_tool": "anvil_dispatch",
+    "target": "anvil-event-ingest-mcp",
+    "command": "events_ingest"
+  },
+  "runbook": "docs/cursor-team-rollout.md",
   "team_content": {
     "rules_file": "cursor-team/team-content-rules.md",
-    "commands_directory": ".cursor/commands"
+    "commands_directory": ".cursor/commands",
+    "required_commands": [
+      "anvil-sync-rules.md",
+      "anvil-audit-governance.md",
+      "anvil-resume-autonomy.md",
+      "anvil-report-ci.md"
+    ]
   },
   "bugbot": {
     "team_rules_file": "cursor-team/bugbot-team-rules.md"
@@ -15,19 +28,27 @@
     {
       "name": "Vulnerability Scanner",
       "configuration_file": "cursor-team/vulnerability-scanner.md",
-      "triggers": ["cron"]
+      "triggers": [
+        "cron"
+      ]
     },
     {
       "name": "Security Reviewer",
       "configuration_file": "cursor-team/security-reviewer.md",
-      "triggers": ["pull_request.opened", "pull_request.synchronized"]
+      "triggers": [
+        "pull_request.opened",
+        "pull_request.synchronized"
+      ]
     }
   ],
   "approval_agents": [
     {
       "name": "Pull Request Router and Approver",
       "configuration_file": "cursor-team/approval-agent.md",
-      "triggers": ["pull_request.opened", "pull_request.synchronized"]
+      "triggers": [
+        "pull_request.opened",
+        "pull_request.synchronized"
+      ]
     }
   ],
   "consolidated_checks": [
@@ -36,5 +57,10 @@
     "anvil/approval",
     "anvil/governance",
     "anvil/deployment"
-  ]
+  ],
+  "validation": {
+    "script": "scripts/validate_cursor_team.py",
+    "fail_on_direct_component_endpoint": true,
+    "fail_on_missing_required_content": true
+  }
 }
