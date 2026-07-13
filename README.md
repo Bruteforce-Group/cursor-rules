@@ -87,7 +87,7 @@ Rules are divided into two categories:
 
 #### Engineering standards (always-applied)
 
-- `autonomous-cloud-orchestration.mdc`: Multi-workstream cloud-agent planning, safe autonomy, blocker recovery, and integration discipline.
+- `autonomous-cloud-orchestration.mdc`: Autonomous cloud-agent orchestration — parallel workstreams, blocker governance, Engineering Board decisions, and resume protocol.
 - `autonomous-development-lifecycle.mdc`: Own changes end-to-end — implementation, tests, security, CI, and merge readiness, ending with a required completion report.
 - `cursor-internal-ci.mdc`: Cursor-plus-ANVIL CI operating model, event envelope, consolidated checks, and GitHub Actions retirement gates.
 - `cursor-team-source-of-truth.mdc`: Organisation authority, repository inheritance, drift detection, rollout, and exception policy.
