@@ -95,6 +95,14 @@ function regexFor(labels) {
   return new RegExp(labels.map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'i');
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function literalPattern(value) {
+  return new RegExp(`^${escapeRegExp(value)}$`, 'i');
+}
+
 async function firstVisible(locators) {
   for (const locator of locators) {
     if ((await locator.count()) > 0 && (await locator.first().isVisible())) return locator.first();
@@ -257,10 +265,11 @@ async function selectEnvironment(page, environmentName, section) {
     }
   }
 
+  const pattern = literalPattern(environmentName);
   const candidates = [
-    page.getByRole('link', { name: new RegExp(environmentName, 'i') }),
-    page.getByRole('button', { name: new RegExp(environmentName, 'i') }),
-    page.getByRole('row', { name: new RegExp(environmentName, 'i') }),
+    page.getByRole('link', { name: pattern }),
+    page.getByRole('button', { name: pattern }),
+    page.getByRole('row', { name: pattern }),
     page.getByText(environmentName, { exact: true }),
     page.getByText(environmentName, { exact: false }),
   ];
@@ -355,6 +364,16 @@ async function upsertNamedItem({
   };
 }
 
+async function clearSecretValueFields(page, labels) {
+  const pattern = regexFor(labels);
+  const fields = await firstVisible([
+    page.getByLabel(pattern),
+    page.getByPlaceholder(pattern),
+    page.locator('input[type="password"]:visible'),
+  ]);
+  if (fields) await fields.fill('');
+}
+
 async function upsertRuntimeSecret({
   page,
   dashboardUrl,
@@ -398,14 +417,13 @@ async function upsertRuntimeSecret({
     await fillNamedField(page, section.secret_name_labels, secretName);
     await fillNamedField(page, section.secret_value_labels, secretValue);
     await clickSave(page, section.save_labels);
-    await screenshot(page, artifactDir, 'cloud-environment-secrets-after-save');
+    await clearSecretValueFields(page, section.secret_value_labels);
 
     if (args.rebuildEnvironment) {
       if (await clickByLabels(page, section.rebuild_labels)) {
         await clickByLabels(page, section.rebuild_confirm_labels ?? []);
         rebuildTriggered = true;
         await page.waitForTimeout(2_000);
-        await screenshot(page, artifactDir, 'cloud-environment-rebuild');
       }
     }
   }
@@ -592,18 +610,30 @@ async function main() {
     await waitForAuthentication(page, dashboardUrl, args.timeoutMs);
 
     if (!args.skipCloudEnvironment && uiMap.sections.cloud_environment) {
-      await runStep('cloud-environment-runtime-secret', () =>
-        upsertRuntimeSecret({
-          page,
-          dashboardUrl,
-          section: uiMap.sections.cloud_environment,
-          args,
-          artifactDir,
-          environmentName,
-          secretName,
-          secretValue,
-        }),
-      );
+      const skipCloudApply = args.apply && !secretValue;
+      if (skipCloudApply) {
+        console.log('\n== cloud-environment-runtime-secret ==');
+        console.log('SKIP: no runtime secret value supplied (use --runtime-secret-file or GH_PAT for apply)');
+        report.results.push({
+          name: 'cloud-environment-runtime-secret',
+          ok: true,
+          mode: 'skipped',
+          reason: 'no_runtime_secret_value',
+        });
+      } else {
+        await runStep('cloud-environment-runtime-secret', () =>
+          upsertRuntimeSecret({
+            page,
+            dashboardUrl,
+            section: uiMap.sections.cloud_environment,
+            args,
+            artifactDir,
+            environmentName,
+            secretName,
+            secretValue,
+          }),
+        );
+      }
     }
 
     if (!args.cloudOnly) {
