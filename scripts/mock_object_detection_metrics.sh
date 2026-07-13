@@ -16,7 +16,7 @@ cat > "$OUT" <<'EOF'
 {
   "edge": {
     "latency_ms": 110,
-    "fps": 24,
+    "fps": 26,
     "map_05": 0.53,
     "recall": 0.82
   },

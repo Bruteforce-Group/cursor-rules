@@ -50,6 +50,9 @@ fi
 
 mkdir -p "$(dirname "$OUTPUT")"
 
+# Expand {{OUTPUT}} placeholder used by workflow BENCH_CMD templates
+CMD="${CMD//\{\{OUTPUT\}\}/$OUTPUT}"
+
 if [ "$CMD" = "scripts/bench_command.sh" ]; then
   # Expect the bench_command.sh to handle writing to OUTPUT or stdout
   echo "Running benchmark via $CMD"
