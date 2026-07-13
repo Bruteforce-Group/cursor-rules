@@ -22,6 +22,12 @@ function parseArgs(argv) {
     baseUrl: undefined,
     timeoutMs: 10 * 60 * 1000,
     slowMo: 75,
+    skipCloudEnvironment: false,
+    cloudOnly: false,
+    environmentName: undefined,
+    runtimeSecretName: 'GH_PAT',
+    runtimeSecretFile: undefined,
+    rebuildEnvironment: true,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const value = argv[index];
@@ -30,23 +36,41 @@ function parseArgs(argv) {
     else if (value === '--headless') args.headless = true;
     else if (value === '--headed') args.headless = false;
     else if (value === '--keep-open') args.keepOpen = true;
+    else if (value === '--skip-cloud-environment') args.skipCloudEnvironment = true;
+    else if (value === '--cloud-only') args.cloudOnly = true;
+    else if (value === '--skip-rebuild') args.rebuildEnvironment = false;
     else if (value === '--channel') args.channel = argv[++index];
     else if (value === '--profile-dir') args.profileDir = path.resolve(argv[++index]);
     else if (value === '--base-url') args.baseUrl = argv[++index];
     else if (value === '--timeout-ms') args.timeoutMs = Number(argv[++index]);
     else if (value === '--slow-mo') args.slowMo = Number(argv[++index]);
+    else if (value === '--environment-name') args.environmentName = argv[++index];
+    else if (value === '--runtime-secret-name') args.runtimeSecretName = argv[++index];
+    else if (value === '--runtime-secret-file') args.runtimeSecretFile = path.resolve(argv[++index]);
     else if (value === '--help' || value === '-h') {
-      console.log(`Usage: npm run setup -- [options]\n\n` +
-        `  --apply              Write settings. Without this flag, discovery is read-only.\n` +
-        `  --dry-run            Explicit read-only discovery mode.\n` +
-        `  --headed             Show Chrome (default).\n` +
-        `  --headless           Run without a visible browser; requires an authenticated profile.\n` +
-        `  --profile-dir PATH   Persistent Playwright profile.\n` +
-        `  --channel NAME       Browser channel, default chrome.\n` +
-        `  --base-url URL       Cursor dashboard URL override.\n` +
-        `  --timeout-ms N       Authentication/navigation timeout.\n` +
-        `  --slow-mo N          Delay between browser actions.\n` +
-        `  --keep-open          Leave the browser open after completion.`);
+      console.log(`Usage: npm run setup -- [options]
+
+  --apply                    Write settings. Without this flag, discovery is read-only.
+  --dry-run                  Explicit read-only discovery mode.
+  --headed                   Show Chrome (default).
+  --headless                 Run without a visible browser; requires an authenticated profile.
+  --profile-dir PATH         Persistent Playwright profile.
+  --channel NAME             Browser channel, default chrome.
+  --base-url URL             Cursor dashboard URL override.
+  --timeout-ms N             Authentication/navigation timeout.
+  --slow-mo N                Delay between browser actions.
+  --keep-open                Leave the browser open after completion.
+
+Cloud Environment / Runtime Secrets (GH_PAT):
+  --environment-name NAME    Cloud Environment to configure (or set CURSOR_CLOUD_ENVIRONMENT).
+  --runtime-secret-name KEY  Runtime secret name (default: GH_PAT).
+  --runtime-secret-file PATH File containing the secret value (preferred over env for apply).
+  --skip-cloud-environment   Skip Cloud Environment / Runtime Secret steps.
+  --cloud-only               Run only Cloud Environment / Runtime Secret steps.
+  --skip-rebuild             Do not click Rebuild after saving a secret (apply mode only).
+
+Apply mode for runtime secrets requires a value from --runtime-secret-file or the GH_PAT
+environment variable. Secrets are never read from repository files and never written to reports.`);
       process.exit(0);
     } else {
       throw new Error(`Unknown argument: ${value}`);
@@ -55,6 +79,7 @@ function parseArgs(argv) {
   if (!Number.isFinite(args.timeoutMs) || args.timeoutMs < 30_000) {
     throw new Error('--timeout-ms must be at least 30000');
   }
+  if (args.cloudOnly) args.skipCloudEnvironment = false;
   return args;
 }
 
@@ -68,6 +93,14 @@ function digest(content) {
 
 function regexFor(labels) {
   return new RegExp(labels.map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'i');
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function literalPattern(value) {
+  return new RegExp(`^${escapeRegExp(value)}$`, 'i');
 }
 
 async function firstVisible(locators) {
@@ -128,11 +161,39 @@ async function fillNamedField(page, labels, value) {
   const field = await firstVisible([
     page.getByLabel(pattern),
     page.getByPlaceholder(pattern),
+    page.locator('input[type="password"]:visible'),
+    page.locator('input[type="text"]:visible'),
     page.locator('input:visible').filter({ has: page.locator('xpath=..') }),
     page.locator('input:visible'),
   ]);
   if (!field) throw new Error(`Could not find field labelled ${labels.join(', ')}`);
   await field.fill(value);
+}
+
+async function resolveRuntimeSecretValue(args, manifest) {
+  const secretName = args.runtimeSecretName
+    ?? manifest.cloud_environment?.default_runtime_secret
+    ?? 'GH_PAT';
+
+  if (args.runtimeSecretFile) {
+    const value = (await readFile(args.runtimeSecretFile, 'utf8')).trim();
+    if (!value) throw new Error(`Runtime secret file is empty: ${args.runtimeSecretFile}`);
+    return { secretName, secretValue: value, source: 'file' };
+  }
+
+  const envKey = secretName;
+  const fromEnv = process.env[envKey]?.trim();
+  if (fromEnv) return { secretName, secretValue: fromEnv, source: 'env' };
+
+  return { secretName, secretValue: undefined, source: 'none' };
+}
+
+function resolveEnvironmentName(args, manifest) {
+  return (
+    args.environmentName
+    ?? process.env[manifest.cloud_environment?.environment_name_env ?? 'CURSOR_CLOUD_ENVIRONMENT']?.trim()
+    ?? undefined
+  );
 }
 
 async function waitForAuthentication(page, dashboardUrl, timeoutMs) {
@@ -157,9 +218,9 @@ async function waitForAuthentication(page, dashboardUrl, timeoutMs) {
   throw new Error('Timed out waiting for an authenticated Cursor dashboard session');
 }
 
-async function openSection(page, dashboardUrl, section) {
+async function openSection(page, dashboardUrl, section, { preNavigation = ['Settings', 'Admin', 'Team'] } = {}) {
   await page.goto(dashboardUrl, { waitUntil: 'domcontentloaded' });
-  await clickByLabels(page, ['Settings', 'Admin', 'Team']);
+  if (preNavigation.length > 0) await clickByLabels(page, preNavigation);
   if (await clickByLabels(page, section.navigation)) return;
 
   const base = new URL(dashboardUrl);
@@ -171,6 +232,63 @@ async function openSection(page, dashboardUrl, section) {
     if (!/not found|404/i.test(body)) return;
   }
   throw new Error(`Could not locate Cursor dashboard section: ${section.navigation.join(' / ')}`);
+}
+
+async function openCloudSection(page, dashboardUrl, section) {
+  const base = new URL(dashboardUrl);
+  for (const candidate of section.urls) {
+    const url = new URL(candidate, base.origin).toString();
+    const response = await page.goto(url, { waitUntil: 'domcontentloaded' }).catch(() => null);
+    if (!response || response.status() >= 400) continue;
+    const body = await page.locator('body').innerText().catch(() => '');
+    if (!/not found|404/i.test(body)) return;
+  }
+
+  await page.goto(dashboardUrl, { waitUntil: 'domcontentloaded' });
+  if (await clickByLabels(page, section.navigation)) return;
+
+  throw new Error(`Could not locate Cloud Environment section: ${section.navigation.join(' / ')}`);
+}
+
+async function selectEnvironment(page, environmentName, section) {
+  if (section.environment_search_labels) {
+    const search = await firstVisible(
+      section.environment_search_labels.flatMap((label) => [
+        page.getByLabel(new RegExp(label, 'i')),
+        page.getByPlaceholder(new RegExp(label, 'i')),
+      ]),
+    );
+    if (search) {
+      await search.fill(environmentName);
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(1_000);
+    }
+  }
+
+  const pattern = literalPattern(environmentName);
+  const candidates = [
+    page.getByRole('link', { name: pattern }),
+    page.getByRole('button', { name: pattern }),
+    page.getByRole('row', { name: pattern }),
+    page.getByText(environmentName, { exact: true }),
+    page.getByText(environmentName, { exact: false }),
+  ];
+  const match = await firstVisible(candidates);
+  if (!match) {
+    throw new Error(
+      `Could not select Cloud Environment "${environmentName}". Pass --environment-name or set CURSOR_CLOUD_ENVIRONMENT.`,
+    );
+  }
+  await match.click();
+  await page.waitForTimeout(1_000);
+}
+
+async function openSecretsPanel(page, section) {
+  if (await clickByLabels(page, section.secrets_navigation)) {
+    await page.waitForTimeout(500);
+    return;
+  }
+  throw new Error(`Could not open Secrets panel: ${section.secrets_navigation.join(' / ')}`);
 }
 
 async function clickSave(page, labels) {
@@ -246,16 +364,85 @@ async function upsertNamedItem({
   };
 }
 
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
-  const uiMap = await loadJson(path.join(HERE, 'ui-map.json'));
-  const manifest = await loadJson(path.join(REPO_ROOT, 'cursor-team', 'manifest.json'));
-  const dashboardUrl = args.baseUrl ?? uiMap.dashboard_url;
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const artifactDir = path.join(HERE, 'artifacts', timestamp);
-  await mkdir(artifactDir, { recursive: true });
-  await mkdir(args.profileDir, { recursive: true });
+async function clearSecretValueFields(page, labels) {
+  const pattern = regexFor(labels);
+  const fields = await firstVisible([
+    page.getByLabel(pattern),
+    page.getByPlaceholder(pattern),
+    page.locator('input[type="password"]:visible'),
+  ]);
+  if (fields) await fields.fill('');
+}
 
+async function upsertRuntimeSecret({
+  page,
+  dashboardUrl,
+  section,
+  args,
+  artifactDir,
+  environmentName,
+  secretName,
+  secretValue,
+}) {
+  await openCloudSection(page, dashboardUrl, section);
+  await screenshot(page, artifactDir, 'cloud-environment-landing');
+
+  if (environmentName) {
+    await selectEnvironment(page, environmentName, section);
+    await screenshot(page, artifactDir, 'cloud-environment-selected');
+  }
+
+  await openSecretsPanel(page, section);
+  await screenshot(page, artifactDir, 'cloud-environment-secrets-before');
+
+  const existingSecret = page.getByText(secretName, { exact: true });
+  const hasExisting = (await existingSecret.count()) > 0 && (await existingSecret.first().isVisible());
+
+  if (hasExisting) {
+    await existingSecret.first().click();
+    if (!(await clickByLabels(page, section.edit_secret_labels))) {
+      await page.waitForTimeout(500);
+    }
+  } else if (!(await clickByLabels(page, section.add_secret_labels))) {
+    throw new Error(`Could not find add-secret action: ${section.add_secret_labels.join(' / ')}`);
+  }
+
+  let rebuildTriggered = false;
+  if (args.apply) {
+    if (!secretValue) {
+      throw new Error(
+        `Apply mode requires a runtime secret value via --runtime-secret-file or the ${secretName} environment variable`,
+      );
+    }
+    await fillNamedField(page, section.secret_name_labels, secretName);
+    await fillNamedField(page, section.secret_value_labels, secretValue);
+    await clickSave(page, section.save_labels);
+    await clearSecretValueFields(page, section.secret_value_labels);
+
+    if (args.rebuildEnvironment) {
+      if (await clickByLabels(page, section.rebuild_labels)) {
+        await clickByLabels(page, section.rebuild_confirm_labels ?? []);
+        rebuildTriggered = true;
+        await page.waitForTimeout(2_000);
+      }
+    }
+  }
+
+  await screenshot(page, artifactDir, 'cloud-environment-secrets-after');
+  return {
+    mode: args.apply ? 'applied' : 'discovered',
+    environment: environmentName ?? null,
+    secret_name: secretName,
+    secret_present: Boolean(secretValue),
+    secret_digest: secretValue ? digest(secretValue) : null,
+    secret_existed: hasExisting,
+    rebuild_requested: args.apply && args.rebuildEnvironment && Boolean(secretValue),
+    rebuild_triggered: rebuildTriggered,
+    url: page.url(),
+  };
+}
+
+async function runTeamConfigurationSteps({ page, dashboardUrl, uiMap, manifest, args, artifactDir, runStep }) {
   const read = (relative) => readFile(path.join(REPO_ROOT, relative), 'utf8');
   const teamRules = await read(manifest.team_content.rules_file);
   const bugbotRules = await read(manifest.bugbot.team_rules_file);
@@ -278,6 +465,93 @@ async function main() {
       content: await read(agent.configuration_file),
     })),
   );
+
+  await runStep('team-content-rules', () =>
+    applySingleEditor({
+      page,
+      dashboardUrl,
+      section: uiMap.sections.team_content,
+      content: teamRules,
+      args,
+      artifactDir,
+      key: 'team-content',
+    }),
+  );
+
+  for (const command of commands) {
+    await runStep(`command:${command.name}`, () =>
+      upsertNamedItem({
+        page,
+        dashboardUrl,
+        section: uiMap.sections.commands,
+        name: command.name,
+        content: command.content,
+        args,
+        artifactDir,
+        key: 'command',
+      }),
+    );
+  }
+
+  await runStep('bugbot-team-rules', () =>
+    applySingleEditor({
+      page,
+      dashboardUrl,
+      section: uiMap.sections.bugbot,
+      content: bugbotRules,
+      args,
+      artifactDir,
+      key: 'bugbot',
+    }),
+  );
+
+  for (const agent of securityAgents) {
+    await runStep(`security-agent:${agent.name}`, () =>
+      upsertNamedItem({
+        page,
+        dashboardUrl,
+        section: uiMap.sections.security_agents,
+        name: agent.name,
+        content: agent.content,
+        triggers: agent.triggers,
+        args,
+        artifactDir,
+        key: 'security-agent',
+      }),
+    );
+  }
+
+  for (const agent of approvalAgents) {
+    await runStep(`approval-agent:${agent.name}`, () =>
+      upsertNamedItem({
+        page,
+        dashboardUrl,
+        section: uiMap.sections.approval_agents,
+        name: agent.name,
+        content: agent.content,
+        triggers: agent.triggers,
+        args,
+        artifactDir,
+        key: 'approval-agent',
+      }),
+    );
+  }
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const uiMap = await loadJson(path.join(HERE, 'ui-map.json'));
+  const manifest = await loadJson(path.join(REPO_ROOT, 'cursor-team/manifest.json'));
+  const dashboardUrl = args.baseUrl ?? uiMap.dashboard_url;
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const artifactDir = path.join(HERE, 'artifacts', timestamp);
+  await mkdir(artifactDir, { recursive: true });
+  await mkdir(args.profileDir, { recursive: true });
+
+  const environmentName = resolveEnvironmentName(args, manifest);
+  const { secretName, secretValue, source: secretSource } = await resolveRuntimeSecretValue(args, manifest);
+  args.environmentName = environmentName;
+  args.runtimeSecretName = secretName;
 
   const context = await chromium.launchPersistentContext(args.profileDir, {
     channel: args.channel === 'chromium' ? undefined : args.channel,
@@ -306,6 +580,14 @@ async function main() {
     policy_repo: manifest.policy_repo,
     policy_version: manifest.policy_version,
     dashboard_url: dashboardUrl,
+    cloud_environment: {
+      environment_name: environmentName ?? null,
+      runtime_secret_name: secretName,
+      runtime_secret_source: secretSource,
+      rebuild_environment: args.rebuildEnvironment,
+      skipped: args.skipCloudEnvironment,
+      cloud_only: args.cloudOnly,
+    },
     results: [],
     failures: [],
   };
@@ -327,75 +609,43 @@ async function main() {
   try {
     await waitForAuthentication(page, dashboardUrl, args.timeoutMs);
 
-    await runStep('team-content-rules', () =>
-      applySingleEditor({
-        page,
-        dashboardUrl,
-        section: uiMap.sections.team_content,
-        content: teamRules,
-        args,
-        artifactDir,
-        key: 'team-content',
-      }),
-    );
-
-    for (const command of commands) {
-      await runStep(`command:${command.name}`, () =>
-        upsertNamedItem({
-          page,
-          dashboardUrl,
-          section: uiMap.sections.commands,
-          name: command.name,
-          content: command.content,
-          args,
-          artifactDir,
-          key: 'command',
-        }),
-      );
+    if (!args.skipCloudEnvironment && uiMap.sections.cloud_environment) {
+      const skipCloudApply = args.apply && !secretValue;
+      if (skipCloudApply) {
+        console.log('\n== cloud-environment-runtime-secret ==');
+        console.log('SKIP: no runtime secret value supplied (use --runtime-secret-file or GH_PAT for apply)');
+        report.results.push({
+          name: 'cloud-environment-runtime-secret',
+          ok: true,
+          mode: 'skipped',
+          reason: 'no_runtime_secret_value',
+        });
+      } else {
+        await runStep('cloud-environment-runtime-secret', () =>
+          upsertRuntimeSecret({
+            page,
+            dashboardUrl,
+            section: uiMap.sections.cloud_environment,
+            args,
+            artifactDir,
+            environmentName,
+            secretName,
+            secretValue,
+          }),
+        );
+      }
     }
 
-    await runStep('bugbot-team-rules', () =>
-      applySingleEditor({
+    if (!args.cloudOnly) {
+      await runTeamConfigurationSteps({
         page,
         dashboardUrl,
-        section: uiMap.sections.bugbot,
-        content: bugbotRules,
+        uiMap,
+        manifest,
         args,
         artifactDir,
-        key: 'bugbot',
-      }),
-    );
-
-    for (const agent of securityAgents) {
-      await runStep(`security-agent:${agent.name}`, () =>
-        upsertNamedItem({
-          page,
-          dashboardUrl,
-          section: uiMap.sections.security_agents,
-          name: agent.name,
-          content: agent.content,
-          triggers: agent.triggers,
-          args,
-          artifactDir,
-          key: 'security-agent',
-        }),
-      );
-    }
-
-    for (const agent of approvalAgents) {
-      await runStep(`approval-agent:${agent.name}`, () =>
-        upsertNamedItem({
-          page,
-          dashboardUrl,
-          section: uiMap.sections.approval_agents,
-          name: agent.name,
-          content: agent.content,
-          triggers: agent.triggers,
-          args,
-          artifactDir,
-          key: 'approval-agent',
-        }),
-      );
+        runStep,
+      });
     }
   } finally {
     report.completed_at = new Date().toISOString();

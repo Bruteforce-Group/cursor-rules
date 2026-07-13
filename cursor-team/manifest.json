@@ -58,6 +58,12 @@
     "anvil/governance",
     "anvil/deployment"
   ],
+  "cloud_environment": {
+    "default_runtime_secret": "GH_PAT",
+    "environment_name_env": "CURSOR_CLOUD_ENVIRONMENT",
+    "doc": "docs/cursor-github-integration.md",
+    "playwright_ui_section": "cloud_environment"
+  },
   "validation": {
     "script": "scripts/validate_cursor_team.py",
     "fail_on_direct_component_endpoint": true,

@@ -57,6 +57,24 @@
       "name_labels": ["Agent name", "Name", "Title"],
       "editor_labels": ["Instructions", "Prompt", "Configuration"],
       "save_labels": ["Save", "Create", "Update"]
+    },
+    "cloud_environment": {
+      "navigation": ["Cloud", "Environments", "Cloud Agents"],
+      "urls": [
+        "/dashboard/cloud/environments",
+        "/dashboard/cloud",
+        "/dashboard/settings/cloud",
+        "/dashboard/settings/environments"
+      ],
+      "environment_search_labels": ["Search environments", "Search", "Filter"],
+      "secrets_navigation": ["Secrets", "Runtime Secrets", "Environment secrets", "Variables"],
+      "add_secret_labels": ["Add secret", "New secret", "Add runtime secret", "Add variable"],
+      "edit_secret_labels": ["Edit", "Update", "Configure", "Manage"],
+      "secret_name_labels": ["Secret name", "Name", "Key", "Variable name"],
+      "secret_value_labels": ["Secret value", "Value", "Secret", "Token", "Password"],
+      "save_labels": ["Save", "Create", "Update", "Apply"],
+      "rebuild_labels": ["Rebuild", "Rebuild environment", "Restart environment", "Rebuild & restart"],
+      "rebuild_confirm_labels": ["Confirm", "Yes", "Rebuild", "Continue"]
     }
   }
 }

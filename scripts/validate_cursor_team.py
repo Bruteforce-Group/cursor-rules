@@ -237,6 +237,23 @@ def main() -> int:
     else:
         require_file(ROOT / runbook, errors)
 
+    cloud_env = manifest.get("cloud_environment")
+    if isinstance(cloud_env, dict):
+        doc = cloud_env.get("doc")
+        if not isinstance(doc, str) or not doc:
+            fail(errors, "cursor-team/manifest.json: cloud_environment.doc is required")
+        else:
+            require_file(ROOT / doc, errors)
+        ui_map_path = ROOT / "automation" / "cursor-team-playwright" / "ui-map.json"
+        ui_map = load_json(ui_map_path, errors)
+        section_key = cloud_env.get("playwright_ui_section", "cloud_environment")
+        sections = ui_map.get("sections") if isinstance(ui_map, dict) else None
+        if not isinstance(sections, dict) or section_key not in sections:
+            fail(
+                errors,
+                f"automation/cursor-team-playwright/ui-map.json: sections.{section_key} is required",
+            )
+
     if errors:
         print("Cursor Team configuration errors:")
         for error in errors:
