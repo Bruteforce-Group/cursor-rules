@@ -20,6 +20,13 @@ This repository is the canonical organisation-wide Cursor governance source for 
 - Version governance: `bash scripts/check_rule_versions.sh`.
 - Tests: `cd scripts && python3 -m unittest test_memory_soft_delete`.
 - User-level local sync: `bash scripts/sync-to-user-rules.sh --force`.
+- GitHub permissions (cloud): `./scripts/verify-github-agent-permissions.sh` after adding `GH_PAT` Runtime Secret — see `docs/cursor-github-integration.md`.
+
+## Cloud environment
+
+Committed `.cursor/environment.json` builds from `.cursor/Dockerfile` (Ubuntu 24.04, Python 3.12, Node 24, shellcheck, gh). The `install` step runs `bash .cursor/install.sh` on each agent start (Python docs deps, Playwright package, actionlint).
+
+After changing the environment definition, push to a branch and start a **new** cloud agent run. Dashboard snapshots override Dockerfile mode — delete or replace saved snapshots when switching to the committed config. Add `GH_PAT` as a Runtime Secret and rebuild before agents need full GitHub PR API access.
 
 ## Change requirements
 
