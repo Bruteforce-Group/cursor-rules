@@ -3,7 +3,7 @@ name: Lint
 on:
   pull_request:
     paths:
-      - ".github/workflows/lint.yml"
+      - ".github/workflows/**"
       - "scripts/**"
       - ".cursor/rules/**"
       - ".cursor/commands/**"
