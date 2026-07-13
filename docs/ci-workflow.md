@@ -64,8 +64,10 @@ Cursor Cloud agents use a GitHub integration token with **read + git push** only
 - Add labels, comment, approve, or merge via `gh` CLI
 - Trigger `workflow_dispatch`
 
-**Workaround (solo-operator):** push to a `cursor/**` branch. [Cursor Agent Auto Ship](../.github/workflows/cursor-agent-auto-ship.yml) runs on `pull_request_target`, evaluates low-risk file scope, auto-approves, and squash-merges when CI is green. Manual fallback: comment `/ship` on the PR.
+**Workaround (solo-operator):** push to a `cursor/**` branch. [Cursor Agent Auto Ship](../.github/workflows/cursor-agent-auto-ship.yml) runs on `pull_request_target`, evaluates low-risk file scope, auto-approves, waits for required checks, then squash-merges. If GitHub auto-merge is disabled on the repo, the workflow falls back to a direct `gh pr merge --squash`. Manual fallback: comment `/ship` on the PR.
 
-**Full fix:** add `GH_TOKEN` (PAT with pull_requests + contents write) to the Cursor Cloud Environment — see [Cursor GitHub integration](cursor-github-integration.md).
+**Required checks on workflow-only PRs:** `lint` and `check-versions` trigger on `.github/workflows/**` changes so workflow edits are not merged without governance validation.
+
+**Full fix:** add `GH_PAT` (Runtime Secret — not `GH_TOKEN`, which Cursor may override with its installation token) to the Cursor Cloud Environment — see [Cursor GitHub integration](cursor-github-integration.md). Rebuild the environment and **start a new cloud agent run** to pick up the secret.
 
 See [Single-operator mode](solo-operator.md) for the full cloud-agent workflow table.
