@@ -64,6 +64,8 @@ jobs:
             const allowed = [
               /^\.github\/workflows\/[^/]+\.yml$/,
               /^scripts\/clickup-drift-task\.js$/,
+              /^scripts\/[^/]+\.(sh|py)$/,
+              /^\.cursor\/commands\/[^/]+\.md$/,
               /^README\.md$/,
               /^docs\/.+/,
               /^\.cursor\/rules\/.+\.mdc$/,
