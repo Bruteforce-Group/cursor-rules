@@ -3,12 +3,7 @@ name: Version Governance
 on:
   pull_request:
     paths:
-      - ".cursor/rules/**"
-      - "VERSION"
-      - ".governance/versions.json"
-      - "scripts/check_rule_versions.sh"
-      - "scripts/bump_rule_versions.sh"
-      - ".github/workflows/version-governance.yml"
+      - ".github/workflows/**"
   workflow_dispatch: {}
 
 jobs:
