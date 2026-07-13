@@ -1,6 +1,6 @@
 ---
 title: "Cursor GitHub integration"
-description: "Configure Cursor Cloud GitHub access — app installation, GH_TOKEN, and permission verification."
+description: "Configure Cursor Cloud GitHub access — app installation, GH_PAT, and permission verification."
 ---
 
 ## Problem
@@ -17,7 +17,7 @@ This is a [known Cursor limitation](https://forum.cursor.com/t/cloud-agent-unabl
 
 ## What works today
 
-| Operation | Built-in Cursor token | With `GH_TOKEN` PAT |
+| Operation | Built-in Cursor token | With `GH_PAT` Runtime Secret |
 | --- | --- | --- |
 | Clone / read repo | ✓ | ✓ |
 | Git push to branch | ✓ | ✓ |
@@ -43,9 +43,9 @@ This is a [known Cursor limitation](https://forum.cursor.com/t/cloud-agent-unabl
 
 > Reinstalling the app alone does **not** fix `updatePullRequest` — the sandbox token remains narrower than the installation UI suggests.
 
-## Step 2 — Add `GH_TOKEN` to Cursor Cloud Environment (required for PR API)
+## Step 2 — Add `GH_PAT` to Cursor Cloud Environment (required for PR API)
 
-The supported workaround is a **Personal Access Token** in the Cloud Agent environment.
+The supported workaround is a **Personal Access Token** stored as a **Runtime Secret** named `GH_PAT`. Use `GH_PAT` rather than `GH_TOKEN` — Cursor may inject its own installation token into `GH_TOKEN` (`ghs_…`), which overrides a PAT you set under that name.
 
 ### Create a fine-grained PAT (recommended)
 
@@ -67,13 +67,13 @@ Create at https://github.com/settings/tokens with scope **`repo`** (full control
 ### Add to Cursor Cloud Environment
 
 1. Cursor → **Cloud** → **Environments** → select (or create) the environment used for `cursor-rules` agents
-2. **Secrets** → add:
+2. **Secrets** → add Runtime Secret:
    ```
-   GH_TOKEN=github_pat_xxxxxxxx
+   GH_PAT=github_pat_xxxxxxxx
    ```
-3. Save and **rebuild / restart** the environment so new runs pick up the secret.
+3. Save and **rebuild / restart** the environment, then **start a new cloud agent run** so the secret is injected (continuing an existing run does not reload secrets).
 
-`gh` CLI and git credential helpers prefer `GH_TOKEN` over the built-in installation token.
+The verifier script exports `GH_PAT` to `GH_TOKEN` for `gh` CLI compatibility.
 
 ## Step 3 — Verify in a cloud agent run
 
@@ -84,7 +84,7 @@ Create at https://github.com/settings/tokens with scope **`repo`** (full control
 Expected when configured correctly:
 
 ```
-✓ GH_TOKEN is set (PAT override active)
+✓ GH_PAT is set (PAT override active)
 ✓ gh auth status — authenticated
 ✓ pull_requests:write — can list PRs
 ✓ issues:read — can list issues (optional)
@@ -92,7 +92,7 @@ Expected when configured correctly:
 
 ## Step 4 — Repo auto-ship fallback (no PAT)
 
-If you cannot add `GH_TOKEN`, this repo ships eligible **`cursor/**`** PRs via GitHub Actions — agents only need **git push**. See [CI & deploy](ci-workflow.md) and [Single-operator mode](solo-operator.md).
+If you cannot add `GH_PAT`, this repo ships eligible **`cursor/**`** PRs via GitHub Actions — agents only need **git push**. See [CI & deploy](ci-workflow.md) and [Single-operator mode](solo-operator.md).
 
 Manual merge fallback: comment **`/ship`** on a PR (repo OWNER/MEMBER/COLLABORATOR).
 
@@ -100,7 +100,7 @@ Manual merge fallback: comment **`/ship`** on a PR (repo OWNER/MEMBER/COLLABORAT
 
 | Symptom | Fix |
 | --- | --- |
-| `updatePullRequest` / `addLabelsToLabelable` | Add `GH_TOKEN` PAT with pull_requests write |
+| `updatePullRequest` / `addLabelsToLabelable` | Add `GH_PAT` Runtime Secret with pull_requests write |
 | `createPullRequest` fails | Same — PAT with pull_requests write |
 | `repository.issues` 403 | PAT with issues read/write |
 | Push works, nothing else | Expected with built-in token only — add PAT |

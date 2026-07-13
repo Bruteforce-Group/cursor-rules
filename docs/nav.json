@@ -12,6 +12,7 @@
         { "slug": "cursor-team-rollout", "title": "Cursor Team rollout" },
         { "slug": "cursor-team-playwright", "title": "Cursor Team Playwright setup" },
         { "slug": "cursor-internal-ci-migration", "title": "Cursor + ANVIL CI migration" },
+        { "slug": "docker-ci-cd", "title": "Docker CI/CD" },
         { "slug": "auto-memory-soft-delete", "title": "Auto-memory soft delete" },
         { "slug": "ci-workflow", "title": "CI & deploy" },
         { "slug": "style-guide", "title": "Writing style guide" }

@@ -1,6 +1,6 @@
 ---
 description: Default hybrid logging contract using Cloudflare observability for telemetry and ANVIL for durable engineering state
-version: 1.0.0
+version: 1.7.1
 alwaysApply: true
 ---
 

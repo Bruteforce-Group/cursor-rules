@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verify GitHub permissions available to Cursor Cloud agents in this sandbox.
-# Run after configuring GH_TOKEN in the Cloud Environment.
+# Run after configuring GH_PAT (preferred) or GH_TOKEN in the Cloud Environment.
 set -euo pipefail
 
 REPO="${GITHUB_REPOSITORY:-Bruteforce-Group/cursor-rules}"
@@ -14,11 +14,14 @@ echo "GitHub agent permission check"
 echo "Repository: $REPO"
 echo ""
 
-# --- GH_TOKEN override ---
-if [ -n "${GH_TOKEN:-}" ]; then
-  pass "GH_TOKEN is set (PAT override active)"
+# Prefer GH_PAT — Cursor may override GH_TOKEN with its installation token
+if [ -n "${GH_PAT:-}" ]; then
+  export GH_TOKEN="${GH_PAT}"
+  pass "GH_PAT is set (PAT override active)"
+elif [ -n "${GH_TOKEN:-}" ] && [[ "${GH_TOKEN}" != ghs_* ]]; then
+  pass "GH_TOKEN is set (non-installation PAT)"
 else
-  info "GH_TOKEN not set — using Cursor installation token only (limited PR/issue API)"
+  info "GH_PAT/GH_TOKEN not set — using Cursor installation token only (limited PR/issue API)"
 fi
 
 # --- gh auth ---
@@ -75,8 +78,8 @@ else
 fi
 
 echo ""
-if [ -z "${GH_TOKEN:-}" ]; then
-  info "Recommendation: set GH_TOKEN in Cursor Cloud Environment for pull_requests:write"
+if [ -z "${GH_PAT:-}" ] && { [ -z "${GH_TOKEN:-}" ] || [[ "${GH_TOKEN}" == ghs_* ]]; }; then
+  info "Recommendation: set GH_PAT (Runtime Secret) in Cursor Cloud Environment"
   echo "  See docs/cursor-github-integration.md"
   exit 1
 fi
@@ -87,6 +90,6 @@ if [ "$FAIL" -eq 0 ]; then
 fi
 
 echo ""
-echo "Some checks failed. For Cursor Cloud agents, add GH_TOKEN to your Cloud Environment:"
+echo "Some checks failed. For Cursor Cloud agents, add GH_PAT to your Cloud Environment:"
 echo "  docs/cursor-github-integration.md"
 exit 1
