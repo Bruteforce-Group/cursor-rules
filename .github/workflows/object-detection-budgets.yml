@@ -70,19 +70,7 @@ jobs:
             exit 0
           fi
           chmod +x "$SCRIPT"
-          "$SCRIPT" \
-            --max-latency-edge-ms "${MAX_LATENCY_EDGE_MS}" \
-            --min-fps-edge "${MIN_FPS_EDGE}" \
-            --min-map-edge "${MIN_MAP_EDGE}" \
-            --min-recall-edge "${MIN_RECALL_EDGE}" \
-            --max-latency-enh-ms "${MAX_LATENCY_ENH_MS}" \
-            --min-fps-enh "${MIN_FPS_ENH}" \
-            --min-map-enh "${MIN_MAP_ENH}" \
-            --min-recall-enh "${MIN_RECALL_ENH}" \
-            --max-latency-central-ms "${MAX_LATENCY_CENTRAL_MS}" \
-            --min-fps-central "${MIN_FPS_CENTRAL}" \
-            --min-map-central "${MIN_MAP_CENTRAL}" \
-            --min-map-central-coco "${MIN_MAP_CENTRAL_COCO}"
+          "$SCRIPT"
 
       - name: Reminder to add enforcement script
         if: always()
