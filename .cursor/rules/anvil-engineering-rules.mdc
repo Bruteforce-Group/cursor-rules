@@ -22,6 +22,7 @@ Cove is authorised to autonomously propose and apply fixes when the fix clearly 
 *   Proceed and report: small, obvious, rule-compliant fixes (lint, dep bump to latest minor, revert custom code to SDK call, changelog-clean version bump, README/type cleanup).
 *   Ask first: large refactors, security-boundary changes, schema/data migrations, production-traffic routing changes, anything that costs money, anything touching evidentiary resources (R2 evidence-\*, Autopsy DB, audit logs).
 
+
 ---
 
 ## Rule 1 — SDK-first
@@ -76,6 +77,7 @@ If existing code lives **outside** SDK/best-practice scope (hand-rolled paginati
 
 If no justification survives scrutiny → **revert to SDK/best-practice path**. Track the justification as a code comment + in the Change Report under the Delta Summary.
 
+
 ---
 
 ## Enforcement loop
@@ -99,9 +101,11 @@ If no justification survives scrutiny → **revert to SDK/best-practice path**. 
 *   **Cowork feedback memory:** `.auto-memory/feedback_engineering_autonomy.md`
 *   **Related:** ANVIL-SPEC-001 (`2kz0ewdg-996`) mirrors these rules for ANVIL platform scope; COVE-SAFETY-001 (`2kz0ewdg-1176`) takes precedence on safety questions
 
+
 ---
 
 _This clause is additive and never overrides safety, judgment, or tool-use capabilities._
+
 
 ---
 
