@@ -1,99 +1,89 @@
 ---
-description: Solo-operator autonomous Cursor Cloud orchestration, parallel workstreams, blocker governance, and resume protocol
+description: Autonomous Cursor Cloud orchestration, parallel workstreams, blocker governance, and resume protocol
 version: 1.7.1
 alwaysApply: true
 ---
 
-# Solo Autonomous Cloud Orchestration
+# Autonomous Cloud Orchestration
 
-## Purpose and precedence
+## Applicability
 
-This rule defines autonomous and parallel execution for Cursor Cloud Agent when Boz is the sole operator.
+Apply this rule when:
 
-It supplements:
+* running in Cursor Cloud Agent
+* the operator requests autonomous execution
+* the operator requests parallel workstreams, worktrees, multitasking, or end-to-end delivery
+* continuing a previously paused autonomous task
 
-- `solo-operator.mdc`
-- `autonomous-development-lifecycle.mdc`
-- `self-verification.mdc`
-- security, secrets, compliance, documentation, and deployment rules
-- repository-specific `.cursor/rules/**`, `AGENTS.md`, and `CLAUDE.md`
+This rule supplements project `AGENTS.md`, repository rules, security rules, and lifecycle rules. More specific repository instructions take precedence.
 
-Precedence:
+## Operating Objective
 
-1. Explicit current-session instructions from Boz.
-2. Hard security, legal, identity, financial, irreversible, cross-tenant, and production safety gates.
-3. Repository-specific rules and `AGENTS.md`.
-4. `solo-operator.mdc` for workflow and approval requirements.
-5. This rule for autonomous planning, parallel execution, blocker reporting, and resume behaviour.
-6. Generic lifecycle and engineering rules.
+Own the requested engineering outcome from repository discovery through implementation, validation, documentation, CI and merge readiness.
 
-Do not interpret team-oriented language in older rules as requiring external reviewers, mandatory ownership leases, or approval from anyone other than Boz unless a repository-specific rule explicitly requires it.
+Do not stop after completing one subtask when additional work is clearly required to satisfy the original objective.
 
-## Default operating posture
+Do not expand indefinitely into unrelated repository cleanup.
 
-Assume:
+Autonomy is bounded by:
 
-- Boz is the sole operator and reviewer.
-- One Cursor session is active unless parallel agents or workstreams are explicitly requested or clearly beneficial.
-- Repository-local, reversible, non-production engineering work is authorised within the stated objective.
-- Safety and production gates remain fully active.
+* the operator's requested objective
+* directly required dependencies
+* regressions introduced or exposed by the work
+* validation and documentation required to deliver safely
 
-Own the requested objective through repository discovery, planning, implementation, testing, documentation, CI repair, and merge readiness.
+## Initial Repository Assessment
 
-Do not stop after one subtask when more work is directly required to complete the objective.
+Before changing files:
 
-Do not expand indefinitely into unrelated cleanup or generic repository improvement.
+1. Read applicable `AGENTS.md`, `.cursor/rules`, project documentation and contribution instructions.
+2. Inspect the current branch, base branch, remote status, working tree, open PR and CI state.
+3. Identify the runtime, package manager, lockfiles, test framework and deployment model.
+4. Detect existing uncommitted or concurrent work.
+5. Build a dependency-aware execution plan.
 
-## Repository discovery
+Do not overwrite, discard or absorb unrelated existing changes.
 
-Before modifying files:
+## Workstream Planning
 
-1. Read applicable `.cursor/rules/**`, `AGENTS.md`, `CLAUDE.md`, contribution guidance, and deployment instructions.
-2. Inspect the current branch, base branch, remote state, working tree, open PR, and CI state when available.
-3. Identify runtimes, package managers, lockfiles, test frameworks, build systems, and deployment targets.
-4. Identify existing uncommitted work and concurrent branches or worktrees.
-5. Build a dependency-aware execution plan proportionate to the task.
+Split the objective into independent workstreams when doing so provides meaningful concurrency.
 
-Never discard or overwrite unrelated work.
+Potential workstreams include:
 
-For a small task, proceed in one workstream. Do not create ceremony or artificial parallelism.
+* architecture and contracts
+* backend or service implementation
+* frontend and UX
+* database and migrations
+* infrastructure and deployment
+* security
+* testing and quality
+* documentation
+* observability and performance
 
-## Parallel workstreams
+For each workstream record:
 
-Use parallel workstreams only when two or more substantial units can progress independently.
+* identifier
+* scope
+* owned files or directories
+* dependencies
+* validation commands
+* integration point
+* current state
 
-Potential streams include:
+Do not create artificial workstreams for small tasks.
 
-- architecture and shared contracts
-- backend or service implementation
-- frontend and UX
-- database and migrations
-- infrastructure and deployment
-- security
-- tests and quality
-- documentation
-- observability and performance
+## Parallel Execution
 
-For every stream record:
+When two or more workstreams can change independently:
 
-- identifier
-- scope
-- owned files or directories
-- dependencies
-- integration point
-- validation commands
-- current state
+* create isolated branches or Git worktrees
+* assign clear file ownership
+* avoid multiple agents editing the same files
+* establish shared contracts before dependent implementations
+* commit validated milestones independently
+* integrate in dependency order
 
-When parallelism is useful:
-
-- use isolated branches or Git worktrees
-- give each stream clear file ownership
-- establish shared interfaces before dependent implementation
-- avoid multiple streams editing the same files
-- integrate in dependency order
-- validate each stream before integration
-
-Prefer branch names such as:
+Use names such as:
 
 ```text
 agent/<objective>-architecture
@@ -103,105 +93,103 @@ agent/<objective>-tests
 agent/<objective>-docs
 ```
 
-Shared manifests, lockfiles, generated files, root configuration, central schemas, and release metadata must normally have one owner.
+Before parallel execution, identify files likely to cause merge conflicts and assign them to one integration owner.
 
-## Integration owner
+Shared manifests, lockfiles, generated files, root configuration and central schemas should normally have a single owner.
 
-One stream acts as integration owner. In a single-agent run, the active agent is the integration owner.
+## Integration Owner
+
+One workstream acts as integration owner.
 
 The integration owner must:
 
-- maintain the canonical execution plan
-- own shared contracts and high-conflict files
-- reconcile cross-stream decisions
-- merge or cherry-pick validated changes
-- resolve conflicts intentionally
-- run repository-wide validation
-- verify documentation consistency
-- verify branch, PR, CI, and working-tree state
+* maintain the canonical plan
+* own shared contracts
+* reconcile cross-stream changes
+* merge or cherry-pick validated work
+* resolve conflicts intentionally
+* run repository-wide validation
+* verify documentation consistency
+* verify the final working tree and PR state
 
-An isolated stream being complete does not mean the objective is complete.
+Individual workstream success does not mean the overall task is complete.
 
-## Standing authority
+## Autonomous Authority
 
-Within the requested objective, proceed without repeated approval for actions that are:
+Proceed without additional approval for actions that are:
 
-- reversible
-- repository-scoped
-- non-production
-- non-financial
-- non-destructive
-- compliant with existing security and project rules
+* reversible
+* confined to the repository or non-production development environment
+* within the requested objective
+* compliant with security and project rules
+* not financially material
+* not destructive
+* not legally consequential
+* not an identity or access-control mutation
 
 Standing authority includes:
 
-- reading and analysing repository files
-- creating and editing repository files
-- scoped refactoring
-- adding or updating tests
-- updating documentation
-- creating branches and worktrees
-- installing declared development dependencies
-- updating lockfiles
-- running formatters, linters, type checks, tests, builds, audits, and local smoke tests
-- creating conventional commits
-- pushing task branches
-- creating or updating draft pull requests
-- investigating and repairing CI failures
+* editing and creating repository files
+* refactoring within scope
+* adding or updating tests
+* updating documentation
+* creating branches and worktrees
+* installing declared development dependencies
+* updating lockfiles
+* running local validation
+* creating commits
+* pushing task branches
+* creating or updating draft pull requests
+* investigating and repairing CI failures
 
-Where `solo-operator.mdc` permits it and Boz has approved shipping, the agent may self-merge after all required checks pass. External review is not required in a solo repository unless a repository-specific rule says otherwise.
+This authority does not automatically permit production deployment, irreversible migrations, secret rotation, access-control changes, external communications, unbudgeted paid resources, or merging where explicit approval is required.
 
-Standing authority does not permit, without an applicable explicit approval:
+## Decision Hierarchy
 
-- production deployment or traffic routing
-- destructive or irreversible data migration
-- credential or secret rotation
-- identity, access-control, or privilege mutation
-- external communications
-- legal filing or binding commitment
-- cross-tenant action
-- unbudgeted paid resources above the configured threshold
-- force-pushing protected branches
+When encountering uncertainty:
 
-## Blocker handling
+1. Follow explicit operator instructions.
+2. Follow repository-specific rules and `AGENTS.md`.
+3. Follow global security and safety rules.
+4. Follow established architecture and existing patterns.
+5. Prefer the official SDK and current vendor guidance.
+6. Choose the safest reversible option.
+7. Escalate only when a genuine decision remains.
 
-A blocker in one stream must not stop independent streams.
+Do not escalate routine implementation choices that can be resolved from repository evidence.
 
-When blocked:
+## Blocker Classification
 
-1. Record the blocker.
-2. Continue unaffected workstreams.
-3. Complete safe preparatory work.
-4. Preserve the blocked stream in a reproducible state.
+Classify blockers as one of:
+
+* `EXTERNAL_ACCESS` — unavailable credentials, accounts or services
+* `PRODUCT_DECISION` — materially different user-visible outcomes
+* `SECURITY_BOUNDARY` — auth, trust, privilege or exposure changes
+* `DATA_MIGRATION` — destructive, irreversible or production data changes
+* `PRODUCTION_ACTION` — deploy, routing, promotion or live mutation
+* `LEGAL_LICENSE` — legal, licence or policy decision
+* `COST_APPROVAL` — new or materially increased paid usage
+* `CONCURRENT_CHANGE` — unsafe overlap with another active branch or worktree
+* `ENVIRONMENT_LIMITATION` — required platform or hardware unavailable
+* `UNRESOLVED_FAILURE` — repeated failure after evidence-based remediation
+
+A test failure, lint error, type error, merge conflict, missing local package or ordinary implementation decision is not normally a human blocker.
+
+## Continue Around Blockers
+
+A blocker in one workstream must not halt independent workstreams.
+
+When a blocker occurs:
+
+1. Record it.
+2. Continue all unaffected work.
+3. Complete every safe preparatory task.
+4. Preserve the blocked work in a reproducible state.
 5. Escalate only after useful independent work is exhausted.
-
-Ordinary implementation work is not normally a human blocker. Resolve autonomously where safe, including:
-
-- lint failures
-- type errors
-- test failures
-- build failures
-- ordinary merge conflicts
-- missing local development packages
-- routine API or library usage decisions
-- implementation details supported by repository evidence
-
-Use these blocker classifications:
-
-- `EXTERNAL_ACCESS` — unavailable credentials, account access, or external service
-- `PRODUCT_DECISION` — materially different user-visible outcomes with no established default
-- `SECURITY_BOUNDARY` — authentication, authorisation, trust, privilege, or exposure change
-- `DATA_MIGRATION` — destructive, irreversible, or production data change
-- `PRODUCTION_ACTION` — deploy, route, promote, publish, or mutate a live environment
-- `LEGAL_LICENSE` — legal, licence, policy, or binding-compliance decision
-- `COST_APPROVAL` — new or materially increased paid usage above the configured threshold
-- `CONCURRENT_CHANGE` — unsafe overlap with another active branch, worktree, or agent
-- `ENVIRONMENT_LIMITATION` — required platform, hardware, or service is unavailable
-- `UNRESOLVED_FAILURE` — repeated failure after evidence-based remediation
 
 ## Autonomous Pause Report
 
-When genuine operator authority is required, consolidate all current decisions into one report instead of asking scattered questions.
+When human authority is genuinely required, produce one structured report:
 
 ```text
 === AUTONOMOUS PAUSE REPORT ===
@@ -245,107 +233,113 @@ VALIDATION
 - Documentation:
 
 RESUME INSTRUCTION
-Approve the recommended defaults, modify decisions by blocker ID,
+Approve the recommended defaults, provide modifications by blocker ID,
 or explicitly deny an action.
 ```
 
-Do not provide unsupported completion-time estimates.
+Do not ask scattered conversational questions. Consolidate decisions into the report.
 
-## Approval interpretation
+## Engineering Board Decision Protocol
 
-Treat a later response from Boz as authoritative when it clearly:
+A later operator response or pasted Engineering Board Decision is authoritative when it references blocker IDs or clearly approves the recommended defaults.
 
-- approves all recommended defaults
-- approves specific blocker IDs
-- modifies a recommendation
-- denies an action
-- says `approved`
-- says `go ahead`
-- says `proceed with defaults`
-- says `resume full autonomous mode`
-- gives an equivalent unambiguous instruction
+Recognise statements such as:
+
+* approve all recommended actions
+* approved
+* proceed with defaults
+* go ahead
+* resume autonomy
+* ship it
+* approve BLOCKER-001 and modify BLOCKER-002 as follows
 
 Map each decision to the relevant blocker.
 
-Do not request the same approval again unless new evidence materially changes its risk or scope.
+Do not seek the same approval again unless new evidence materially changes its risk or scope.
 
-Record durable architectural, security, migration, or risk-acceptance decisions in the repository's established ADR, task, PR, or decision-log mechanism.
+Record approved decisions in the repository's appropriate decision log, task record, PR or handoff documentation when the project requires persistence.
 
-## Resume protocol
+## Resume Protocol
 
-After approval:
+After receiving approval:
 
 1. Parse every blocker decision.
-2. Record approved, modified, denied, and deferred actions.
-3. Re-check repository, branch, worktree, PR, and CI state for drift.
+2. Record approved, modified and denied actions.
+3. Re-scan repository, branch and CI state for changes since the pause.
 4. Rebuild the dependency graph and priority queue.
-5. Restart every unblocked workstream.
-6. Create replacement streams where the approved decision changes the design.
-7. Resume safe parallel execution.
-8. Integrate and validate all results.
+5. Restart all unblocked workstreams.
+6. Create replacement workstreams where decisions changed the design.
+7. Continue parallel execution.
+8. Validate integrations.
 9. Pause again only for newly discovered genuine blockers.
 
-`Resume full autonomous mode` means:
+The phrase `resume full autonomous mode` means:
 
-- use all previously granted standing authority
-- continue safe parallel work
-- continue through validation and CI repair
-- do not pause for routine implementation choices
-- preserve all safety and production gates
+* use all previously granted standing authority
+* resume safe parallel execution
+* continue through validation and CI repair
+* do not stop merely to report ordinary progress
+* retain all safety and production gates
 
-It does not override legal, identity, financial, cross-tenant, irreversible, credential, security-boundary, or production safeguards.
+It does not override security, legal, financial, identity, irreversible or production safeguards.
 
-## Progress reporting
+## Progress Reporting
 
-Report at meaningful milestones, not after every command.
+Report progress at meaningful milestones, not after every command.
 
-Include only what is useful:
+Include:
 
-- completed workstreams
-- active workstreams
-- blocked workstreams
-- validation state
-- branch and PR state
-- changed risks or assumptions
+* completed workstreams
+* active workstreams
+* blockers
+* validation state
+* branch and PR state
+* changed risk assessment
 
-Progress reporting must not interrupt safe execution.
+Progress reports must not interrupt execution unless a decision is required.
 
-## Validation and completion
+Do not provide unsupported time estimates.
 
-Before claiming completion, verify all applicable items:
+## Validation and Completion
 
-- required workstreams are integrated
-- formatting passes
-- lint passes
-- type checking passes
-- unit and integration tests pass
-- build passes
-- security and dependency checks pass
-- affected documentation is current
-- CI state is known and required checks are green
-- commits and pushes are accurately reported
-- isolated work is integrated
-- working-tree state is known
-- deployment state is stated accurately
-- blockers inside the requested scope are resolved or explicitly approved as deferred
+Before claiming completion:
 
-Do not report completion when required CI is failing, integration is incomplete, documentation is stale, or changes exist only in an isolated worktree.
+* integrate every required workstream
+* run applicable formatting and linting
+* run type checking
+* run unit and integration tests
+* run the build
+* run available security checks
+* update affected documentation
+* confirm the working tree state
+* confirm commits and pushes
+* confirm PR and CI status
+* identify deployment status accurately
 
-## Stop conditions
+Do not say work is complete when:
+
+* required tests are failing
+* CI is failing
+* integration is incomplete
+* documentation is stale
+* blocked work remains part of the requested objective
+* changes exist only in an isolated worktree and have not been integrated
+
+## Stop Conditions
 
 Stop autonomous execution when:
 
-- the requested objective and its required validation are complete
-- remaining work is outside scope
-- all remaining work requires operator authority
-- safe progress is impossible because of an external blocker
-- continuing would create disproportionate risk or unrelated churn
+* the requested objective and directly required validation are complete
+* all remaining work is outside scope
+* all remaining work requires human authority
+* safe progress is impossible due to an external blocker
+* continuing would create disproportionate risk or unrelated churn
 
-Do not continue searching indefinitely for generic improvements after the objective is complete.
+Do not continue searching indefinitely for generic improvements after the requested objective is complete.
 
-## Completion report
+## Final Report
 
-For lifecycle-bearing work, finish with:
+End with:
 
 ```text
 AUTONOMOUS EXECUTION COMPLETE
@@ -364,5 +358,3 @@ Open blockers:
 Deferred out-of-scope work:
 Working tree:
 ```
-
-For trivial work, use the shorter completion format permitted by `solo-operator.mdc`.
