@@ -66,6 +66,21 @@ Create at https://github.com/settings/tokens with scope **`repo`** (full control
 
 ### Add to Cursor Cloud Environment
 
+**Option A — Playwright configurator (headed Mac, authenticated profile):**
+
+```bash
+cd automation/cursor-team-playwright
+npm install && npm run install-browser
+export CURSOR_CLOUD_ENVIRONMENT="cursor-rules"
+npm run setup -- --apply --headed --cloud-only \
+  --environment-name "$CURSOR_CLOUD_ENVIRONMENT" \
+  --runtime-secret-file ~/.config/cursor/gh_pat.env
+```
+
+See [Cursor Team Playwright setup](cursor-team-playwright.md) for discovery mode and full package apply.
+
+**Option B — Cursor dashboard (manual):**
+
 1. Cursor → **Cloud** → **Environments** → select (or create) the environment used for `cursor-rules` agents
 2. **Secrets** → add Runtime Secret:
    ```
