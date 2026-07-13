@@ -60,7 +60,7 @@ fi
 if gh issue list --repo "$REPO" --limit 1 >/dev/null 2>&1; then
   pass "issues:read (gh issue list)"
 else
-  info "issues:read unavailable (optional — add GH_TOKEN if agents use issues)"
+  info "issues:read unavailable (optional — add GH_PAT if agents use issues)"
 fi
 
 # Label write is a common failure mode for cloud agents

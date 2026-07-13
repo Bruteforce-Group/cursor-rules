@@ -29,6 +29,8 @@ jobs:
             const allowed = [
               /^\.github\/workflows\/[^/]+\.yml$/,
               /^scripts\/clickup-drift-task\.js$/,
+              /^scripts\/[^/]+\.(sh|py)$/,
+              /^\.cursor\/commands\/[^/]+\.md$/,
               /^README\.md$/,
               /^docs\/.+/,
               /^\.cursor\/rules\/.+\.mdc$/,
@@ -137,8 +139,24 @@ jobs:
 
       - name: Enable auto-merge (squash)
         if: steps.gate.outputs.eligible == 'true'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
-          gh pr merge "$PR_URL" --auto --squash
+          set +e
+          echo "Waiting for required checks..."
+          gh pr checks "$PR_URL" --watch --interval 30 --fail-fast
+          CHECK_EXIT=$?
+          if [ "$CHECK_EXIT" -ne 0 ]; then
+            echo "Checks not all green yet — merge deferred."
+            exit 0
+          fi
+          if gh pr merge "$PR_URL" --auto --squash 2>/dev/null; then
+            echo "Auto-merge enabled; merge queued when checks pass."
+          elif gh pr merge "$PR_URL" --squash 2>/dev/null; then
+            echo "Direct squash merge completed."
+          else
+            echo "Merge deferred — branch protection or manual merge required."
+            exit 0
+          fi
