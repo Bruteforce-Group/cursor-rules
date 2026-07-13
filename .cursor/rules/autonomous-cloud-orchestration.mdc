@@ -1,6 +1,6 @@
 ---
 description: Solo-operator autonomous Cursor Cloud orchestration, parallel workstreams, blocker governance, and resume protocol
-version: 1.0.0
+version: 1.7.1
 alwaysApply: true
 ---
 

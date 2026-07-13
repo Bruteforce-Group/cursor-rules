@@ -55,3 +55,17 @@ pip install -r requirements-docs.txt
 python3 scripts/check_docs_links.py
 python3 scripts/build_docs.py
 ```
+
+## Cursor Cloud agent PR permissions
+
+Cursor Cloud agents use a GitHub integration token with **read + git push** only. They **cannot**:
+
+- Update PR title/body (`ManagePullRequest` update → `updatePullRequest` error)
+- Add labels, comment, approve, or merge via `gh` CLI
+- Trigger `workflow_dispatch`
+
+**Workaround (solo-operator):** push to a `cursor/**` branch. [Cursor Agent Auto Ship](../.github/workflows/cursor-agent-auto-ship.yml) runs on `pull_request_target`, evaluates low-risk file scope, auto-approves, and squash-merges when CI is green. Manual fallback: comment `/ship` on the PR.
+
+**Full fix:** add `GH_TOKEN` (PAT with pull_requests + contents write) to the Cursor Cloud Environment — see [Cursor GitHub integration](cursor-github-integration.md).
+
+See [Single-operator mode](solo-operator.md) for the full cloud-agent workflow table.

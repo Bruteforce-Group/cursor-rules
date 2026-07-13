@@ -1,6 +1,6 @@
 ---
 description: Docker-first CI/CD standards for reproducible validation, builds, releases, and ANVIL-aligned deployment governance
-version: 1.0.0
+version: 1.7.1
 alwaysApply: true
 ---
 
