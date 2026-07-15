@@ -1,0 +1,23 @@
+---
+description: Always prefer the newest stable dependency first; only step back when forced
+version: 1.0.0
+alwaysApply: true
+---
+
+# Dependency freshness — latest first
+
+When adding, bumping, or reconciling npm/pip/cargo/go modules:
+
+1. **Try current latest stable first.** Before writing a version into `package.json` / lockfiles / requirements, look up the latest non-prerelease on the registry (`npm view <pkg> version`, PyPI, crates.io, etc.). Default the range to that major (e.g. `^<latest>`), not an older major the agent remembers.
+2. **Only step back when latest fails a concrete check.** Allowed reasons to pin or drop a major: peerDependency conflict that blocks install; engine/OS incompatibility; documented CVE/regression with a link; mandatory framework pin (e.g. React Native tooling still requiring ESLint 8). Record the reason in the PR or a one-line comment next to the pin.
+3. **Deprecated install warnings are defects.** If `npm install` / `npm ci` emits `npm warn deprecated …`, identify the *parent* package that pulled the EOL tree and upgrade that parent (or remove it). Do not treat deprecation noise as normal.
+4. **No nested EOL majors in workspaces.** A monorepo root on ESLint 9 / Vitest 4 / TypeScript 5 must not keep a workspace package on ESLint 8 (or similar) unless the pin is justified per (2). Prefer aligning all workspace `devDependencies` to the same current majors.
+5. **Lockfiles are not permission to stay forever.** Prefer refreshing lockfiles when touching deps; `npm ci` reproducing old majors is expected — fix by upgrading the declaring package, then regenerating the lockfile. Do not “fix” warnings by silencing npm.
+6. **Fallback order.** Latest → previous minor within that major → previous major (only with written justification) → older. Never start from an old major because “it usually works.”
+
+## Anti-patterns
+
+- Copying version numbers from another repo/PR without checking the registry.
+- Adding `eslint@^8` / `glob@7` / similar because a template or memory used them.
+- Leaving `npm warn deprecated rimraf@3` / `inflight@1` / `eslint@8` unaddressed after install.
+- Expanding caret ranges downward (`>=8`) when the project already runs a newer major successfully.

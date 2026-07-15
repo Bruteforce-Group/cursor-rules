@@ -8,7 +8,8 @@ alwaysApply: true
   - **Git**: Say whether changes are committed or not (e.g. "Not yet committed" or "Committed as abc123").
   - **Deployment**: Say whether changes are deployed or not (e.g. "Not deployed; push to main to trigger deploy" or "Deployed via workflow run X").
   Use a brief status section at the end of your response when relevant (e.g. "**Status:** Coded ✓ | Run ✓ | Committed ✗ | Deployed ✗").
-- **Always keep software and dependencies up to date**: Before adding a dependency, prefer the latest stable version. When touching package.json, requirements*.txt, or lockfiles, run audits and upgrades (e.g. npm audit, npm update, pip-audit, pip list --outdated). Prefer Dependabot/Renovate PRs; merge or fix promptly.
+- **Always keep software and dependencies up to date (latest-first):** Before adding or bumping a dependency, look up the **latest stable** registry version and try that first. Only step back a major/minor when latest fails peer/engine checks or a documented regression — and note why. Deprecated `npm warn` lines during install are defects: upgrade the parent that pulls the EOL tree (see `.cursor/rules/dependency-freshness.mdc`). When touching package.json, requirements*.txt, or lockfiles, run audits and upgrades; prefer Dependabot/Renovate; merge or fix promptly.
+
 - Keep README and relevant docs in sync with behavior changes.
 - Prefer small, focused changes; include or update tests when behavior shifts.
 - Write clear commit messages in imperative mood and meaningful PR descriptions.
