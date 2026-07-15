@@ -1,6 +1,6 @@
 ---
 description: Always prefer the newest stable dependency first; only step back when forced
-version: 1.0.0
+version: 1.7.1
 alwaysApply: true
 ---
 
