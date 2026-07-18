@@ -28,6 +28,10 @@ ALL external service calls MUST follow this resolution order:
 
 Never skip steps 1–2. Never call a third-party API directly when an ANVIL component wraps it. Never use browser automation when an API or MCP path exists.
 
+**Component tools are NEVER directly callable from Anthropic clients** (TOOL-ROUTING-001, 2026-06-10). Anthropic clients validate tool names against their cached tools/list before sending, so calling a component tool by bare name (e.g. `unifi_fabric_info`, `clickup_create_task`) fails client-side with `tool "X" does not exist on MCP server "<uuid>"`. **Auto-recovery rule**: on that exact error signature, immediately re-issue the SAME call as `anvil_dispatch { command: "X", payload: {...} }` — target is optional (hub v2.21.1+ auto-resolves it and returns `target_resolved`). Do not apologise, do not investigate, do not ask the operator — just re-issue. Unknown commands return `did_you_mean` blocks; ambiguous ones return `candidates` — pick and re-issue. Discovery surfaces (`anvil_catalog`, `anvil_find_capability`) return ready-to-paste `invoke` blocks; always use those verbatim.
+
+**UniFi routing**: `unifi-mcp` (356 tools, `unifi_*`) is the UniFi surface — console, sites, devices, clients, stats. `unifi-lan-bridge` (4 tools, `unifi_lan_*`) is a Mac LAN proxy with 0 controllers configured; do not use it unless explicitly working with LAN-isolated lab controllers.
+
 **GAM enforcement**: Google Workspace operations (email, users, groups, Drive, audit) MUST use `gam-mcp` via `anvil_dispatch`. Never fall back to the local GAM binary (`/Users/danielborrowman/bin/gam7/gam`) via osascript or shell — the worker is always available and is the correct path.
 
 ### Component Registration Convention (2026-05-22)
@@ -104,6 +108,10 @@ Every Delta Summary now ends with:
 
 Every new ANVIL MCP component MUST conform to `docs/ANVIL-MCP-TEMPLATE-001-SPEC.md`. The spec covers directory layout, mandatory `wrangler.jsonc` bindings (HUB service binding + SS_SHARED_SECRET + METRICS AE dataset), registry endpoint convention (must end in `/mcp`), tool naming (`<name>_<action>` prefix), required endpoints (`/mcp`, `/health`, `/observability`, `/status`), auth (CF Access > X-Anvil-Secret > Bearer), mandatory code patterns (UTF-8 base64, dispatch-first, error envelope, idempotency, audit logging), lifecycle states, doc requirements, CI/smoke checks, and versioning. The PR description for every new component MUST include the compliance checklist from §15 of the spec. Components that skip the checklist will be flagged by `spec-watcher` on the next sweep.
 
+### Skill Authoring Standard (Mandatory for New/Changed Skills)
+
+Every `SKILL.md` in this repo MUST conform to `docs/ANVIL-SKILL-AUTHORING-001-SPEC.md` (distilled from Anthropic's Agent Skills best practices, 2026-06-12). Key rules: third-person `description` stating what + when with trigger phrases (≤ 1024 chars); body ≤ 500 lines with references one level deep; no broken relative paths; retired behaviour in collapsed old-pattern blocks; every cited tool name verified against component source; component tools shown via the `anvil_dispatch` envelope (TOOL-ROUTING-001). The PR for any new or materially changed skill includes the §7 compliance checklist from the spec. The §8 machine-checkable rules are enforced automatically: `scripts/lint-skills.mjs` runs as a blocking CI step on every PR (run locally with `node scripts/lint-skills.mjs`).
+
 ### Scheduler & Event Bus (anvil-pulse, v0.6+)
 
 `anvil-pulse` (pulse.anvil.boz.dev) is the canonical scheduler + event bus on the platform. It exposes 25 `pulse_*` MCP tools — `pulse_schedule|list|cancel|run_now|status|history|emit|watchdog_init|metrics|graph|webhook_register|template_register|template_list|template_apply|schema_register|schema_validate|slo_check|slo_breaches|cost_rollup|cost_summary|region_heartbeat|region_status|downgrade_log|rbac_list_scopes|rbac_list_tokens`. Tier 1–4 capabilities (lease, idempotency, retry backoff, DLQ routing, priority lanes, DAG, SLO monitor, schema registry, cost annotation, RBAC scaffold, multi-region heartbeat) are wired. Use Pulse as the substrate for any new recurring/event-triggered orchestration concern — do not build a parallel scheduler. Recurring crons + DLQ + event subscriptions all go through Pulse. CF Agents framework lives at `anvil-pulse-agents` (`agents.anvil.boz.dev`).
@@ -144,6 +152,7 @@ When fulfilling a request, prefer ANVIL's own resources in this order:
 | inference-proxy | inference.anvil.boz.dev | Central AI gateway, logs all AI calls |
 | audit-exporter | audit.anvil.boz.dev | M365/CF/GAM audit export to D1+R2 |
 | deploy | deploy.anvil.boz.dev | Worker rollback control plane (6 tools) |
+
 
 
 
