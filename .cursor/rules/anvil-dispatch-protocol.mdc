@@ -79,20 +79,26 @@ Breaking changes increment the major version. Components SHOULD declare protocol
 ### Triage Events
 `triage.classified` · `triage.escalated` · `triage.routed`
 
-## Authentication Architecture
-Two auth mechanisms on `/mcp`:
-1. **HUB_API_KEY as Bearer** — `Authorization: Bearer <key>` — used by Claude/Cowork
-2. **OAuth 2.0 PKCE** — full RFC 6749/7591 flow — used by ChatGPT and external clients
+## Authentication Architecture (Cursor → ANVIL)
 
-Rotating the key:
+Cursor (desktop + Cloud) authenticates to the MCP portal with a Cloudflare
+Access **service token** — never hub Bearer, never browser OAuth for Cursor:
+
+| Header | Value |
+|---|---|
+| `CF-Access-Client-Id` | Access service token client id (`*.access`) |
+| `CF-Access-Client-Secret` | Access service token secret |
+
 ```bash
-cd /Users/danielborrowman/Developer/Projects/boz.dev.ANVIL
-bash scripts/rotate-hub-api-key.sh
+# from anvil-v2
+scripts/wire-portal-service-token-mcp.sh --check
 ```
-After rotating: update `~/.claude.json` Bearer token header + restart Claude.
+
+Claude.ai / ChatGPT **web** connectors still use Managed OAuth (they cannot
+send CF Access headers). Mesh `X-Anvil-Key` / hub Bearer is internal only.
 
 ## Hub vs Component Domains
 | Domain | Auth | Use |
 |---|---|---|
-| `hub.boz.dev/mcp` | Bearer token | Claude/Cowork — **USE THIS** |
-| `*.anvil.boz.dev/dispatch` | X-Anvil-Key + CF Service Token | Hub→component only |
+| `portal.boz.dev/mcp` | CF Access service token (Cursor) / Managed OAuth (web connectors) | External clients — **USE THIS** |
+| `*.anvil.boz.dev/dispatch` | X-Anvil-Key + CF Service Token | Hub→component mesh only (never from Cursor) |

@@ -228,9 +228,9 @@ async function generateAnvilStack(claudeMd) {
   componentTable = tableMatch ? tableMatch[1] : '';
 
   const body = [
-    `**Hub:** \`https://hub.boz.dev\` (canonical — MCP endpoint: \`https://hub.boz.dev/mcp\`)`,
-    `**Monorepo:** \`/Users/danielborrowman/Developer/Projects/boz.dev.ANVIL/\``,
-    `**Auth:** Static Bearer token via \`HUB_API_KEY\` secret. Never hardcode — always load from env.`,
+    `**Portal (external):** \`https://portal.boz.dev/mcp\``,
+    `**Auth (Cursor):** CF Access service-token headers via anvil-v2 \`scripts/wire-portal-service-token-mcp.sh\`. Never embed \`HUB_API_KEY\`, mesh secrets, \`oauth.portal.boz.dev\`, or \`mcp-remote\` in Cursor MCP config.`,
+    `**CF note:** Claude/ChatGPT web connectors use Managed OAuth; Cursor does not.`,
     `**CF Account ID (components):** \`dac01715f027bf360c500dce1d805d94\``,
     '',
     dispatchSection,
