@@ -7,7 +7,7 @@ Before changing code or reviewing a pull request:
 1. Read repository `AGENTS.md` and `.cursor/rules/**`.
 2. Follow canonical autonomous, security, testing, documentation, deployment, and ANVIL logging requirements.
 3. Treat local repository rules as additive or stricter; do not silently weaken canonical policy.
-4. Connect to ANVIL externally only through `https://portal.boz.dev/mcp`.
+4. Connect to ANVIL externally only through `https://portal.boz.dev/mcp` using CF Access service-token headers (not browser OAuth / `mcp-remote` / `oauth.portal.boz.dev`).
 5. Send meaningful lifecycle, review, security, approval, governance, and deployment outcomes with repository, PR/run, and commit correlation.
 6. Preserve production, destructive, identity, legal, financial, cross-tenant, secret, irreversible migration, and privilege-change approval gates.
 7. Do not claim completion while required evidence is missing, stale, or failing.

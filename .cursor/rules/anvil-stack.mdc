@@ -9,14 +9,16 @@ alwaysApply: true
 
 # ANVIL Stack Architecture
 
-**Hub:** `https://hub.boz.dev` (canonical — MCP endpoint: `https://hub.boz.dev/mcp`)
-**Monorepo:** `/Users/danielborrowman/Developer/Projects/boz.dev.ANVIL/`
-**Auth:** Static Bearer token via `HUB_API_KEY` secret. Never hardcode — always load from env.
+**Portal (external):** `https://portal.boz.dev/mcp`
+**Auth (Cursor):** CF Access service-token headers (`CF-Access-Client-Id` /
+`CF-Access-Client-Secret`) via anvil-v2 `scripts/wire-portal-service-token-mcp.sh`.
+Never embed `HUB_API_KEY`, mesh secrets, `oauth.portal.boz.dev`, or `mcp-remote`
+in Cursor MCP config.
 **CF Account ID (components):** `dac01715f027bf360c500dce1d805d94`
 
 ## ANVIL-First Orchestration (Mandatory)
 
-ANVIL (hub.boz.dev) is the central orchestration platform — all AI surfaces (Claude Code, Cowork, Chat) MUST treat it as the primary context source and execution layer.
+ANVIL (`portal.boz.dev/mcp`) is the central orchestration platform — all AI surfaces (Cursor, Claude Code, Cowork, Chat) MUST treat it as the primary context source and execution layer.
 
 ### Dispatch-First Principle
 ALL external service calls MUST follow this resolution order:

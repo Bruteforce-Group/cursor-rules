@@ -23,7 +23,13 @@ All Cursor agents and external systems connect to ANVIL only through:
 https://portal.boz.dev/mcp
 ```
 
-Use the portal tool `anvil_dispatch`. Never call a component hostname, `hub.boz.dev`, or an internal service-binding endpoint directly. Never request, expose, or transmit the ANVIL mesh secret.
+**Cursor auth:** Cloudflare Access **service token** headers on that URL
+(`CF-Access-Client-Id` / `CF-Access-Client-Secret`). Wire with anvil-v2
+`scripts/wire-portal-service-token-mcp.sh`. Do not use browser OAuth,
+`oauth.portal.boz.dev`, `mcp-remote`, `hub.boz.dev`, or `HUB_API_KEY` Bearer
+for Cursor → ANVIL.
+
+Use the portal tool `anvil_dispatch` (or `control-hub_*` Code Mode tools). Never call a component hostname, `hub.boz.dev`, or an internal service-binding endpoint directly. Never request, expose, or transmit the ANVIL mesh secret.
 
 Once the portal has authenticated and onboarded the caller, ANVIL routes internally using mesh authentication.
 
