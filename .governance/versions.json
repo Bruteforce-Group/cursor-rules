@@ -36,5 +36,6 @@
   "security": "1.7.1",
   "self-verification": "1.7.1",
   "solo-operator": "1.7.1",
-  "ui-testing": "1.7.1"
+  "ui-testing": "1.7.1",
+  "dependency-freshness": "1.7.1"
 }
