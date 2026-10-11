@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mark draft PR ready for review
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: ${{ secrets.GH_PAT || github.token }}
           script: |
@@ -54,7 +54,7 @@ jobs:
     steps:
       - name: Evaluate low-risk eligibility
         id: gate
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const owner = context.repo.owner;
@@ -98,7 +98,7 @@ jobs:
         if: steps.gate.outputs.eligible != 'true'
         env:
           DISALLOWED_FILES: ${{ steps.gate.outputs.disallowed_files }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: ${{ secrets.GH_PAT || github.token }}
           script: |
@@ -114,7 +114,7 @@ jobs:
 
       - name: Resolve unresolved review threads
         if: steps.gate.outputs.eligible == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           github-token: ${{ secrets.GH_PAT || github.token }}
           script: |
@@ -157,7 +157,7 @@ jobs:
 
       - name: Approve eligible cursor-agent PR
         if: steps.gate.outputs.eligible == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         continue-on-error: true
         with:
           github-token: ${{ secrets.GH_PAT || github.token }}
