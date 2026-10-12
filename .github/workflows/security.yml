@@ -17,7 +17,7 @@ jobs:
   gitleaks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # Full history on push/schedule (catches secrets committed then removed);
           # shallow on PRs for speed.
@@ -47,7 +47,7 @@ jobs:
   osv:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       # The repo's only dependency manifest is requirements-docs.txt; parse it
       # as a requirements.txt so OSV-Scanner has a package source to scan.
       - name: Install OSV-Scanner
@@ -67,7 +67,7 @@ jobs:
   grype:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Grype filesystem scan (HIGH/CRITICAL)
         uses: anchore/scan-action@869c549e657a088dc0441b08ce4fc0ecdac2bb65 # v5
         with:
@@ -78,7 +78,7 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       # sbom-action uploads the generated SBOM as a workflow artifact named below.
       - name: Generate + upload SBOM (Syft)
         uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
